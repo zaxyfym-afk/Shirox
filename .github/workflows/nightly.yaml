@@ -6,6 +6,7 @@ on:
  push:
    branches:
      - main
+ workflow_dispatch:
 
 # Two merges in a row used to build side by side and race for apps.json and the release.
 # Runs now wait for each other; a newer push replaces one that is still waiting.
