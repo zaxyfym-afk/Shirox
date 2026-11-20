@@ -164,7 +164,7 @@ private struct OptionalRefresh: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         if let action {
-            content.gooeyRefreshable(fallback: .circle, action: action)
+            content.morphingRefreshable(fallback: .circle, action: action)
         } else {
             content
         }

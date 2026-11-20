@@ -77,6 +77,50 @@ struct RefreshCircle: View {
 #if os(iOS)
 import UIKit
 
+/// A zero-size view beside a scroll view. It looks up through its ancestors for the nearest
+/// one holding a scroll view, and takes the shallowest — the list itself, not a scroller
+/// inside one of its rows.
+final class ScrollViewHookView: UIView {
+    var onScrollView: ((UIScrollView) -> Void)?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isUserInteractionEnabled = false
+    }
+
+    required init?(coder: NSCoder) { fatalError("unused") }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        resolve()
+        // A List's collection view can join the hierarchy a moment after this view.
+        DispatchQueue.main.async { [weak self] in self?.resolve() }
+    }
+
+    private func resolve() {
+        var ancestor = superview
+        for _ in 0..<8 {
+            guard let current = ancestor else { return }
+            if let scrollView = Self.shallowestScrollView(in: current) {
+                onScrollView?(scrollView)
+                return
+            }
+            ancestor = current.superview
+        }
+    }
+
+    private static func shallowestScrollView(in root: UIView) -> UIScrollView? {
+        var queue = root.subviews
+        while !queue.isEmpty {
+            let view = queue.removeFirst()
+            if let scrollView = view as? UIScrollView, !(scrollView is UITextView) { return scrollView }
+            queue.append(contentsOf: view.subviews)
+        }
+        return nil
+    }
+}
+
 /// Finds the scroll view the modifier sits on and dresses its refresh control.
 private struct CircleRefreshHook: UIViewRepresentable {
     func makeCoordinator() -> CircleRefreshController { CircleRefreshController() }

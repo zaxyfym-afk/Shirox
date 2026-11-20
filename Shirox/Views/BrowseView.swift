@@ -72,7 +72,7 @@ struct BrowseView: View {
                     }
                 }
                 .softScrollEdges()
-                .gooeyRefreshable { await vm.retry() }
+                .morphingRefreshable { await vm.retry() }
             }
         }
         .navigationTitle(category.title)

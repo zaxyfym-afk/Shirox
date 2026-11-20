@@ -61,8 +61,7 @@ struct HomeView: View {
         }
     }
 
-    /// The hero circle's pull, held to the app's few-a-minute limit like every other; the drop's
-    /// pulls are held to it in its controller.
+    /// The hero circle's pull, held to the app's few-a-minute limit like every other refresh.
     private func heroRefresh() async {
         guard RefreshLimiter.shared.allow() else { return }
         await performRefresh()
@@ -224,7 +223,7 @@ struct HomeView: View {
                     .softScrollEdges(heroItems.isEmpty ? .all : [.bottom, .leading, .trailing])
                     .hideScrollEdgeEffect(heroItems.isEmpty ? [] : .top)
                     .coordinateSpace(name: "homeScroll")
-                    .gooeyRefreshable(fallback: .custom) { await performRefresh() }
+                    .morphingRefreshable(fallback: .custom) { await performRefresh() }
                     // Only the hero is allowed under the status bar — bleeding its banner up
                     // there is the point of it. Without one, this same modifier slid whatever
                     // row happened to be first up under the clock, which is what a title row

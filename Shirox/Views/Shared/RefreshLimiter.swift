@@ -73,8 +73,13 @@ final class RefreshLimiter {
 #if os(iOS)
 import UIKit
 
+/// Lets every touch through to the app beneath.
+final class PassthroughWindow: UIWindow {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? { nil }
+}
+
 /// Says a pull was refused, in a capsule under the island. It has its own window above the app,
-/// like the gooey drop, because the app's toasts sit under sheets and a sheet can be pulled too.
+/// like the gooey blob, because the app's toasts sit under sheets and a sheet can be pulled too.
 @MainActor
 final class RefreshLimitNotice: ObservableObject {
     static let shared = RefreshLimitNotice()

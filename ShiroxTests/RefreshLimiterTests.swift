@@ -1,7 +1,4 @@
 import XCTest
-#if os(iOS)
-import UIKit
-#endif
 @testable import Shirox
 
 /// A few pull-to-refreshes a minute, counted across the app.
@@ -63,37 +60,6 @@ final class RefreshLimiterTests: XCTestCase {
         XCTAssertEqual(runs.value, 1)
         XCTAssertEqual(messages.count, 1)
     }
-
-    #if os(iOS)
-    /// The drop never starts for a refused pull.
-    func testTheDropRefusesAPullOverTheLimit() {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
-        let root = UIViewController()
-        let list = UIScrollView(frame: window.bounds)
-        root.view.addSubview(list)
-        window.rootViewController = root
-        window.makeKeyAndVisible()
-        defer { window.isHidden = true }
-        let runs = Counter()
-        let screen = GooeyRefreshController(action: { await runs.bump() })
-        screen.limiter = limiter(limit: 1)
-        screen.attach(list)
-        defer { screen.detach() }
-
-        screen.refresh()
-        let deadline = Date().addingTimeInterval(2)
-        while screen.refreshing, Date() < deadline {
-            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
-        }
-        XCTAssertEqual(runs.value, 1)
-
-        screen.refresh()
-        XCTAssertFalse(screen.refreshing, "No spinner for a refused pull")
-        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
-        XCTAssertEqual(runs.value, 1)
-        XCTAssertEqual(messages, ["Rate limited — try again in 60 s"])
-    }
-    #endif
 }
 
 @MainActor

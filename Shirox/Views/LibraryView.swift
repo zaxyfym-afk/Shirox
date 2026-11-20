@@ -887,7 +887,7 @@ struct LibraryView: View {
         }
         .softScrollEdges()
         .listStyle(.plain)
-        .gooeyRefreshable { await refreshLibrary() }
+        .morphingRefreshable { await refreshLibrary() }
     }
 
     private func refreshLibrary() async {
@@ -963,7 +963,7 @@ struct LibraryView: View {
             .padding(.bottom, 24)
         }
         .softScrollEdges()
-        .gooeyRefreshable { await refreshLibrary() }
+        .morphingRefreshable { await refreshLibrary() }
     }
 
     /// A card: tap opens it, the pencil edits it, holding it offers both and a quick +1.
