@@ -91,6 +91,14 @@ enum AppColorScheme: String, CaseIterable, Identifiable {
         }
     }
 
+    var symbol: String {
+        switch self {
+        case .light:  return "sun.max.fill"
+        case .dark:   return "moon.fill"
+        case .system: return "circle.lefthalf.filled"
+        }
+    }
+
     static var current: AppColorScheme {
         AppColorScheme(rawValue: UserDefaults.standard.string(forKey: key) ?? "") ?? .system
     }

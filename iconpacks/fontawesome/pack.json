@@ -4,8 +4,8 @@
   "license": "CC BY 4.0 (Font Awesome Free 7.3.1)",
   "website": "https://fontawesome.com",
   "url": "https://raw.githubusercontent.com/xibrox/Shirox/main/iconpacks/fontawesome/pack.json",
-  "iconsVersion": 3,
-  "packVersion": 3,
+  "iconsVersion": 4,
+  "packVersion": 4,
   "icons": {
     "4k.tv": "icons/4k.tv.pdf",
     "antenna.radiowaves.left.and.right.slash": "icons/antenna.radiowaves.left.and.right.slash.pdf",
@@ -218,7 +218,12 @@
     "xmark.octagon.fill": "icons/xmark.octagon.fill.pdf",
     "bell.fill": "icons/bell.fill.pdf",
     "bag": "icons/bag.pdf",
-    "bag.fill": "icons/bag.fill.pdf"
+    "bag.fill": "icons/bag.fill.pdf",
+    "moon.fill": "icons/moon.fill.pdf",
+    "sun.max.fill": "icons/sun.max.fill.pdf",
+    "cloud.fill": "icons/cloud.fill.pdf",
+    "house.lodge.fill": "icons/house.lodge.fill.pdf",
+    "circle.lefthalf.filled": "icons/circle.lefthalf.filled.pdf"
   },
   "sources": {
     "4k.tv": "solid/tv.svg",

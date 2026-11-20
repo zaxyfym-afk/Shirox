@@ -15,27 +15,42 @@ struct CustomizationSettingsView: View {
     @State private var appIcon = UIApplication.shared.alternateIconName
     @State private var appIconError: String?
     #endif
+    @State private var showThemePicker = false
+    @State private var showIconPicker = false
+    @Environment(\.colorScheme) private var systemScheme
 
     var body: some View {
         SettingsList {
 
             Section {
-                Picker("settings.appearance", selection: $colorScheme) {
-                    ForEach(AppColorScheme.allCases) { scheme in
-                        Text(scheme.title).tag(scheme.rawValue)
-                    }
-                }
-                .pickerStyle(.menu)
-                .retinted(tint)
-
                 #if os(iOS) && !targetEnvironment(macCatalyst)
-                Picker("settings.app_icon", selection: appIconSelection) {
-                    ForEach(AppIconOption.all) { option in
-                        Text(option.title).tag(option.name)
+                if #available(iOS 26, *) {
+                    // The scene and the carousel; the plain pickers below 26.
+                    Button {
+                        showThemePicker = true
+                    } label: {
+                        LabeledContent("settings.appearance") {
+                            Text((AppColorScheme(rawValue: colorScheme) ?? .system).title)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        showIconPicker = true
+                    } label: {
+                        LabeledContent("settings.app_icon") {
+                            Text(appIconTitle)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    appearancePicker
+                    appIconPicker
                 }
-                .pickerStyle(.menu)
-                .retinted(tint)
+                #else
+                appearancePicker
                 #endif
 
                 TintColorRow(tint: $tint)
@@ -93,6 +108,16 @@ struct CustomizationSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         #if os(iOS) && !targetEnvironment(macCatalyst)
+        .sheet(isPresented: $showThemePicker) {
+            if #available(iOS 26, *) {
+                ThemePickerSheet(colorScheme: $colorScheme, initialDark: systemScheme == .dark)
+            }
+        }
+        .sheet(isPresented: $showIconPicker, onDismiss: { appIcon = UIApplication.shared.alternateIconName }) {
+            if #available(iOS 26, *) {
+                AppIconPickerSheet()
+            }
+        }
         .alert("settings.couldnt_change_icon",
                isPresented: Binding(get: { appIconError != nil }, set: { if !$0 { appIconError = nil } })) {
             Button("common.ok", role: .cancel) {}
@@ -101,6 +126,32 @@ struct CustomizationSettingsView: View {
         }
         #endif
     }
+
+    private var appearancePicker: some View {
+        Picker("settings.appearance", selection: $colorScheme) {
+            ForEach(AppColorScheme.allCases) { scheme in
+                Text(scheme.title).tag(scheme.rawValue)
+            }
+        }
+        .pickerStyle(.menu)
+        .retinted(tint)
+    }
+
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+    private var appIconPicker: some View {
+        Picker("settings.app_icon", selection: appIconSelection) {
+            ForEach(AppIconOption.all) { option in
+                Text(option.title).tag(option.name)
+            }
+        }
+        .pickerStyle(.menu)
+        .retinted(tint)
+    }
+
+    private var appIconTitle: String {
+        AppIconOption(name: appIcon)?.title ?? ""
+    }
+    #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
     /// Picking an icon asks iOS to switch to it; the picker only moves once it has.

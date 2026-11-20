@@ -61,6 +61,7 @@
 		102EE2C1DD9BD993FDC45312 /* PlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60B798231DDDA4482EFD7DF /* PlaybackEngine.swift */; };
 		103B47B23E79F93642A4E001 /* adult_hosts.txt in Resources */ = {isa = PBXBuildFile; fileRef = E1C750867F19DF886AA2D7E8 /* adult_hosts.txt */; };
 		10992605982C5B4537497BD1 /* ModuleWebLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8E0AD5E8FE00AF92A4E88E /* ModuleWebLinks.swift */; };
+		10F44BDC120E781B850EB44C /* SettingsPickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF449F6ED3F6FE15E99F1C0B /* SettingsPickers.swift */; };
 		1170E85195F937C2D58CDA5D /* SimklOAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2724D13591401331A3D0EA0 /* SimklOAuth.swift */; };
 		11B06136CDF5130E68376E06 /* AniListMangaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 411CE099883B23D8BFF554F8 /* AniListMangaDetailView.swift */; };
 		121D9B332FCA527E000FF9B4 /* GoogleCastDynamicCore in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 121D9B322FCA527E000FF9B4 /* GoogleCastDynamicCore */; };
@@ -329,6 +330,7 @@
 		1279E5712FCA397700C9BA56 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4CA2FCA397700C9BA56 /* ProfileView.swift */; };
 		16E12DB43024E88D8206B889 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
 		2D4D4294BFB7E33499398ABA /* MorphingRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0EFB781FAEED53C0F88FC0 /* MorphingRefreshTests.swift */; };
+		2D5BF12623639D2A02FF2837 /* SettingsPickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF449F6ED3F6FE15E99F1C0B /* SettingsPickers.swift */; };
 		3157356FDCB1157B65783222 /* ModuleStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFE201E450481574B60526D /* ModuleStoreService.swift */; };
 		4E976F36F624276822C2D3ED /* ModuleStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086F2B861F00D174C404C9E3 /* ModuleStoreView.swift */; };
 		4FF36D72CA4B5976DBC1F7EA /* AlphaThreshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */; };
@@ -337,6 +339,7 @@
 		5EEE1B19AAB806CAA901B4D6 /* ModuleStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043AED3ADE2B78DCC7B67CC1 /* ModuleStoreTests.swift */; };
 		6645D7A40C2A37578CDAEF69 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
 		6A4A2A98A5B237F5C2D988D9 /* default-catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 794DDE78086D2BD33D7B3BA1 /* default-catalog.json */; };
+		6C9931D8642DDCCA825AC17D /* SettingsPickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF449F6ED3F6FE15E99F1C0B /* SettingsPickers.swift */; };
 		78EEAD969AE4CA3A00C67B64 /* ModuleStoreEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D192C896CE949CC6820D710 /* ModuleStoreEntry.swift */; };
 		80899D5EA49A408548096616 /* ProfileAvatarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFB4F7554B9BEED574D1262 /* ProfileAvatarTests.swift */; };
 		8D1AEE1731E04D465F91F6EE /* ModuleStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFE201E450481574B60526D /* ModuleStoreService.swift */; };
@@ -1755,6 +1758,7 @@
 		CC8E0AD5E8FE00AF92A4E88E /* ModuleWebLinks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModuleWebLinks.swift; sourceTree = "<group>"; };
 		CEF7675FF198EE0091C6488D /* MPVEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MPVEngine.swift; sourceTree = "<group>"; };
 		CEFE201E450481574B60526D /* ModuleStoreService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModuleStoreService.swift; sourceTree = "<group>"; };
+		CF449F6ED3F6FE15E99F1C0B /* SettingsPickers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsPickers.swift; sourceTree = "<group>"; };
 		CF6B7E2E4A3D9F1B8C0E5A33 /* Shirox.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shirox.xcconfig; sourceTree = "<group>"; };
 		CF6B7E2E4A3D9F1B8C0E5A44 /* Shirox.local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Shirox.local.xcconfig; sourceTree = "<group>"; };
 		CF6B7E2E4A3D9F1B8C0E5A55 /* Shirox.local.xcconfig.template */ = {isa = PBXFileReference; lastKnownFileType = text; path = Shirox.local.xcconfig.template; sourceTree = "<group>"; };
@@ -2316,6 +2320,7 @@
 				C5EF33C932D8246C4F5A0F84 /* ModuleImportView.swift */,
 				E326785BDD3567C0B399C894 /* ExtensionRepoSheet.swift */,
 				AE3495C8FF869FA796FE181B /* AdvancedNetworkSettingsView.swift */,
+				CF449F6ED3F6FE15E99F1C0B /* SettingsPickers.swift */,
 				D655FCB88E90602CEB273425 /* Store */,
 				85A8D11E5CF79595BD130429 /* Notifications */,
 				F46AC89852F57EBEBDEFC977 /* GeneralSettingsView.swift */,
@@ -3457,6 +3462,7 @@
 				6972B89D3C8AB2EDE05DB3AF /* SecureDNS.swift in Sources */,
 				42960863E01254A6B3F75155 /* AdvancedNetwork.swift in Sources */,
 				F199DBE7A60F602D5F7BA281 /* AdvancedNetworkSettingsView.swift in Sources */,
+				6C9931D8642DDCCA825AC17D /* SettingsPickers.swift in Sources */,
 				4E976F36F624276822C2D3ED /* ModuleStoreView.swift in Sources */,
 				FA620B9C26DACBAF04A059A1 /* NotificationsTabView.swift in Sources */,
 				33978F8D0BB123DC707D0413 /* ManaWebPages.swift in Sources */,
@@ -3806,6 +3812,7 @@
 				1AC4EB324629B971DEE5F50F /* SecureDNS.swift in Sources */,
 				91FDCB5FA48BDAD37F141DB9 /* AdvancedNetwork.swift in Sources */,
 				403E5D718A8C7E6A7AC806A3 /* AdvancedNetworkSettingsView.swift in Sources */,
+				2D5BF12623639D2A02FF2837 /* SettingsPickers.swift in Sources */,
 				BF9E00B609797609665A605A /* ModuleStoreView.swift in Sources */,
 				089BAC702C3C402E0AFE087D /* NotificationsTabView.swift in Sources */,
 				D88C108CD906D2539D7416D4 /* ManaWebPages.swift in Sources */,
@@ -4156,6 +4163,7 @@
 				A4EC0CBA438563B584BE7C5A /* SecureDNS.swift in Sources */,
 				21CB4BD3FDAAE862EFFEBD34 /* AdvancedNetwork.swift in Sources */,
 				41E27D3543A74B6992321F6A /* AdvancedNetworkSettingsView.swift in Sources */,
+				10F44BDC120E781B850EB44C /* SettingsPickers.swift in Sources */,
 				90A9D7213D04F62E4B729F38 /* ModuleStoreView.swift in Sources */,
 				D3DF6CBF47E4B05BCF9043DC /* NotificationsTabView.swift in Sources */,
 				E1BE19F6D5535B0F189EDCB1 /* ManaWebPages.swift in Sources */,
