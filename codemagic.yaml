@@ -4,23 +4,44 @@ workflows:
     name: Shirox iOS IPA (unsigned)
     instance_type: mac_mini_m2
     max_build_duration: 60
+
     environment:
       xcode: latest
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+      cancel_previous_builds: false
+
     scripts:
       - name: Check Xcode
         script: |
+          set -e
           xcodebuild -version
           xcodebuild -list -project Shirox.xcodeproj
 
+      - name: Install Metal Toolchain
+        script: |
+          set -e
+          xcodebuild -downloadComponent metalToolchain
+          xcrun --find metal
+
       - name: Build iOS IPA
         script: |
+          set -e
           chmod +x ./buildipa.sh
           ./buildipa.sh
 
       - name: Verify IPA
         script: |
+          set -e
           test -s build/Shirox.ipa
-          unzip -l build/Shirox.ipa | grep 'Payload/Shirox.app/'
+          unzip -Z1 build/Shirox.ipa | grep -q '^Payload/Shirox.app/'
+          echo "Shirox IPA verified successfully"
 
     artifacts:
       - build/Shirox.ipa
