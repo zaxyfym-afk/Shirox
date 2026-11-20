@@ -984,6 +984,9 @@ struct AniListDetailView: View {
         .softScrollEdges([.bottom, .leading, .trailing])
         .hideScrollEdgeEffect(.top)
         .coordinateSpace(name: "heroScroll")
+        // Pull to refresh on the detail page itself: the gooey blob out of the island
+        // (the gooey style), fetching the title's record again in place.
+        .morphingRefreshable(fallback: .circle) { await vm.refresh() }
         .ignoresSafeArea(edges: [.top, .leading])
         .frame(maxWidth: .infinity)
     }
@@ -1715,7 +1718,8 @@ struct AniListDetailView: View {
     /// episodes and related titles follow in rows that scroll sideways.
     @ViewBuilder
     private func cinematicContent(media: Media) -> some View {
-        CinematicDetailPage(media: media, leadingInset: leadingInset) {
+        CinematicDetailPage(media: media, leadingInset: leadingInset,
+                            onRefresh: { await vm.refresh() }) {
             cinematicHero(media: media)
         } rows: {
             AiringInfoSection(media: media)

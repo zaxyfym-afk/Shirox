@@ -177,6 +177,15 @@ private struct QuietRefreshModifier: ViewModifier {
 
 /// The Gooey blob: drawn over the content while its pull lasts and — held at a whole pull —
 /// while its refresh runs.
+///
+/// The blob is anchored to the WINDOW's top edge, not to the scroll view's own safe area.
+/// Pages that extend under the status bar (Home's hero, both detail pages) read a zero top
+/// inset off their local geometry, and pages under a navigation bar start below the bar:
+/// either way a blob positioned from the local insets lands off screen or mid-page. The
+/// scroll-view hook reports the window's hardware top inset (the Dynamic Island's own
+/// region) and how far the scroll view's top edge sits below the window's top, and the
+/// blob shifts up by that distance — so it always grows out of the island, the notch, or
+/// the screen's top edge, on every page that can pull.
 @available(iOS 18.0, *)
 private struct MorphingBlobModifier: ViewModifier {
     nonisolated let action: @Sendable () async -> Void
@@ -185,20 +194,31 @@ private struct MorphingBlobModifier: ViewModifier {
     @State private var actualProgress: CGFloat = 0
     @State private var isRefreshing = false
     @State private var isAnimating = false
-    /// False when a bar interrupts the top safe area, where the blob would draw over it: the
-    /// native spinner shows instead.
-    @State private var blobClearsTheBar = true
+    /// The window's hardware top inset: the island's region on the phones that have one,
+    /// the notch's on those, the status bar's height elsewhere. Zero on a landscape phone
+    /// or a pad, where the blob grows from the bare top edge.
+    @State private var windowSafeTop: CGFloat = 0
+    /// How far the scroll view's top edge sits below the window's top: zero on the pages
+    /// that run under the status bar, the bar's height on the pages that don't.
+    @State private var scrollTopInWindow: CGFloat = 0
 
     func body(content: Content) -> some View {
         let refresh = RefreshLimiter.shared.limiting(action)
         return content
-            .background(RefreshControlSpinnerHider(hidesSpinner: $blobClearsTheBar))
+            .background(
+                RefreshControlSpinnerHider(hidesSpinner: .constant(true)) { safeTop, topOffset in
+                    windowSafeTop = safeTop
+                    scrollTopInWindow = topOffset
+                }
+            )
             .overlay(alignment: .top) {
-                GeometryReader { proxy in
-                    let safeArea = proxy.safeAreaInsets
+                GeometryReader { _ in
                     ZStack {
-                        if blobClearsTheBar && scrollProgress != 0 {
-                            MorphingBlob(safeAreaTop: safeArea.top, progress: scrollProgress)
+                        if scrollProgress != 0 {
+                            MorphingBlob(safeAreaTop: windowSafeTop, progress: scrollProgress)
+                                // Up from the scroll view's top edge to the window's top, so the
+                                // capsule sits in the island however the page is laid out.
+                                .offset(y: -scrollTopInWindow)
                         }
                     }
                     .ignoresSafeArea()
@@ -232,11 +252,6 @@ private struct MorphingBlobModifier: ViewModifier {
                 actualProgress = progress
                 // While refreshing the blob holds at a whole pull, whatever the content does.
                 if !isAnimating { scrollProgress = isRefreshing ? 1 : progress }
-            }
-            .onGeometryChange(for: Bool.self) { proxy in
-                proxy.safeAreaInsets.top < MorphingRefreshGeometry.barInterruptsBlob
-            } action: { _, clears in
-                blobClearsTheBar = clears
             }
     }
 }
@@ -297,12 +312,14 @@ private struct MorphingBlob: View {
 
 // MARK: - Hiding the native spinner
 
-/// Finds the scroll view the modifier sits on and hides its refresh control's spinner while
-/// the blob is the one showing. The control itself stays — its gesture, its trigger, the gap
-/// it holds open — and the spinner comes back whenever the blob can't show, so a screen whose
-/// top safe area a bar interrupts still gets an indicator.
+/// Finds the scroll view the modifier sits on, hides its refresh control's spinner while
+/// the blob is the one showing, and reports the window metrics the blob draws from.
+/// The control itself stays — its gesture, its trigger, the gap it holds open.
 private struct RefreshControlSpinnerHider: UIViewRepresentable {
     @Binding var hidesSpinner: Bool
+    /// The window's hardware top inset and the scroll view's top edge's distance below the
+    /// window's top, re-read on every scroll tick the controller sees.
+    var onWindowMetrics: (CGFloat, CGFloat) -> Void = { _, _ in }
 
     func makeCoordinator() -> RefreshSpinnerHiderController { RefreshSpinnerHiderController() }
 
@@ -310,12 +327,14 @@ private struct RefreshControlSpinnerHider: UIViewRepresentable {
         let view = ScrollViewHookView()
         view.onScrollView = { [weak controller = context.coordinator] scrollView in
             controller?.attach(scrollView)
+            controller?.readWindowMetrics(scrollView)
         }
         return view
     }
 
     func updateUIView(_ uiView: ScrollViewHookView, context: Context) {
         context.coordinator.hidesSpinner = hidesSpinner
+        context.coordinator.onWindowMetrics = onWindowMetrics
         context.coordinator.hideNow()
     }
 
@@ -327,6 +346,7 @@ private struct RefreshControlSpinnerHider: UIViewRepresentable {
 @MainActor
 final class RefreshSpinnerHiderController: NSObject {
     var hidesSpinner = false
+    var onWindowMetrics: (CGFloat, CGFloat) -> Void = { _, _ in }
     private weak var scrollView: UIScrollView?
     private var observation: NSKeyValueObservation?
 
@@ -354,6 +374,23 @@ final class RefreshSpinnerHiderController: NSObject {
     private func scrolled() {
         guard let scrollView else { return }
         hide(in: scrollView)
+        readWindowMetrics(scrollView)
+    }
+
+    /// The hardware top inset straight from the window — never the scroll view's own,
+    /// which a full-bleed page zeroes and a bar-padded page inflates — and how far the
+    /// scroll view's top edge sits below the window's top. A pull moves the content, not
+    /// the scroll view's frame, so both hold steady while the blob is out.
+    func readWindowMetrics(_ scrollView: UIScrollView) {
+        guard let window = scrollView.window else { return }
+        let safeTop = window.safeAreaInsets.top
+        let topOffset: CGFloat
+        if let superview = scrollView.superview {
+            topOffset = superview.convert(scrollView.frame, to: nil).minY
+        } else {
+            topOffset = 0
+        }
+        onWindowMetrics(safeTop, max(0, topOffset))
     }
 
     /// The spinner's own views, hidden or shown again on every tick: `.refreshable` can hand

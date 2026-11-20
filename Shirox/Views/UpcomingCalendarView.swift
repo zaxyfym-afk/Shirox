@@ -640,7 +640,7 @@ struct UpcomingCalendarView: View {
             }
         }
         .padding(.vertical, 4)
-        .fullTitleContextMenu(entry.media.title.displayTitle)
+        .animeContextMenu(media: entry.media)
     }
 
     /// Whether the broadcast has already happened — an episode that aired an hour ago is

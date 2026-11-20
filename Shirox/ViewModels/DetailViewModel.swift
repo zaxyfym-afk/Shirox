@@ -70,12 +70,15 @@ final class DetailViewModel: ObservableObject {
     var resumeEpisodeNumber: Int?
 
     private(set) var detailHref: String?
+    /// The item the page was loaded with, so a pull to refresh can reload it.
+    private(set) var loadedItem: SearchItem?
     private var streamsTask: Task<Void, Never>?
 
     func load(item: SearchItem) {
         guard !isMatchingAniList else { return }
         guard !item.href.isEmpty else { return }
         detailHref = item.href
+        loadedItem = item
 
         // Check if we have a saved mapping first
         if aniListID == nil {
@@ -164,6 +167,14 @@ final class DetailViewModel: ObservableObject {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+
+    /// Pull to refresh: reload the page's own item — its detail and its episode list —
+    /// exactly as the first load did. A no-op where there is nothing to reload (offline
+    /// snapshots, or a page that never loaded).
+    func refresh() async {
+        guard let item = loadedItem else { return }
+        await load(item: item)
     }
 
     #if !os(tvOS)

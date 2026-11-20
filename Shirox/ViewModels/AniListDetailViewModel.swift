@@ -59,6 +59,24 @@ final class AniListDetailViewModel: ObservableObject {
         isLoading = false
     }
 
+    /// Pull to refresh: fetch the title's detail again, in place — the page keeps showing
+    /// what it has until the fresh record arrives.
+    func refresh() async {
+        guard let id = media?.id else { return }
+        do {
+            media = try await ProviderManager.shared.call { try await $0.detail(id: id) }
+            if media?.provider == .mal, media?.bannerImage == nil {
+                let artwork = await TVDBMappingService.shared.getArtwork(for: id, provider: .mal)
+                if let fanart = artwork.fanart {
+                    media?.bannerImage = fanart
+                }
+            }
+            await fillMissingEpisodeCount()
+        } catch {
+            // A failed refresh keeps the page as it was; the pull simply ends.
+        }
+    }
+
     /// Borrows AniList's counts for a MyAnimeList title that has none of its own.
     private func fillMissingEpisodeCount() async {
         guard let current = media, current.provider == .mal,

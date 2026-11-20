@@ -217,6 +217,9 @@ struct DetailView: View {
         .softScrollEdges([.bottom, .leading, .trailing])
         .hideScrollEdgeEffect(.top)
         .coordinateSpace(name: "detailScroll")
+        // Pull to refresh on the detail page itself: the gooey blob out of the island
+        // (the gooey style), reloading the page's own detail and episode list.
+        .morphingRefreshable(fallback: .circle) { await vm.refresh() }
         .ignoresSafeArea(edges: [.top, .leading])
     }
 

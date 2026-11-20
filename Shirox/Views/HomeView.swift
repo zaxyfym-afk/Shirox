@@ -11,8 +11,6 @@ struct HomeView: View {
     @State private var readerContext: ReaderContext?
     @State private var showUpcoming = false
     @State private var showNotifications = false
-    /// The calendar button the Upcoming page grows out of.
-    @Namespace private var calendarZoom
     /// Where the page before this one sat in `pagePosition`'s order.
     @State private var lastPagePosition: Int?
     @ObservedObject private var providerManager = ProviderManager.shared
@@ -75,14 +73,10 @@ struct HomeView: View {
         await performRefresh()
     }
 
-    /// The bell is the Notifications tab's door; a user who has hidden the tab gets the page
-    /// pushed instead.
+    /// The bell always pushes the notifications page: notifications are not a tab of the
+    /// bar, and the page is Home's own destination, so no tab request is involved.
     private func openNotifications() {
-        if AppTab.visible.contains(.notifications) {
-            TabRequests.shared.requestedTab = .notifications
-        } else {
-            showNotifications = true
-        }
+        showNotifications = true
     }
 
     /// Which Home is showing — the chain's, or Simkl's for one kind. A change reloads.
@@ -257,19 +251,6 @@ struct HomeView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.25), value: isLoadingEmpty)
-            #if os(iOS)
-            // The calendar, up in the bar instead of the bottom corner. A toolbar item can be a
-            // zoom source only from iOS 26, which is why it carries a toolbar of its own (see
-            // `toolbarZoomSource`); before that the page simply pushes.
-            .toolbarZoomSource(HomeToolbar.calendarID, in: calendarZoom) {
-                Button { showUpcoming = true } label: {
-                    IconView("calendar")
-                        .font(.system(size: 17, weight: .medium))
-                }
-                .accessibilityLabel("shared.upcoming")
-                .tourHighlight(order: 0, title: "tour.calendar_title",
-                               description: "tour.calendar_description", group: $tourMarks)
-            }
             #endif
             // `ProviderStatusBanner` existed but was never placed in any view — a provider
             // switch that quietly falls back (AniList failing in a way ProviderManager treats
@@ -287,10 +268,12 @@ struct HomeView: View {
                                   openCalendar: { showUpcoming = true },
                                   openNotifications: openNotifications,
                                   tourMarks: $tourMarks))
-            // A page, growing out of the calendar button on its way in.
+            // Schedule pushes plainly: it opens straight away, with no zoom transition to
+            // grow out of the calendar button and no interactive drag to dismiss it — on a
+            // zoomed page a downward drag is dismissal, and here that drag is the list
+            // scrolling, which must never close it.
             .navigationDestinationCompat(isPresented: $showUpcoming) {
                 UpcomingCalendarView()
-                    .zoomingOut(of: HomeToolbar.calendarID, in: calendarZoom, fromToolbar: true)
             }
             // The page the bell falls back to when the Notifications tab is hidden; loading
             // it resets the unread count server-side.
@@ -370,9 +353,9 @@ struct HomeView: View {
 
 // MARK: - Toolbar
 
-/// Home's navigation bar: the notifications bell, plus Simkl's kind menu while Home is Simkl's.
-/// On iOS the calendar rides in a toolbar of its own (`toolbarZoomSource`) so it can be the
-/// zoom source of the page it opens; elsewhere it stays in here.
+/// Home's navigation bar: the schedule calendar and the notifications bell, each its own
+/// round button at the bar's trailing end — never one merged capsule — plus Simkl's kind
+/// menu while Home is Simkl's.
 private struct HomeToolbar: ViewModifier {
     static let calendarID = "upcomingCalendar"
 
@@ -420,6 +403,7 @@ private struct HomeToolbar: ViewModifier {
                 ToolbarItem(placement: Self.leadingPlacement) {
                     if discovery.usesSimkl { kindMenu }
                 }
+                ToolbarItem(placement: .primaryAction) { calendarButton }
                 ToolbarItem(placement: .primaryAction) { notificationsButton }
             }
         }
@@ -437,7 +421,22 @@ private struct HomeToolbar: ViewModifier {
             if discovery.usesSimkl {
                 ToolbarItem(placement: Self.leadingPlacement) { kindMenu }
             }
+            // The schedule and the bell, separate buttons. iOS 26 would draw both items in
+            // one shared glass capsule; hiding the shared background and giving each button
+            // its own round chrome keeps them apart, as every other iOS release has them.
+            #if os(iOS)
+            if #available(iOS 26.0, *) {
+                ToolbarItem(placement: .primaryAction) { calendarButton }
+                    .sharedBackgroundVisibility(.hidden)
+                ToolbarItem(placement: .primaryAction) { notificationsButton }
+                    .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItem(placement: .primaryAction) { calendarButton }
+                ToolbarItem(placement: .primaryAction) { notificationsButton }
+            }
+            #else
             ToolbarItem(placement: .primaryAction) { notificationsButton }
+            #endif
         }
     }
 
@@ -451,16 +450,36 @@ private struct HomeToolbar: ViewModifier {
         SimklKindMenu(kind: $kind).toolbarItemBackdrop()
     }
 
+    /// The schedule button: its own icon, hit area and action, in its own round chrome.
+    private var calendarButton: some View {
+        Button(action: openCalendar) {
+            IconView("calendar")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(.primary)
+                .frame(width: 36, height: 36)
+                .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("shared.upcoming")
+        .tourHighlight(order: 0, title: "tour.calendar_title",
+                       description: "tour.calendar_description", group: tourMarks)
+    }
+
     /// The bell, as the Library has it: the badge is AniList's unread count, cleared on open.
+    /// Its own round chrome, never one capsule shared with the schedule button beside it.
     private var notificationsButton: some View {
         Button {
             anilistAuth.unreadNotificationCount = 0
             openNotifications()
         } label: {
             IconView("bell")
-                .font(.system(size: 17, weight: .medium))
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(.primary)
+                .frame(width: 36, height: 36)
+                .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
                 .notificationBadge(count: anilistAuth.unreadNotificationCount)
         }
+        .buttonStyle(.plain)
         .accessibilityLabel("profile.notifications")
         .tourHighlight(order: 1, title: "tour.bell_title",
                        description: "tour.bell_description", group: tourMarks)
@@ -1350,7 +1369,8 @@ private struct AnimeSection<SeeAll: View>: View {
     }
 
     var body: some View {
-        homeSectionCard(title: title) {
+        // The original section layout: a plain header over the shelf, no card around it.
+        VStack(alignment: .leading, spacing: 14) {
             HomeRowHeader(title: title) {
                 NavigationLink {
                     seeAll()
@@ -1372,16 +1392,15 @@ private struct AnimeSection<SeeAll: View>: View {
                 }
                 .buttonStyle(.plain)
             }
-        } content: {
-            HomeShelf(items: items) { media in
-                NavigationLink {
-                    MediaDestination(media: media)
-                } label: {
-                    AniListCardView(media: media)
-                }
-                .buttonStyle(HomePressStyle())
-                .frame(width: cardWidth)
+        }
+        HomeShelf(items: items) { media in
+            NavigationLink {
+                MediaDestination(media: media)
+            } label: {
+                AniListCardView(media: media)
             }
+            .buttonStyle(HomePressStyle())
+            .frame(width: cardWidth)
         }
     }
 }

@@ -1639,7 +1639,7 @@ private struct LibraryRowView: View {
             }
             .buttonStyle(.plain)
         }
-        .fullTitleContextMenu(entry.media.title.displayTitle)
+        .animeContextMenu(media: entry.media)
     }
 
     private var progressLabel: String {

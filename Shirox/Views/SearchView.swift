@@ -703,6 +703,6 @@ struct AniListCardView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: .black.opacity(0.35), radius: 8, x: 0, y: 4)
             .contentShape(Rectangle())
-            .fullTitleContextMenu(media.title.displayTitle)
+            .animeContextMenu(media: media)
     }
 }

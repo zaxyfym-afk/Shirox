@@ -176,8 +176,10 @@ typealias CinematicDetailPage<Hero: View, Rows: View> = CinematicPage<TVDBPoster
 
 extension CinematicPage where Backdrop == TVDBPosterImage {
     init(media: Media, leadingInset: CGFloat = 0,
+         onRefresh: (@Sendable () async -> Void)? = nil,
          @ViewBuilder hero: @escaping () -> Hero, @ViewBuilder rows: @escaping () -> Rows) {
         self.init(leadingInset: leadingInset,
+                  onRefresh: onRefresh,
                   backdrop: { TVDBPosterImage(media: media, type: .fanart) },
                   hero: hero, rows: rows)
     }
