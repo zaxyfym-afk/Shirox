@@ -62,7 +62,7 @@ extension String {
     /// Dot-separated versions, ordered: "1.2" < "1.10" < "2.0". Anything unparsable sorts by
     /// plain string compare, which is still a stable order.
     func isStoreVersion(atLeast other: String) -> Bool {
-        let mine = Self.storeVersionParts
+        let mine = storeVersionParts
         let theirs = other.storeVersionParts
         for (a, b) in zip(mine, theirs) where a != b { return a > b }
         return mine.count >= theirs.count || mine == theirs

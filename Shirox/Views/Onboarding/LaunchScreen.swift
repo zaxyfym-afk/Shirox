@@ -61,7 +61,7 @@ struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
                         }
                     } else {
                         LaunchScreenOnly(config: config)
-                            .presentationBackground(.clear)
+                            .clearPresentationBackground()
                     }
                 }
             }
@@ -92,65 +92,94 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
     @State private var animateIcon = false
 
     var body: some View {
-        let layout = animateIcon ? AnyLayout(VStackLayout(spacing: 0)) : AnyLayout(ZStackLayout(alignment: .bottom))
-
-        layout {
-            ZStack {
-                RoundedRectangle(cornerRadius: animateIcon ? config.iconRadius : 0)
-                    .fill(config.tint)
-
-                // The mark at the size the launch screen would show it, cross-fading into
-                // the resizable one as the icon shrinks — the swap never shows.
-                config.logo
-                    .frame(
-                        width: animateIcon ? config.iconSize.width : nil,
-                        height: animateIcon ? config.iconSize.height : nil
-                    )
-                    .animation(.none) {
-                        $0.opacity(animateIcon ? 0 : 1)
-                    }
-                    .overlay {
-                        config.logo
-                            .resizable().scaledToFit()
-                            .animation(.none) {
-                                $0.opacity(animateIcon ? 1 : 0)
-                            }
-                            .padding(animateIcon ? config.iconPadding : 0)
-                    }
-            }
-            .frame(
-                width: animateIcon ? config.iconSize.width : nil,
-                height: animateIcon ? config.iconSize.height : nil
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .scaleEffect(pushIcon ? 0.95 : 1)
-            .offset(y: pushIcon ? 100 : 0)
-            .zIndex(1)
-            .geometryGroup()
-            .ignoresSafeArea()
-
-            onBoarding
-                .compositingGroup()
-                .visualEffect { [animateIcon] content, proxy in
-                    content
-                        .blur(radius: animateIcon ? 0 : 15)
-                        .opacity(animateIcon ? 1 : 0)
-                        .offset(y: animateIcon ? 0 : proxy.size.height)
-                }
-                .zIndex(0)
+        if #available(iOS 16.0, *) {
+            let layout = animateIcon
+                ? AnyLayout(VStackLayout(spacing: 0))
+                : AnyLayout(ZStackLayout(alignment: .bottom))
+            layout { stage }
+        } else if animateIcon {
+            // Below 16 there is no animated layout switch: the two layouts trade places
+            // inside the same crossfade.
+            VStack(spacing: 0) { stage }
+        } else {
+            ZStack(alignment: .bottom) { stage }
         }
         .task {
             guard !animateIcon else { return }
-            try? await Task.sleep(for: .seconds(config.initialDelay))
-            withAnimation(.bouncy(duration: 0.5, extraBounce: 0.05)) {
+            try? await nap(Double(config.initialDelay))
+            withAnimation(.carryOn(duration: 0.5, bounce: 0.05)) {
                 animateIcon = true
                 pushIcon = true
             }
 
-            try? await Task.sleep(for: .seconds(0.15))
-            withAnimation(.bouncy(duration: 0.4)) {
+            try? await nap(0.15)
+            withAnimation(.carryOn(duration: 0.4, bounce: 0)) {
                 pushIcon = false
             }
+        }
+    }
+
+    @ViewBuilder
+    private var stage: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: animateIcon ? config.iconRadius : 0)
+                .fill(config.tint)
+
+            // The mark at the size the launch screen would show it, cross-fading into
+            // the resizable one as the icon shrinks — the swap never shows.
+            config.logo
+                .frame(
+                    width: animateIcon ? config.iconSize.width : nil,
+                    height: animateIcon ? config.iconSize.height : nil
+                )
+                .opacity(animateIcon ? 0 : 1)
+                .transaction { $0.disablesAnimations = true }
+                .overlay {
+                    config.logo
+                        .resizable().scaledToFit()
+                        .opacity(animateIcon ? 1 : 0)
+                        .transaction { $0.disablesAnimations = true }
+                        .padding(animateIcon ? config.iconPadding : 0)
+                }
+        }
+        .frame(
+            width: animateIcon ? config.iconSize.width : nil,
+            height: animateIcon ? config.iconSize.height : nil
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .scaleEffect(pushIcon ? 0.95 : 1)
+        .offset(y: pushIcon ? 100 : 0)
+        .zIndex(1)
+        .carryOnGeometryGroup()
+        .ignoresSafeArea()
+
+        onBoarding
+            .compositingGroup()
+            .modifier(OnboardingReveal(animateIcon: animateIcon))
+            .zIndex(0)
+    }
+}
+
+/// The onboarding waits beneath the splash, blurred and out of sight, rising with the
+/// reveal. `visualEffect` reads its own size for the rise, which is 17's; below, the
+/// same rise from a distance that is always past the screen's bottom.
+private struct OnboardingReveal: ViewModifier {
+    var animateIcon: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content.visualEffect { [animateIcon] inner, proxy in
+                inner
+                    .blur(radius: animateIcon ? 0 : 15)
+                    .opacity(animateIcon ? 1 : 0)
+                    .offset(y: animateIcon ? 0 : proxy.size.height)
+            }
+        } else {
+            content
+                .blur(radius: animateIcon ? 0 : 15)
+                .opacity(animateIcon ? 1 : 0)
+                .offset(y: animateIcon ? 0 : 2000)
         }
     }
 }
@@ -195,19 +224,19 @@ private struct LaunchScreenOnly: View {
                 guard !scaleDown else { return }
 
                 // Bounce down
-                try? await Task.sleep(for: .seconds(config.initialDelay))
-                withAnimation(.smooth(duration: 0.3, extraBounce: 0)) {
+                try? await nap(Double(config.initialDelay))
+                withAnimation(.carryOn(duration: 0.3, bounce: 0)) {
                     scaleDown = true
                 }
 
                 // Scale & mask up
-                try? await Task.sleep(for: .seconds(0.1))
-                withAnimation(.interpolatingSpring(duration: 0.6, bounce: 0, initialVelocity: 0)) {
+                try? await nap(0.1)
+                withAnimation(.carryOn(duration: 0.6, bounce: 0)) {
                     scaleUp = true
                 }
 
                 // The reveal done, the cover goes without an animation of its own.
-                try? await Task.sleep(for: .seconds(0.6))
+                try? await nap(0.6)
                 var transaction = Transaction()
                 transaction.disablesAnimations = true
                 withTransaction(transaction) {
@@ -221,17 +250,79 @@ private struct LaunchScreenOnly: View {
         config.logo
             .blendMode(isMask ? .destinationOut : .normal)
             .scaleEffect(scaleDown ? 0.8 : 1)
-            .visualEffect { [scaleUp] content, proxy in
+            .modifier(MaskGrow(scaleUp: scaleUp, isMask: isMask, canvasSize: size))
+    }
+}
+
+/// The cut-out's logo grows to swallow the canvas. `visualEffect` scales it exactly to
+/// the canvas from its measured size, which is 17's; below, a fixed factor that always
+/// covers the four-times canvas.
+private struct MaskGrow: ViewModifier {
+    var scaleUp: Bool
+    var isMask: Bool
+    var canvasSize: CGSize
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content.visualEffect { [scaleUp] inner, proxy in
                 let imageSize = proxy.size
                 let scale = max(
-                    size.width / imageSize.width,
-                    size.height / imageSize.height
+                    canvasSize.width / imageSize.width,
+                    canvasSize.height / imageSize.height
                 )
 
-                return content
+                return inner
                     .scaleEffect(scaleUp ? scale : 1)
                     .opacity(isMask ? (scaleUp ? 1 : 0) : (scaleUp ? 0 : 1))
             }
+        } else {
+            content
+                .scaleEffect(scaleUp ? 100 : 1)
+                .opacity(isMask ? (scaleUp ? 1 : 0) : (scaleUp ? 0 : 1))
+        }
     }
+}
+
+// MARK: - Availability
+
+private extension View {
+    /// The presentation-clear background is 16.4's; the cover below that is opaque, so
+    /// nothing shows when it's skipped.
+    @ViewBuilder
+    func clearPresentationBackground() -> some View {
+        if #available(iOS 16.4, *) {
+            self.presentationBackground(.clear)
+        } else {
+            self
+        }
+    }
+
+    /// Geometry groups keep the icon's effects together while it shrinks; 17's, and a
+    /// nicety — below it the shrink simply runs without one.
+    @ViewBuilder
+    func carryOnGeometryGroup() -> some View {
+        if #available(iOS 17.0, *) {
+            self.geometryGroup()
+        } else {
+            self
+        }
+    }
+}
+
+private extension Animation {
+    /// The named springs (`bouncy`, `smooth`) are 17's; the carry-on runs from iOS 15, so
+    /// below it the same springs are spelled the old way.
+    static func carryOn(duration: Double, bounce: Double) -> Animation {
+        if #available(iOS 17.0, *) {
+            return .bouncy(duration: duration, extraBounce: bounce)
+        }
+        return .spring(response: duration, dampingFraction: 1 - bounce * 4)
+    }
+}
+
+/// `Task.sleep(for:)` is 16's; the carry-on runs from iOS 15.
+private func nap(_ seconds: Double) async throws {
+    try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
 }
 #endif

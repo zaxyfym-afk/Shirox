@@ -83,7 +83,13 @@ struct ProfileAvatarView: View {
     static func artImage(_ name: String) -> Image? {
         #if canImport(UIKit)
         guard let image = UIImage(named: name) else { return nil }
-        return Image(decorative: image)
+        // The decorative UIImage initializer is 17's; below, the plain one renders the
+        // same art, just without the decorative marking.
+        if #available(iOS 17.0, *) {
+            return Image(decorative: image)
+        } else {
+            return Image(uiImage: image)
+        }
         #else
         guard let image = NSImage(named: name) else { return nil }
         return Image(nsImage: image)

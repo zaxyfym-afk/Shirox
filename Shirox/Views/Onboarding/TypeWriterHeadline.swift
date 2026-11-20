@@ -184,6 +184,7 @@ private struct TypingTextRenderer: TextRenderer {
 
 /// The typing itself: each character has its own moment, held for the pause intensity and
 /// then arrived — one progress with real gaps in it, not a smooth crawl.
+@available(iOS 18.0, macOS 15.0, tvOS 18.0, *)
 private struct TypingAnimation: CustomAnimation {
     var text: String
     var pauseIntensity: TypeWriterConfig.PauseIntensity

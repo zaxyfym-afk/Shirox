@@ -245,6 +245,7 @@ private struct MorphingBlobModifier: ViewModifier {
 /// dropping out of it, the two blurred into one and re-thresholded on the GPU (that's
 /// `AlphaThreshold.metal`) so they join in a neck and pinch apart, and the spinner landing in
 /// the circle over the last fifth of the pull.
+@available(iOS 18.0, *)
 private struct MorphingBlob: View {
     let safeAreaTop: CGFloat
     var progress: CGFloat

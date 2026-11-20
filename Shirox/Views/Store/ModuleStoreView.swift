@@ -305,7 +305,7 @@ private struct ModuleStoreEntryDetail: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 header
-                if !entry.screenshots.isEmpty {
+                if entry.screenshots?.isEmpty == false {
                     screenshots
                 }
                 Text(entry.description)

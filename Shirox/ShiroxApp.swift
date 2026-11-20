@@ -615,6 +615,29 @@ private struct RootTabView: View {
             Label(tab.title, icon: tab.icon)
         }
     }
+
+    /// One tab of the bar. Kept to itself: the whole TabView, its ForEach and these
+    /// branches in one expression were more than the type checker could weigh in
+    /// reasonable time.
+    @ViewBuilder
+    private func tabCell(_ tab: AppTab) -> some View {
+        let badge = tab == .notifications ? notificationsBadge : nil
+        if tab == .search {
+            Tab(value: tab.rawValue, role: .search) {
+                page(tab)
+            } label: {
+                tabLabel(tab)
+            }
+            .badge(badge)
+        } else {
+            Tab(value: tab.rawValue) {
+                page(tab)
+            } label: {
+                tabLabel(tab)
+            }
+            .badge(badge)
+        }
+    }
     #endif
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
@@ -674,20 +697,7 @@ private struct RootTabView: View {
                 #else
                 TabView(selection: $selectedTab) {
                     ForEach(visibleTabs) { tab in
-                        if tab == .search {
-                            Tab(value: tab.rawValue, role: .search) {
-                                page(tab)
-                            } label: {
-                                tabLabel(tab)
-                            }
-                        } else {
-                            Tab(value: tab.rawValue) {
-                                page(tab)
-                            } label: {
-                                tabLabel(tab)
-                            }
-                            .badge(tab == .notifications ? notificationsBadge : nil)
-                        }
+                        tabCell(tab)
                     }
                 }
                 .tabViewStyle(.sidebarAdaptable)

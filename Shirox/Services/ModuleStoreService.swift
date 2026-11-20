@@ -12,7 +12,7 @@ final class ModuleStoreService: ObservableObject {
     static let catalogURLKey = "moduleStoreCatalogURL"
 
     /// Where a real catalog is published; empty means the bundled placeholder.
-    @AppStorage(Self.catalogURLKey) var catalogURL = ""
+    @AppStorage(ModuleStoreService.catalogURLKey) var catalogURL = ""
 
     @Published private(set) var catalog: ModuleStoreCatalog = .empty
     @Published private(set) var isLoading = false

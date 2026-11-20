@@ -148,7 +148,7 @@ struct CustomizationSettingsView: View {
     }
 
     private var appIconTitle: String {
-        AppIconOption(name: appIcon)?.title ?? ""
+        AppIconOption(name: appIcon).title
     }
     #endif
 

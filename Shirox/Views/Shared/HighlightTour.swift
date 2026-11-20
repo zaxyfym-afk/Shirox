@@ -2,13 +2,27 @@ import SwiftUI
 
 // MARK: - Tour mark
 
+/// AnyShape is 16's, and the tour reports its marks from iOS 15; this erases the shape
+/// the same way on every version the app runs on.
+struct AnyTourShape: Shape {
+    private let path: (CGRect) -> Path
+
+    init<S: Shape>(_ shape: S) {
+        path = { rect in shape.path(in: rect) }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        path(rect)
+    }
+}
+
 /// One stop of the tour: what it points at (a frame, in a mask shape) and what it says
 /// there. Ported from the reference HView's highlight.
 struct TourHighlight: Identifiable {
     let id: Int
     let title: LocalizedStringKey
     let description: LocalizedStringKey
-    let maskShape: AnyShape
+    let maskShape: AnyTourShape
     let inset: CGFloat
     let frame: CGRect
 }
@@ -17,6 +31,7 @@ extension View {
     /// Marks this view as the tour's `order`-th stop: the view reports where it is, and the
     /// tour overlay cuts its hole there. Below iOS 18, and on a Mac and Apple TV, this is
     /// nothing — the tour is a touch screen's.
+    @ViewBuilder
     func tourHighlight<S: Shape>(
         order: Int,
         title: LocalizedStringKey,
@@ -29,7 +44,7 @@ extension View {
         if #available(iOS 18.0, *) {
             modifier(TourHighlightMarker(
                 order: order, title: title, description: description,
-                maskShape: AnyShape(maskShape), inset: inset, group: group
+                maskShape: AnyTourShape(maskShape), inset: inset, group: group
             ))
         } else {
             self
@@ -41,6 +56,7 @@ extension View {
 
     /// The tour itself: a clear cover over the app, everything dimmed but the current
     /// stop, and a small card beside it — "N of M", what this is, Skip or Next.
+    @ViewBuilder
     func tourOverlay(isPresented: Binding<Bool>, group: Binding<[Int: TourHighlight]>) -> some View {
         #if os(iOS)
         if #available(iOS 18.0, *) {
@@ -63,11 +79,11 @@ extension View {
 /// The mark's listener: a view that does nothing but report where it is, and stops when it
 /// goes away — a marked view leaving the screen must not keep its old frame cut out.
 @available(iOS 18.0, *)
-private struct TourHighlightMarker<S: Shape>: ViewModifier {
+private struct TourHighlightMarker: ViewModifier {
     var order: Int
     var title: LocalizedStringKey
     var description: LocalizedStringKey
-    var maskShape: S
+    var maskShape: AnyTourShape
     var inset: CGFloat
     @Binding var group: [Int: TourHighlight]
 

@@ -12,7 +12,7 @@ import SwiftUI
 /// is offset by its position and clipped, with the mask and background shrinking with it.
 @available(iOS 18.0, macOS 15.0, tvOS 18.0, *)
 struct StickySection<Content: View, Header: View, MinimisedHeader: View>: View {
-    var config: Config = .init()
+    var config: StickySectionConfig = .init()
     var spacing: CGFloat = 10
     @ViewBuilder var content: Content
     @ViewBuilder var header: Header
@@ -118,30 +118,34 @@ struct StickySection<Content: View, Header: View, MinimisedHeader: View>: View {
         .coordinateSpace(.named("SECTION"))
     }
 
-    struct Config {
-        var sectionPadding: CGFloat = 15
-        var cornerRadius: CGFloat = 20
-        var background = AnyShapeStyle(.fill.tertiary)
-        /// Glass where the platform has the effect; set it with `Config.glass`, which
-        /// resolves that itself.
-        var isGlassBackground: Bool = false
+}
 
-        /// A smaller minimised header, shown when scrolled.
-        var minimisedHeaderOffset: CGFloat = -10
-        var headerFadeDistance: CGFloat = 15
-        var fadeDistance: CGFloat = 45
-        var fadeScale: CGFloat = 0.05
+/// A sticky section's dials. `StickySection` is generic over its three view types, and a
+/// Config nested in it would drag those arguments into every reference (`StickySection<
+/// …>.Config`), so the dials stand at file scope beside it.
+struct StickySectionConfig {
+    var sectionPadding: CGFloat = 15
+    var cornerRadius: CGFloat = 20
+    var background = AnyShapeStyle(.fill.tertiary)
+    /// Glass where the platform has the effect; set it with `StickySectionConfig.glass`,
+    /// which resolves that itself.
+    var isGlassBackground: Bool = false
 
-        /// The card look: glass on iOS 26, the plain fill below.
-        static var glass: Config {
-            var config = Config()
-            #if os(iOS)
-            if #available(iOS 26.0, *) {
-                config.isGlassBackground = true
-            }
-            #endif
-            return config
+    /// A smaller minimised header, shown when scrolled.
+    var minimisedHeaderOffset: CGFloat = -10
+    var headerFadeDistance: CGFloat = 15
+    var fadeDistance: CGFloat = 45
+    var fadeScale: CGFloat = 0.05
+
+    /// The card look: glass on iOS 26, the plain fill below.
+    static var glass: StickySectionConfig {
+        var config = StickySectionConfig()
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            config.isGlassBackground = true
         }
+        #endif
+        return config
     }
 }
 
@@ -153,7 +157,7 @@ struct StickySection<Content: View, Header: View, MinimisedHeader: View>: View {
 @ViewBuilder
 func homeSectionCard<Content: View, Header: View>(
     title: String,
-    config: StickySection.Config = .glass,
+    config: StickySectionConfig = .glass,
     @ViewBuilder header: () -> Header,
     @ViewBuilder content: () -> Content
 ) -> some View {
