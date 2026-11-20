@@ -13,6 +13,7 @@ struct ThemePickerSheet: View {
     @Binding var colorScheme: String
     @Environment(\.colorScheme) private var environmentScheme
     @State private var isDark: Bool
+    @Namespace private var capsule
 
     init(colorScheme: Binding<String>, initialDark: Bool) {
         self._colorScheme = colorScheme
@@ -191,8 +192,7 @@ struct ThemePickerSheet: View {
     // MARK: The segmented control
 
     private var segmentedControl: some View {
-        @Namespace private var capsule
-        return HStack(spacing: 0) {
+        HStack(spacing: 0) {
             ForEach([AppColorScheme.light, .dark, .system], id: \.rawValue) { option in
                 let isSelected = scheme == option
                 let tint: Color = isDark ? .indigo : .yellow.mix(with: .orange, by: 0.2)
