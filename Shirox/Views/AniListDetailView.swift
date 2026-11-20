@@ -70,6 +70,10 @@ struct AniListDetailView: View {
     }
     @State private var isReversed = false
     @State private var selectedTab = 0
+    /// Keeps filler episodes out of the list, from the classification Anira publishes; the
+    /// badge on an episode row is the same data.
+    @AppStorage("hideFillerEpisodes") private var hideFillerEpisodes = false
+    @State private var fillerEpisodeNumbers: Set<Int> = []
     @State private var sequelMediaId: Int?
     @State private var watchOrder: [TVDBMappingService.AniraMediaEntry] = []
     @State private var leadingInset: CGFloat = 0
@@ -859,6 +863,7 @@ struct AniListDetailView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     metadataSection(media: media)
                         .frame(maxWidth: .infinity)
+                    AiringInfoSection(media: media)
                     if let desc = media.plainDescription, !desc.isEmpty {
                         SynopsisSection(text: desc, onMore: { showDetailsSheet = true })
                             .padding(.top, 16)
@@ -867,9 +872,13 @@ struct AniListDetailView: View {
                             }
                     }
 
+                    MoreLikeThisSection(items: media.recommendations ?? [])
+
                     #if !os(tvOS)
                     HStack(spacing: 10) {
                         watchButton(media: media)
+
+                        FollowButton(media: media)
 
                         if !isSingleEpisode(media) {
                         Button {
@@ -945,6 +954,8 @@ struct AniListDetailView: View {
                             .frame(maxWidth: .infinity)
                     } else {
                         VStack(alignment: .leading, spacing: 20) {
+                            SeasonsSection(media: media)
+
                             WatchOrderSection(entries: watchOrder)
 
                             if let relations = media.relations?.edges, !relations.isEmpty {
@@ -1332,6 +1343,22 @@ struct AniListDetailView: View {
                 .help(isReversed ? String(localized: "detail.newest_episodes_first_show_oldest") : String(localized: "detail.oldest_episodes_first_show_newest"))
                 .padding(.trailing, 4)
 
+                // Hide filler episodes, from the classification the rows' badges use.
+                #if !os(tvOS)
+                Button {
+                    withAnimation { hideFillerEpisodes.toggle() }
+                } label: {
+                    IconView(hideFillerEpisodes ? "eye.slash" : "eye")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(hideFillerEpisodes ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
+                        .frame(width: 42, height: 42)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .overlay(Circle().strokeBorder(Color.primary.opacity(0.15), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .help(String(localized: "detail.hide_filler"))
+                #endif
+
                 // Reset progress button (only when not in selection mode)
                 #if !os(tvOS)
                 if !isSelectionMode {
@@ -1401,15 +1428,22 @@ struct AniListDetailView: View {
             } else if totalEpisodes > 0 {
                 if let window = clampedRange(totalEpisodes: totalEpisodes) {
                     let range = Array(window)
-                    let sortedRange = isReversed ? range.reversed() : range
-                    
-                    LazyVStack(spacing: 8) {
-                        ForEach(sortedRange, id: \.self) { ep in
-                            episodeItem(ep, media: media, totalEpisodes: totalEpisodes)
+                    let visibleRange = hideFillerEpisodes ? range.filter { !fillerEpisodeNumbers.contains($0) } : range
+                    let sortedRange = isReversed ? visibleRange.reversed() : visibleRange
+                    if hideFillerEpisodes && visibleRange.isEmpty {
+                        Text("detail.everything_in_this_range_filler")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 16)
+                    } else {
+                        LazyVStack(spacing: 8) {
+                            ForEach(sortedRange, id: \.self) { ep in
+                                episodeItem(ep, media: media, totalEpisodes: totalEpisodes)
+                            }
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 16)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 16)
                 } else {
                     Text("detail.no_episodes_in_this_range")
                         .font(.subheadline)
@@ -1433,6 +1467,14 @@ struct AniListDetailView: View {
             Button("common.cancel", role: .cancel) {}
         } message: {
             Text("detail.this_will_clear_all_watched \(media.title.displayTitle)")
+        }
+        .task(id: "\(hideFillerEpisodes)-\(media.id)") {
+            guard hideFillerEpisodes else {
+                if !fillerEpisodeNumbers.isEmpty { fillerEpisodeNumbers = [] }
+                return
+            }
+            let episodes = await TVDBMappingService.shared.getEpisodes(for: media.id, provider: media.provider)
+            fillerEpisodeNumbers = Set(episodes.compactMap { $0.filler_type == "filler" ? $0.episode : nil })
         }
     }
 
@@ -1676,9 +1718,12 @@ struct AniListDetailView: View {
         CinematicDetailPage(media: media, leadingInset: leadingInset) {
             cinematicHero(media: media)
         } rows: {
+            AiringInfoSection(media: media)
             if !isSingleEpisode(media) {
                 cinematicEpisodes(media: media)
             }
+            SeasonsSection(media: media)
+            MoreLikeThisSection(items: media.recommendations ?? [])
             WatchOrderSection(entries: watchOrder, margin: CinematicMetrics.margin, titleFont: .title2.weight(.bold))
             cinematicRelations(media: media)
         }
@@ -1711,6 +1756,7 @@ struct AniListDetailView: View {
                 #if os(iOS)
                 // A Mac has Save in the window's toolbar.
                 BookmarkButton(media: media, style: .round)
+                FollowButton(media: media)
                 #endif
                 if !isSingleEpisode(media) && ((media.episodes ?? 0) > 0 || media.status == "RELEASING") {
                     CinematicCircleButton(
