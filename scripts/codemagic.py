@@ -61,12 +61,15 @@ def default_repo():
 REPO = os.environ.get("SHIROX_REPO") or default_repo()
 
 # Codemagic reports the build's current PHASE as status while it runs
-# (queued, preparing, fetching, building, publishing, finishing, ...).
-# Only these are final; anything else keeps the poller going.
-TERMINAL = {"succeeded", "success", "failed", "error", "cancelled", "canceled", "skipped"}
+# (queued, preparing, fetching, building, publishing, finishing, ...). A
+# build that runs to the end reports "finished" (the success state);
+# failures report "failed". Only these are final; anything else keeps the
+# poller going.
+TERMINAL = {"succeeded", "success", "finished", "failed", "error",
+            "cancelled", "canceled", "skipped"}
 FAILED_STATES = {"failed", "error"}
 CANCELLED_STATES = {"cancelled", "canceled"}
-OK_STATES = {"succeeded", "success"}
+OK_STATES = {"succeeded", "success", "finished"}
 
 ERROR_LINE = re.compile(
     r"^(?P<file>[^:\s][^:\n]*?):(?P<line>\d+):(?P<col>\d+): error: (?P<msg>.*?)\s*$",
