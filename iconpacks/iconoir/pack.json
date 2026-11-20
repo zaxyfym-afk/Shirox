@@ -4,8 +4,8 @@
   "license": "MIT (Iconoir 7.12.1)",
   "website": "https://iconoir.com",
   "url": "https://raw.githubusercontent.com/xibrox/Shirox/main/iconpacks/iconoir/pack.json",
-  "iconsVersion": 1,
-  "packVersion": 1,
+  "iconsVersion": 2,
+  "packVersion": 2,
   "icons": {
     "4k.tv": "icons/4k.tv.pdf",
     "antenna.radiowaves.left.and.right.slash": "icons/antenna.radiowaves.left.and.right.slash.pdf",
@@ -215,7 +215,8 @@
     "xmark": "icons/xmark.pdf",
     "xmark.circle": "icons/xmark.circle.pdf",
     "xmark.circle.fill": "icons/xmark.circle.fill.pdf",
-    "xmark.octagon.fill": "icons/xmark.octagon.fill.pdf"
+    "xmark.octagon.fill": "icons/xmark.octagon.fill.pdf",
+    "bell.fill": "icons/bell.fill.pdf"
   },
   "sources": {
     "4k.tv": "regular/modern-tv-4k.svg",

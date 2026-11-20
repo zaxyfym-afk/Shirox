@@ -67,6 +67,16 @@ struct HomeView: View {
         await performRefresh()
     }
 
+    /// The bell is the Notifications tab's door; a user who has hidden the tab gets the page
+    /// pushed instead.
+    private func openNotifications() {
+        if AppTab.visible.contains(.notifications) {
+            TabRequests.shared.requestedTab = .notifications
+        } else {
+            showNotifications = true
+        }
+    }
+
     /// Which Home is showing — the chain's, or Simkl's for one kind. A change reloads.
     private var homeSourceID: String {
         discovery.usesSimkl ? "simkl-\(discovery.simklKind.rawValue)" : "providers"
@@ -265,13 +275,14 @@ struct HomeView: View {
             #endif
             .modifier(HomeToolbar(discovery: discovery, kind: $discovery.simklKind,
                                   openCalendar: { showUpcoming = true },
-                                  openNotifications: { showNotifications = true }))
+                                  openNotifications: openNotifications))
             // A page, growing out of the calendar button on its way in.
             .navigationDestinationCompat(isPresented: $showUpcoming) {
                 UpcomingCalendarView()
                     .zoomingOut(of: HomeToolbar.calendarID, in: calendarZoom, fromToolbar: true)
             }
-            // The bell's page; loading it resets the unread count server-side.
+            // The page the bell falls back to when the Notifications tab is hidden; loading
+            // it resets the unread count server-side.
             .navigationDestinationCompat(isPresented: $showNotifications) {
                 NotificationsView(vm: notificationsVM)
             }

@@ -3,6 +3,6 @@
 /// The icons.json version this build was made with: icon packs for any other
 /// version aren't loaded.
 enum IconManifest {
-    static let version = 1
-    static let count = 209
+    static let version = 2
+    static let count = 210
 }

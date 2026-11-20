@@ -34,6 +34,22 @@ struct FollowedSeries: Codable, Identifiable, Equatable, Hashable {
         nextAiringAt = media.nextAiringEpisode?.airingAt.map { Date(timeIntervalSince1970: TimeInterval($0)) }
         lastChecked = nil
     }
+
+    /// A minimal `Media` standing in for the followed title: enough for a row's navigation,
+    /// and the page it opens refetches everything.
+    var media: Media {
+        Media(
+            id: provider == .mal ? mediaID : (anilistID ?? mediaID),
+            idMal: malID,
+            provider: provider,
+            title: MediaTitle(romaji: nil, english: title, native: nil),
+            coverImage: MediaCoverImage(large: coverURL, extraLarge: coverURL),
+            bannerImage: nil, description: nil, episodes: nil,
+            status: nil, averageScore: nil, genres: nil,
+            season: nil, seasonYear: nil, nextAiringEpisode: nil,
+            relations: nil, type: nil, format: nil
+        )
+    }
 }
 
 /// The followed series on this profile: what the release notifier checks and what the

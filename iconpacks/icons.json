@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "icons": [
     "4k.tv",
     "antenna.radiowaves.left.and.right.slash",
@@ -29,6 +29,7 @@
     "arrow.uturn.backward",
     "backward.end.fill",
     "bell",
+    "bell.fill",
     "bell.slash",
     "book",
     "book.closed",

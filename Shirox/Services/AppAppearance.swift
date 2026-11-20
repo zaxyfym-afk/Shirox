@@ -240,7 +240,7 @@ enum AppLanguage {
 /// The tabs of the tab bar, and of a Mac's toolbar or sidebar. Raw values are the `TabView` selection
 /// values, which quick actions and the tab bar menu use too.
 enum AppTab: Int, CaseIterable, Identifiable {
-    case home = 0, library = 1, downloads = 2, settings = 3, search = 4
+    case home = 0, library = 1, downloads = 2, settings = 3, search = 4, notifications = 5
 
     static let orderKey = "tabOrder"
     static let hiddenKey = "hiddenTabs"
@@ -257,6 +257,7 @@ enum AppTab: Int, CaseIterable, Identifiable {
         case .downloads: return String(localized: "common.downloads")
         case .settings:  return String(localized: "settings.settings")
         case .search:    return String(localized: "common.search")
+        case .notifications: return String(localized: "profile.notifications")
         }
     }
 
@@ -267,6 +268,7 @@ enum AppTab: Int, CaseIterable, Identifiable {
         case .downloads: return "arrow.down.circle.fill"
         case .settings:  return "gearshape.fill"
         case .search:    return "magnifyingglass"
+        case .notifications: return "bell.fill"
         }
     }
 
@@ -274,14 +276,15 @@ enum AppTab: Int, CaseIterable, Identifiable {
     var canHide: Bool { self != .settings }
 
     /// The tabs this platform has, in their default order. Apple TV has no downloads; a Mac
-    /// lists search second and settings last.
+    /// lists search second and settings last. Saved orders from before the notifications tab
+    /// don't carry it, so it lands after the ones they do.
     static var available: [AppTab] {
         #if os(tvOS)
-        return [.home, .library, .settings, .search]
+        return [.home, .library, .notifications, .settings, .search]
         #elseif os(macOS) || targetEnvironment(macCatalyst)
-        return [.home, .search, .library, .downloads, .settings]
+        return [.home, .search, .library, .notifications, .downloads, .settings]
         #else
-        return [.home, .library, .downloads, .settings, .search]
+        return [.home, .library, .notifications, .downloads, .settings, .search]
         #endif
     }
 
@@ -317,7 +320,7 @@ enum AppTab: Int, CaseIterable, Identifiable {
 
 /// The tab Shirox opens on. Stored by name so the Mac's sidebar and the tab bar share it.
 enum LaunchTab: String, CaseIterable, Identifiable {
-    case home, library, downloads, search
+    case home, library, downloads, search, notifications
 
     var id: String { rawValue }
 
@@ -329,6 +332,7 @@ enum LaunchTab: String, CaseIterable, Identifiable {
         case .library:   return .library
         case .downloads: return .downloads
         case .search:    return .search
+        case .notifications: return .notifications
         }
     }
 

@@ -34,6 +34,7 @@
 		074D937EBB3DF5A34CCD9F10 /* LibrarySyncPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9970B31153A18CDD095323FB /* LibrarySyncPlanner.swift */; };
 		075ED3CFDC1D79B5D9F94E85 /* SimklModuleDownloadsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0CBC894AABB84BE53704387 /* SimklModuleDownloadsTests.swift */; };
 		07ECB99FAF089281F368234E /* AlphaThreshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */; };
+		089BAC702C3C402E0AFE087D /* NotificationsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6881E6DAE0F8487052305AA /* NotificationsTabView.swift */; };
 		0902679A7C53895A3E536DB3 /* DataSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A304B304C482A8AAA10DB209 /* DataSaver.swift */; };
 		09AAAB9CD59D89923CBF3ABF /* SimklCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39077FFB4866E4944852E363 /* SimklCatalog.swift */; };
 		09BD0742F825E2C6890C1ED2 /* DiscoverySourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E7756C8213511509BA7B15 /* DiscoverySourceTests.swift */; };
@@ -336,6 +337,8 @@
 		ACF086B37E5EA819C11A1230 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
 		B14ED57FC01F5BEACE383E30 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
 		C351915CF8807B3EC162F979 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
+		D3DF6CBF47E4B05BCF9043DC /* NotificationsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6881E6DAE0F8487052305AA /* NotificationsTabView.swift */; };
+		FA620B9C26DACBAF04A059A1 /* NotificationsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6881E6DAE0F8487052305AA /* NotificationsTabView.swift */; };
 		FC161F89743C42A65E3C9614 /* TrackerSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC6519CD49DC216A51BD48B /* TrackerSignInView.swift */; };
 		FC6B0A6A9F40A58E75E946F1 /* AnimeArtworkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */; };
 		FCFF49237D7D9217B6837DC5 /* AnimeArtworkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */; };
@@ -1811,6 +1814,7 @@
 		F5167EDD4F7D833A5721B0FB /* ProfileCacheStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileCacheStoreTests.swift; sourceTree = "<group>"; };
 		F592860D1C8F12E4C54C22CA /* SimklTitle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimklTitle.swift; sourceTree = "<group>"; };
 		F6204E4FF759A26CA4667818 /* NuvioRuntimeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NuvioRuntimeTests.swift; sourceTree = "<group>"; };
+		F6881E6DAE0F8487052305AA /* NotificationsTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationsTabView.swift; sourceTree = "<group>"; };
 		F6AB4FB215071F688F19B394 /* JellyfinConnectView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JellyfinConnectView.swift; sourceTree = "<group>"; };
 		F7E6FD57408E513472BB8B3E /* ExtensionRepoLoaderTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExtensionRepoLoaderTests.swift; sourceTree = "<group>"; };
 		F9BC33D61B80B1A9FDCE7496 /* ModuleArtworkTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModuleArtworkTests.swift; sourceTree = "<group>"; };
@@ -2290,6 +2294,7 @@
 				C5EF33C932D8246C4F5A0F84 /* ModuleImportView.swift */,
 				E326785BDD3567C0B399C894 /* ExtensionRepoSheet.swift */,
 				AE3495C8FF869FA796FE181B /* AdvancedNetworkSettingsView.swift */,
+				85A8D11E5CF79595BD130429 /* Notifications */,
 				F46AC89852F57EBEBDEFC977 /* GeneralSettingsView.swift */,
 				FE1AC518A4DC04950FDBEA96 /* DiscordSettingsView.swift */,
 			);
@@ -2584,6 +2589,14 @@
 				8AEB99F66BCE9D9EB4997319 /* ShiroxTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		85A8D11E5CF79595BD130429 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				F6881E6DAE0F8487052305AA /* NotificationsTabView.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		A276470EA7FB3D98EFEDE707 /* Onboarding */ = {
@@ -3395,6 +3408,7 @@
 				6972B89D3C8AB2EDE05DB3AF /* SecureDNS.swift in Sources */,
 				42960863E01254A6B3F75155 /* AdvancedNetwork.swift in Sources */,
 				F199DBE7A60F602D5F7BA281 /* AdvancedNetworkSettingsView.swift in Sources */,
+				FA620B9C26DACBAF04A059A1 /* NotificationsTabView.swift in Sources */,
 				33978F8D0BB123DC707D0413 /* ManaWebPages.swift in Sources */,
 				AD84943AB15364CD958B2051 /* PlayerVideoInfoPanel.swift in Sources */,
 				A044BB41F2C2807DD5B5F873 /* AppAppearance.swift in Sources */,
@@ -3740,6 +3754,7 @@
 				1AC4EB324629B971DEE5F50F /* SecureDNS.swift in Sources */,
 				91FDCB5FA48BDAD37F141DB9 /* AdvancedNetwork.swift in Sources */,
 				403E5D718A8C7E6A7AC806A3 /* AdvancedNetworkSettingsView.swift in Sources */,
+				089BAC702C3C402E0AFE087D /* NotificationsTabView.swift in Sources */,
 				D88C108CD906D2539D7416D4 /* ManaWebPages.swift in Sources */,
 				DFAB4CCC07529FC1C787CBC4 /* PlayerVideoInfoPanel.swift in Sources */,
 				1F842210BB75A5F5C55CF37F /* AppAppearance.swift in Sources */,
@@ -4086,6 +4101,7 @@
 				A4EC0CBA438563B584BE7C5A /* SecureDNS.swift in Sources */,
 				21CB4BD3FDAAE862EFFEBD34 /* AdvancedNetwork.swift in Sources */,
 				41E27D3543A74B6992321F6A /* AdvancedNetworkSettingsView.swift in Sources */,
+				D3DF6CBF47E4B05BCF9043DC /* NotificationsTabView.swift in Sources */,
 				E1BE19F6D5535B0F189EDCB1 /* ManaWebPages.swift in Sources */,
 				819F1C4B9A92BE705287E1C9 /* PlayerVideoInfoPanel.swift in Sources */,
 				1C740592E5F96E2468C1346A /* AppAppearance.swift in Sources */,

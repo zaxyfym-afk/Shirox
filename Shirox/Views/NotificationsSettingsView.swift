@@ -146,7 +146,7 @@ struct NotificationsSettingsView: View {
             } else {
                 ForEach(store.series) { entry in
                     NavigationLink {
-                        MediaDestination(media: Self.media(for: entry))
+                        MediaDestination(media: entry.media)
                     } label: {
                         followedRow(entry)
                     }
@@ -201,21 +201,6 @@ struct NotificationsSettingsView: View {
 
     // MARK: - Helpers
 
-    /// A minimal `Media` for the row's navigation; the page it opens refetches everything.
-    private static func media(for entry: FollowedSeries) -> Media {
-        Media(
-            id: entry.provider == .mal ? entry.mediaID : (entry.anilistID ?? entry.mediaID),
-            idMal: entry.malID,
-            provider: entry.provider,
-            title: MediaTitle(romaji: nil, english: entry.title, native: nil),
-            coverImage: MediaCoverImage(large: entry.coverURL, extraLarge: entry.coverURL),
-            bannerImage: nil, description: nil, episodes: nil,
-            status: nil, averageScore: nil, genres: nil,
-            season: nil, seasonYear: nil, nextAiringEpisode: nil,
-            relations: nil, type: nil, format: nil
-        )
-    }
-
     private func openSystemSettings() {
         #if os(iOS)
         if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -230,8 +215,8 @@ struct NotificationsSettingsView: View {
 }
 
 /// Swipe-to-unfollow where the platform has swipe actions (iOS, Catalyst); a context menu
-/// everywhere else.
-private struct UnfollowSwipe: ViewModifier {
+/// everywhere else. Shared with the Notifications tab's episode list.
+struct UnfollowSwipe: ViewModifier {
     let entry: FollowedSeries
     let unfollow: (FollowedSeries) -> Void
 

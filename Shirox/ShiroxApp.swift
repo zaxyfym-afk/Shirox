@@ -298,7 +298,7 @@ struct ShiroxApp: App {
 
 #if targetEnvironment(macCatalyst) || os(macOS)
 enum SidebarTab: Int, CaseIterable, Hashable {
-    case home, search, library, downloads, settings
+    case home, search, library, downloads, settings, notifications
 
     /// What the sidebar lists: the tabs left showing, in the order set in Settings › General.
     static var available: [SidebarTab] { AppTab.visible.map(SidebarTab.init) }
@@ -310,6 +310,7 @@ enum SidebarTab: Int, CaseIterable, Hashable {
         case .downloads: self = .downloads
         case .settings:  self = .settings
         case .search:    self = .search
+        case .notifications: self = .notifications
         }
     }
 
@@ -320,6 +321,7 @@ enum SidebarTab: Int, CaseIterable, Hashable {
         case .downloads: return String(localized: "common.downloads")
         case .settings:  return String(localized: "settings.settings")
         case .search:    return String(localized: "common.search")
+        case .notifications: return String(localized: "profile.notifications")
         }
     }
 
@@ -330,6 +332,7 @@ enum SidebarTab: Int, CaseIterable, Hashable {
         case .downloads: return "arrow.down.circle"
         case .settings:  return "gearshape"
         case .search:    return "magnifyingglass"
+        case .notifications: return "bell"
         }
     }
 
@@ -481,6 +484,8 @@ enum MacOpenVideo {
 private struct RootTabView: View {
     @EnvironmentObject private var moduleManager: ModuleManager
     @ObservedObject private var cfManager = CloudflareBypassManager.shared
+    @ObservedObject private var anilistAuth = AniListAuthManager.shared
+    @ObservedObject private var tabRequests = TabRequests.shared
     #if !os(tvOS)
     @ObservedObject private var playerPresenter = PlayerPresenter.shared
     #endif
@@ -531,6 +536,7 @@ private struct RootTabView: View {
         case .settings:  SettingsView()
         case .search:
             if #available(macOS 15, *) { SearchView(toolbarSearch: toolbarSearch) } else { SearchView() }
+        case .notifications: NotificationsTabView()
         }
     }
     #endif
@@ -568,7 +574,14 @@ private struct RootTabView: View {
         #endif
         case .settings:  SettingsView()
         case .search:    SearchView()
+        case .notifications: NotificationsTabView()
         }
+    }
+
+    /// The notifications tab's badge: AniList's unread count, the same one the Library's
+    /// bell carries.
+    private var notificationsBadge: Int? {
+        anilistAuth.unreadNotificationCount > 0 ? anilistAuth.unreadNotificationCount : nil
     }
 
     /// Icon only when labels are hidden (iPhone); VoiceOver still reads the name.
@@ -608,6 +621,7 @@ private struct RootTabView: View {
                     case .downloads: DownloadsView()
                     case .settings:  SettingsView()
                     case .search:    SearchView()
+                    case .notifications: NotificationsTabView()
                     }
                 }
                 #elseif os(macOS)
@@ -649,6 +663,7 @@ private struct RootTabView: View {
                             } label: {
                                 tabLabel(tab)
                             }
+                            .badge(tab == .notifications ? notificationsBadge : nil)
                         }
                     }
                 }
@@ -681,6 +696,9 @@ private struct RootTabView: View {
                     SearchView()
                         .tabItem { Label("common.search", icon: "magnifyingglass") }
                         .tag(4)
+                    NotificationsTabView()
+                        .tabItem { Label("profile.notifications", icon: "bell.fill") }
+                        .tag(5)
                 }
                 .appTint()
                 #else
@@ -688,6 +706,7 @@ private struct RootTabView: View {
                     ForEach(visibleTabs) { tab in
                         page(tab)
                             .tabItem { tabLabel(tab) }
+                            .badge(tab == .notifications ? notificationsBadge : nil)
                             .tag(tab.rawValue)
                     }
                 }
@@ -749,6 +768,18 @@ private struct RootTabView: View {
             sidebarTab = .settings
             #else
             selectedTab = 3
+            #endif
+        }
+        // A tab asked for from anywhere in the app (Home's bell): taken up once it can be.
+        .onChangeOf(tabRequests.requestedTab) { tab in
+            guard let tab else { return }
+            tabRequests.requestedTab = nil
+            // A hidden tab isn't there to go to; the caller falls back to its own door.
+            guard visibleTabs.contains(tab) else { return }
+            #if targetEnvironment(macCatalyst) || os(macOS)
+            sidebarTab = SidebarTab(tab)
+            #else
+            selectedTab = tab.rawValue
             #endif
         }
         #if os(iOS) && !targetEnvironment(macCatalyst)
@@ -951,6 +982,9 @@ final class TabRequests: ObservableObject {
     static let shared = TabRequests()
     /// Home pushes the Upcoming calendar.
     @Published var showsCalendar = false
+    /// A tab asked for from anywhere in the app, like the bell on Home. Taken up by the tab
+    /// view once it's showing; a hidden tab is left to the caller's own fallback.
+    @Published var requestedTab: AppTab?
 }
 
 #if os(iOS)

@@ -49,6 +49,8 @@ LITERAL = re.compile(r'"([a-z0-9]+(?:\.[a-z0-9]+)*)"')
 # Where a literal is an icon whatever it names: for `check`, which also runs without the
 # system's symbol list (CI on Linux).
 ICON_CONTEXT = re.compile(r'(?:systemName|systemImage|icon|symbol)\s*:\s*"([^"]+)"')
+# The app's own icon view: its argument is an icon by construction, bare name or not.
+ICON_VIEW_CALL = re.compile(r'IconView\s*\(\s*"([^"\\]+)"')
 
 
 def load_json(path, default):
@@ -89,7 +91,7 @@ DECLARATION = re.compile(r'^\s*(?:@\w+\s+)*(?:(?:private|fileprivate|internal|pu
 def used_icons(known):
     """Names with a dot are icons wherever they are ("house.fill" is nothing else). A bare word
     ("house", but also "left" or "case") counts only where icons are named: an icon parameter,
-    or inside a property or function whose name says it returns one."""
+    an `IconView` call, or inside a property or function whose name says it returns one."""
     found = set()
     in_icon_body = False
     current = None
@@ -98,7 +100,8 @@ def used_icons(known):
             current, in_icon_body = rel, False
         if DECLARATION.match(line):
             in_icon_body = bool(ICON_DECLARATION.search(line))
-        context = in_icon_body or ICON_CONTEXT.search(line) or "systemName" in line or "systemImage" in line
+        context = (in_icon_body or ICON_CONTEXT.search(line) or "systemName" in line
+                   or "systemImage" in line or "IconView(" in line)
         for match in LITERAL.finditer(line):
             name = match.group(1)
             if name in known and ("." in name or context):
@@ -142,6 +145,10 @@ def cmd_check(_):
             if "\\(" in name:
                 problems.append(f"{rel}:{number}: icon name built at runtime: write each one out")
             elif LITERAL.fullmatch(f'"{name}"') and name not in listed and "." in name:
+                problems.append(f"{rel}:{number}: icon \"{name}\" isn't in iconpacks/icons.json")
+        for match in ICON_VIEW_CALL.finditer(line):
+            name = match.group(1)
+            if name not in listed:
                 problems.append(f"{rel}:{number}: icon \"{name}\" isn't in iconpacks/icons.json")
     for problem in sorted(set(problems)):
         print(problem)
