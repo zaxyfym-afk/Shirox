@@ -7,10 +7,12 @@ on:
    branches:
      - main
  schedule:
-   # The macOS pool starves at European peak: three builds in a row were
-   # cancelled in queue on 2026-11-20 between 14:09 and 15:29 UTC, while every
-   # success this month landed between 23:30 and 02:41 UTC. 03:07 UTC sits in
-   # that quiet window (and off the round-minute load spikes).
+   # The macOS pool starves at European peak: seven runs queued between 14:09
+   # and 17:07 UTC on 2026-11-20 were all cancelled after ~15 minutes with no
+   # runner ever assigned, while every success this month landed between 23:30
+   # and 02:41 UTC. Two builds a day sit in quiet windows: 21:07 UTC (European
+   # night) and 03:07 UTC (both quiet, and off the round-minute load spikes).
+   - cron: '7 21 * * *'
    - cron: '7 3 * * *'
  workflow_dispatch:
 
