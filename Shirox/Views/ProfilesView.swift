@@ -17,36 +17,48 @@ extension Color {
 
 // MARK: - Avatar
 
-/// A profile's picture: the one chosen for it, else its account's (AniList, MyAnimeList, Simkl),
-/// else its initial on its colour. Only one of them is ever drawn, so a picture still loading or
-/// a button pressed never shows the initial through it.
+/// A profile's picture: the one chosen for it, else its anime artwork, else its account's
+/// (AniList, MyAnimeList, Simkl), else its initial on its colour. Only one of them is ever
+/// drawn, so a picture still loading or a button pressed never shows the initial through it.
+///
+/// `square` draws the Netflix-style rounded tile the picker uses; the default is the circle
+/// the rest of the app shows.
 struct ProfileAvatarView: View {
     let profile: AppProfile
     var size: CGFloat = 44
     /// Liquid Glass tinted with the profile's colour in place of the flat fill, for the
     /// Settings row. Falls back to the flat fill where there's no glass.
     var glass = false
+    /// Rounded-square tile instead of a circle.
+    var square = false
     @ObservedObject private var manager = ProfileManager.shared
 
     private var color: Color { Color(profileHex: profile.colorHex) }
+    private var cornerRadius: CGFloat { max(size * 0.18, 6) }
 
     var body: some View {
         if glass {
             picture
-                .glassChrome(Circle(), enabled: true, tint: color, off: color)
+                .glassChrome(shape, enabled: true, tint: color, off: color)
         } else {
             picture
         }
     }
 
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: square ? cornerRadius : size / 2, style: .continuous)
+    }
+
     private var picture: some View {
         ZStack {
-            if !glass { Circle().fill(color) }
+            if !glass { shape.fill(color) }
             if profile.hasPhoto, let image = ProfilePhotoCache.image(at: manager.photoURL(for: profile.id),
                                                                      version: manager.photoVersion) {
                 Image(decorative: image, scale: 1)
                     .resizable()
                     .scaledToFill()
+            } else if let artwork = profile.artworkURL, !artwork.isEmpty {
+                CachedAsyncImage(urlString: artwork).scaledToFill()
             } else if let url = profile.accountAvatarURL {
                 CachedAsyncImage(urlString: url).scaledToFill()
             } else {
@@ -56,7 +68,7 @@ struct ProfileAvatarView: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(Circle())
+        .clipShape(shape)
         .accessibilityHidden(true)
     }
 }
@@ -283,6 +295,7 @@ struct ProfilePickerView: View {
 
     private func tile(_ profile: AppProfile) -> some View {
         let isActive = profile.id == manager.active?.id
+        let tileRadius = max(avatarSize * 0.18, 6)
         return Button {
             if managing {
                 editing = .edit(profile.id)
@@ -293,12 +306,16 @@ struct ProfilePickerView: View {
             }
         } label: {
             VStack(spacing: 12) {
-                ProfileAvatarView(profile: profile, size: avatarSize)
-                    .overlay(Circle().strokeBorder(.white, lineWidth: isActive && !managing ? 3 : 0).padding(-6))
+                ProfileAvatarView(profile: profile, size: avatarSize, square: true)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: tileRadius + 6, style: .continuous)
+                            .strokeBorder(.white, lineWidth: isActive && !managing ? 3 : 0)
+                    )
                     .overlay {
                         if managing {
                             ZStack {
-                                Circle().fill(.black.opacity(0.35))
+                                RoundedRectangle(cornerRadius: tileRadius, style: .continuous)
+                                    .fill(.black.opacity(0.35))
                                 IconView("pencil")
                                     .font(.system(size: 24, weight: .semibold))
                                     .foregroundStyle(.white)
@@ -323,8 +340,10 @@ struct ProfilePickerView: View {
         Button { editing = .create } label: {
             VStack(spacing: 12) {
                 ZStack {
-                    Circle().fill(Color.black.opacity(0.35))
-                    Circle().strokeBorder(.white, lineWidth: 2)
+                    RoundedRectangle(cornerRadius: max(avatarSize * 0.18, 6), style: .continuous)
+                        .fill(Color.black.opacity(0.35))
+                    RoundedRectangle(cornerRadius: max(avatarSize * 0.18, 6), style: .continuous)
+                        .strokeBorder(.white, lineWidth: 2)
                     IconView("plus")
                         .font(.system(size: avatarSize * 0.3, weight: .light))
                         .foregroundStyle(.white)
@@ -343,7 +362,7 @@ struct ProfilePickerView: View {
         ZStack {
             background
             VStack(spacing: 20) {
-                ProfileAvatarView(profile: profile, size: avatarSize)
+                ProfileAvatarView(profile: profile, size: avatarSize, square: true)
                 ProgressView().tint(.white)
                 Text("profile.switching_to \(profile.name)")
                     .font(.headline)
@@ -402,6 +421,9 @@ struct ProfileEditorView: View {
     @State private var colorHex = ""
     @State private var photo: Data?
     @State private var photoRemoved = false
+    @State private var artworkURL: String?
+    @State private var artworkTitle: String?
+    @State private var showArtworkPicker = false
     @State private var moduleChoice = ModuleChoiceTag.own
     @State private var moduleSource: UUID?
     @State private var showFileImporter = false
@@ -423,10 +445,14 @@ struct ProfileEditorView: View {
         profile.name = name.isEmpty ? (editing?.name ?? "?") : name
         profile.colorHex = colorHex
         if photoRemoved { profile.hasPhoto = false }
+        profile.artworkURL = artworkURL
+        profile.artworkTitle = artworkTitle
         return profile
     }
 
-    private var hasPicture: Bool { photo != nil || (preview.hasPhoto && !photoRemoved) }
+    private var hasPicture: Bool {
+        photo != nil || artworkURL != nil || (preview.hasPhoto && !photoRemoved)
+    }
 
     var body: some View {
         Form {
@@ -501,6 +527,14 @@ struct ProfileEditorView: View {
             if let data = try? Data(contentsOf: url) { usePhoto(data) }
         }
         .modifier(PhotoPickerModifier(isPresented: $showPhotoPicker) { usePhoto($0) })
+        .sheet(isPresented: $showArtworkPicker) {
+            AnimeArtworkPickerView { url, title in
+                guard let url else { return }
+                artworkURL = url
+                artworkTitle = title
+                photoRemoved = false
+            }
+        }
         .confirmationDialog(String(localized: "common.delete_name_confirm \(editing?.name ?? String())"), isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("profile.delete_profile", role: .destructive) {
                 if let id = editing?.id { Task { await manager.deleteSwitchingAway(id) } }
@@ -540,12 +574,15 @@ struct ProfileEditorView: View {
             if PhotoPickerModifier.isAvailable {
                 Button { showPhotoPicker = true } label: { Label("profile.choose_photo", icon: "photo.on.rectangle") }
             }
+            Button { showArtworkPicker = true } label: { Label("profile.choose_anime_artwork", icon: "sparkles") }
             Button { showFileImporter = true } label: { Label("profile.choose_file", icon: "folder") }
             if hasPicture {
                 Divider()
                 Button(role: .destructive) {
                     photo = nil
                     photoRemoved = true
+                    artworkURL = nil
+                    artworkTitle = nil
                 } label: { Label("profile.remove_picture", icon: "trash") }
             }
         } label: {
@@ -617,6 +654,8 @@ struct ProfileEditorView: View {
         if let editing {
             name = editing.name
             colorHex = editing.colorHex
+            artworkURL = editing.artworkURL
+            artworkTitle = editing.artworkTitle
         } else {
             colorHex = ProfilePalette.pick(avoiding: manager.profiles.map(\.colorHex))
             moduleSource = manager.active?.id
@@ -638,6 +677,7 @@ struct ProfileEditorView: View {
             } else if photoRemoved {
                 manager.setPhoto(nil, for: editing.id)
             }
+            manager.setArtwork(artworkURL, title: artworkTitle, for: editing.id)
         } else {
             let source = moduleSource ?? manager.active?.id
             let choice: ProfileManager.ModuleChoice
@@ -646,7 +686,8 @@ struct ProfileEditorView: View {
             case (.share, let id?): choice = .share(with: id)
             default: choice = .own
             }
-            manager.create(name: name, photo: photo, colorHex: colorHex, modules: choice)
+            let created = manager.create(name: name, photo: photo, colorHex: colorHex, modules: choice)
+            manager.setArtwork(artworkURL, title: artworkTitle, for: created.id)
         }
         dismiss()
     }

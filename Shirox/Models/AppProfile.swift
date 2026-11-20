@@ -12,6 +12,10 @@ struct AppProfile: Codable, Identifiable, Equatable, Hashable {
     var colorHex: String
     /// A picture the user chose for it, kept under `Profiles/photos/`.
     var hasPhoto: Bool = false
+    /// An anime cover chosen as its picture, Netflix-style: shown between a photo the user
+    /// took themselves and the account's avatar.
+    var artworkURL: String?
+    var artworkTitle: String?
     /// The picture of its first signed-in account, AniList, then MyAnimeList, then Simkl,
     /// remembered so it shows while the profile isn't the active one.
     var accountAvatarURL: String?
