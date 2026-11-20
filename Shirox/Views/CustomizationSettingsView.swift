@@ -15,10 +15,6 @@ struct CustomizationSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "paintpalette", title: "settings.customization",
-                                 subtitle: "settings.customization_intro")
-            }
 
             Section {
                 Picker("settings.appearance", selection: $colorScheme) {

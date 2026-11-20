@@ -18,52 +18,54 @@ struct SettingsSectionHeader: View {
     }
 }
 
-// MARK: - Page intro
+// MARK: - Icon tile
 
-/// A settings page's opening card: the icon it was opened with, its name, and one line on
-/// what it's for — every page says what it does before its first section.
-struct SettingsPageIntro: View {
+/// The icon tile every Settings row leads with: glass on the platforms that have it, a
+/// plain fill where they don't, over `IconView` so icon packs reach it like everywhere else.
+struct SettingsIconTile: View {
     let icon: String
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    var size: CGFloat = 28
+    var cornerRadius: CGFloat = 7
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        ZStack {
             IconView(icon)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 40, height: 40)
-                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
-            Text(title)
-                .font(.title3.weight(.bold))
-            Text(subtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                .font(.system(size: 13, weight: .semibold))
+                // Adapts to the appearance: white vanished against light mode's pale glass.
+                .foregroundStyle(.primary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.secondary.opacity(0.07))
+        .frame(width: size, height: size)
+        .glassChrome(
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous),
+            enabled: true,
+            tint: nil,
+            off: .ultraThinMaterial
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.5)
         )
     }
 }
 
-/// The intro as a clear-backed list row, so it sits above a page's sections without the
-/// grouped background doubling up behind the card.
-struct SettingsIntroRow: View {
+// MARK: - Rows
+
+/// A Settings toggle as a full row: the same icon tile the nav rows lead with, the title
+/// beside it, the switch at the end — one look for every page. `switchTint` stays the one
+/// place the switch's colour is set.
+struct SettingsToggleRow: View {
     let icon: String
     let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    @Binding var isOn: Bool
 
     var body: some View {
-        SettingsPageIntro(icon: icon, title: title, subtitle: subtitle)
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 2, trailing: 16))
+        Toggle(isOn: $isOn) {
+            HStack(spacing: 12) {
+                SettingsIconTile(icon: icon)
+                Text(title)
+                    .font(.body)
+            }
+        }
+        .switchTint()
     }
 }

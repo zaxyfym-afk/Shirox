@@ -11,23 +11,7 @@ struct SettingsNavRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            ZStack {
-                IconView(icon)
-                    .font(.system(size: 13, weight: .semibold))
-                    // Adapts to the appearance: white vanished against light mode's pale glass.
-                    .foregroundStyle(.primary)
-            }
-            .frame(width: 28, height: 28)
-            .glassChrome(
-                RoundedRectangle(cornerRadius: 7, style: .continuous),
-                enabled: true,
-                tint: nil,
-                off: .ultraThinMaterial
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.5)
-            )
+            SettingsIconTile(icon: icon)
 
             Text(title)
                 .font(.body)
@@ -572,9 +556,6 @@ struct AccountsSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "person.2", title: "settings.providers", subtitle: "settings.providers_intro")
-            }
             ProvidersSettingsSection()
 
             // Simkl is a write-side tracker, not a browsing source, so it isn't in the provider list,
@@ -814,9 +795,6 @@ struct PlayerSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "play.tv", title: "settings.player", subtitle: "settings.player_intro")
-            }
             Section("settings.display_and_style") {
                 // A phone's: a Mac's player is a window.
                 #if !os(macOS)
@@ -975,9 +953,6 @@ struct SubtitleSettingsPage: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "captions.bubble", title: "settings.subtitles", subtitle: "settings.subtitles_intro")
-            }
             Section("settings.preview") {
                 preview
                     .listRowInsets(EdgeInsets())
@@ -1144,9 +1119,6 @@ struct ReaderSettingsView: View {
     var body: some View {
         SettingsList {
             Section {
-                SettingsIntroRow(icon: "book", title: "settings.reader", subtitle: "settings.reader_intro")
-            }
-            Section {
                 Toggle("settings.tap_sides_to_scroll_or", isOn: $tapZones)
                     .switchTint()
             } header: {
@@ -1253,9 +1225,6 @@ struct ModulesSettingsView: View {
     var body: some View {
         SettingsList {
             Section {
-                SettingsIntroRow(icon: "puzzlepiece.extension", title: "common.modules", subtitle: "settings.modules_intro")
-            }
-            Section {
                 NavigationLink {
                     ModuleListView()
                 } label: {
@@ -1353,9 +1322,6 @@ struct LibrarySettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "books.vertical", title: "common.library", subtitle: "settings.library_intro")
-            }
             Section {
                 NavigationLink {
                     LibraryListOrderView()
@@ -1508,9 +1474,6 @@ struct DownloadsSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "arrow.down.circle", title: "common.downloads", subtitle: "settings.downloads_intro")
-            }
             Section("common.downloads") {
                 Picker("settings.download_quality", selection: $downloadQuality) {
                     Text("settings.best").tag("highest")
@@ -1600,9 +1563,6 @@ struct StorageSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                SettingsIntroRow(icon: "internaldrive", title: "settings.storage_and_cache", subtitle: "settings.storage_intro")
-            }
             Section("settings.data") {
                 Toggle("settings.data_saver", isOn: $dataSaverEnabled)
                     .switchTint()

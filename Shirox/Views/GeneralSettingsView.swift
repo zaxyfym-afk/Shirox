@@ -42,9 +42,6 @@ struct GeneralSettingsView: View {
     var body: some View {
         SettingsList {
             Section {
-                SettingsIntroRow(icon: "gearshape", title: "settings.general", subtitle: "settings.general_intro")
-            }
-            Section {
                 Picker("settings.appearance", selection: $colorScheme) {
                     ForEach(AppColorScheme.allCases) { scheme in
                         Text(scheme.title).tag(scheme.rawValue)
