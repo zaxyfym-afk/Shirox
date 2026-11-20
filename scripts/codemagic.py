@@ -11,7 +11,11 @@ Commands
   wait <buildId>                    Poll (default 5s) until the build finishes
   logs <buildId> [--all] [-o DIR]   Step logs (default: script + failed steps)
   errors <buildId>                  Compiler errors with file:line, grouped
-  artifacts <buildId>               Artifacts with download URLs
+  artifacts <buildId>               Artifacts: direct file URLs + install pages
+  ipa [buildId] [--download PATH]   Both links for a build's .ipa (defaults to
+                                    the latest successful build; --download also
+                                    saves the file). URLs are re-fetched fresh
+                                    on every run; this never triggers a build.
   report <buildId>                  Full report: status, SHA, duration, errors/artifacts
   trigger --authorized [--branch B] [--workflow W]
                                     Start exactly ONE build on main. The
@@ -23,6 +27,13 @@ The API token is read from CODEMAGIC_API_TOKEN, falling back to the file
 named by CODEMAGIC_TOKEN_FILE (default: /home/z/my-project/.scratch/
 codemagic-token in the z.ai sandbox). The token is never bundled with this
 script, never printed, and never committed.
+
+Link mechanics: the signed api.codemagic.io artifact URL serves Codemagic's
+install page to browsers (it sniffs the User-Agent) and 302-redirects every
+other client to a short-lived presigned storage URL that holds the raw file.
+`artifacts` and `ipa` resolve and print BOTH: the direct file URL (downloads
+in any client, iPhone Safari included) and the install page. The direct URL
+expires; re-run the command for a fresh pair instead of rebuilding.
 """
 
 import argparse
@@ -310,6 +321,54 @@ def cmd_errors(args):
         print(f"[{step}] {msg}")
 
 
+def resolve_direct_url(signed_url):
+    """Signed api.codemagic.io artifact links 302 to a presigned storage URL
+    for non-browser clients (browsers get the install page instead). Resolve
+    and return that direct file URL, or None when there is no redirect."""
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    opener = urllib.request.build_opener(NoRedirect)
+    req = urllib.request.Request(signed_url, headers={"User-Agent": "codemagic.py"})
+    try:
+        with opener.open(req, timeout=30) as resp:
+            return resp.headers.get("Location")
+    except urllib.error.HTTPError as exc:
+        if 300 <= exc.code < 400:
+            return exc.headers.get("Location")
+        raise SystemExit(f"HTTP {exc.code} resolving the artifact link "
+                         f"(expired? re-run for a fresh pair): {signed_url[:60]}...")
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise SystemExit(f"network error resolving the artifact link: {exc}")
+
+
+def direct_url_expiry(direct_url):
+    """The presigned URL's Expires= epoch seconds, as a UTC datetime or None."""
+    m = re.search(r"[?&]Expires=(\d+)", direct_url or "")
+    return datetime.fromtimestamp(int(m.group(1)), tz=timezone.utc) if m else None
+
+
+def print_artifact_links(entry):
+    """The dual delivery: direct file URL + Codemagic's install page."""
+    signed = entry.get("short_lived_download_url")
+    if not signed:
+        print("  (no download URL in the entry)")
+        return
+    direct = resolve_direct_url(signed)
+    if direct:
+        print("  direct file (any client, incl. iPhone Safari):")
+        print(f"    {direct}")
+        exp = direct_url_expiry(direct)
+        if exp:
+            print(f"    valid until {exp.strftime('%Y-%m-%d %H:%M UTC')}")
+        print("  install page (Codemagic's browser page with the Install button):")
+        print(f"    {signed}")
+    else:
+        print("  (no redirect found - the API served no direct file URL)")
+        print(f"    {signed}")
+
+
 def cmd_artifacts(args):
     b = get_build(args.build_id)
     v1_arts = b.get("artefacts") or []
@@ -328,8 +387,74 @@ def cmd_artifacts(args):
     for a in arts:
         size = a.get("size_in_bytes")
         size_h = f"{size / 1_048_576:.1f} MB" if isinstance(size, (int, float)) else "?"
-        print(f"{a.get('name', '?')}  ({size_h}, {a.get('type', '?')})")
-        print(f"  {a.get('short_lived_download_url') or '(no download URL in the entry)'}")
+        version = ""
+        if a.get("version_name"):
+            version = f", {a['version_name']}"
+            if a.get("version_code"):
+                version += f" ({a['version_code']})"
+        print(f"{a.get('name', '?')}  ({size_h}, {a.get('type', '?')}{version})")
+        print_artifact_links(a)
+
+
+def latest_successful_build_id(limit=20):
+    doc = request(f"/builds?limit={limit}")
+    for b in doc.get("builds", []):
+        if (b.get("status") or "") in OK_STATES:
+            return b.get("_id")
+    return None
+
+
+def cmd_ipa(args):
+    """Both links for a build's unsigned .ipa; re-run any time for fresh URLs
+    (they are short-lived). Never triggers a build."""
+    build_id = args.build_id
+    if not build_id:
+        build_id = latest_successful_build_id()
+        if not build_id:
+            raise SystemExit("no successful build in the recent list; pass a build id")
+    b = get_build(build_id)
+    doc = request(f"/builds/{build_id}", base=V3)
+    arts = (doc.get("data") or {}).get("artifacts") or []
+    ipa = next((a for a in arts if (a.get("name") or "").endswith(".ipa")), None)
+    if not ipa:
+        raise SystemExit(f"build {build_id} has no .ipa artifact")
+    commit = (b.get("commit") or {}).get("hash") or ""
+    size = ipa.get("size_in_bytes")
+    size_h = f"{size / 1_048_576:.1f} MB" if isinstance(size, (int, float)) else "?"
+    version = ipa.get("version_name") or "?"
+    if ipa.get("version_code"):
+        version += f" ({ipa['version_code']})"
+    print(f"build:     {build_id} (#{b.get('index')}) | {commit[:8]} | "
+          f"{b.get('status')} | {fmt_duration(b.get('startedAt'), b.get('finishedAt'))}")
+    print(f"artifact:  {ipa.get('name')} ({size_h}, {version})")
+    print_artifact_links(ipa)
+    if args.download:
+        direct = resolve_direct_url(ipa["short_lived_download_url"])
+        if not direct:
+            raise SystemExit("no direct URL to download from")
+        print(f"\ndownloading to {args.download} ...")
+        digest = download_file(direct, args.download, expected_bytes=size)
+        print(f"saved: {args.download} ({size_h}, sha256 {digest})")
+
+
+def download_file(url, path, expected_bytes=None, chunk=1 << 20):
+    """Stream url to path; returns the file's sha256 hex digest."""
+    import hashlib
+    digest = hashlib.sha256()
+    got = 0
+    with urllib.request.urlopen(urllib.request.Request(
+            url, headers={"User-Agent": "codemagic.py"}), timeout=60) as resp, \
+            open(path, "wb") as fh:
+        while True:
+            block = resp.read(chunk)
+            if not block:
+                break
+            digest.update(block)
+            fh.write(block)
+            got += len(block)
+    if expected_bytes and got != expected_bytes:
+        raise SystemExit(f"size mismatch: got {got} bytes, expected {expected_bytes}")
+    return digest.hexdigest()
 
 
 def cmd_report(args):
@@ -436,6 +561,11 @@ def main():
     p = sub.add_parser("artifacts")
     p.add_argument("build_id")
     p.set_defaults(func=cmd_artifacts)
+
+    p = sub.add_parser("ipa", help="both .ipa links, fresh every run (no build)")
+    p.add_argument("build_id", nargs="?", help="defaults to the latest successful build")
+    p.add_argument("--download", help="also download the .ipa to this path")
+    p.set_defaults(func=cmd_ipa)
 
     p = sub.add_parser("report")
     p.add_argument("build_id")

@@ -77,6 +77,24 @@
   short-lived — regenerate with the same command); the v1
   /artifacts/<uuid>/<uuid>/<file> form needs the x-auth-token header.
   Codemagic's success status string is "finished".
+- Artifact links, learned by probing (2026-11-20 ~20:40 UTC): the signed
+  api.codemagic.io URL sniffs the client. Browsers (iPhone Safari included)
+  get a 302 to an itms-services:// install manifest — the "Install" option
+  the user saw, useless for an unsigned IPA (nothing is signed to install).
+  Every other client gets a 302 to a presigned storage.googleapis.com URL
+  holding the raw file — and that presign lives about ONE MINUTE, so a
+  pasted "direct link" can never survive a chat. No query parameter
+  (download/direct/file/...) changes the sniffing. The robust delivery is
+  the file itself: `ipa --download <path>` resolves a fresh presign and
+  downloads in one shot. Done for build 6: workspace download/Shirox.ipa,
+  28445186 bytes, sha256
+  4c6039d32fd4a43c8320c2831f36f38facbb4d131e40e7005d8c32fb7f0af2ce,
+  verified as a real Payload/Shirox.app zip (778 files). scripts/codemagic.py
+  now prints BOTH links per artifact (direct file URL with its expiry +
+  the install page) in artifacts/report, and `ipa [buildId] [--download P]`
+  re-fetches fresh links for the latest green build on every run — it
+  never triggers a build. Expired link: re-run the command; do not rebuild
+  for links.
 - GitHub Actions stays as the backup: the nightly runs on push and on two
   crons (21:07 and 03:07 UTC, macos-15, Xcode 26.3 pinned via
   DEVELOPER_DIR). It still cannot get a runner at European peak: the runs

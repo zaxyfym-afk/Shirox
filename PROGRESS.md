@@ -26,6 +26,13 @@ Updated: 2026-11-20, sixth session (the first green build: Codemagic build 6).
   SHA, unsigned Shirox.ipa 27.1 MB (1.1.0 (127), iPhoneOS, min iOS 15.0)
   plus dSYMs. The token is at .scratch/codemagic-token; the script now
   lives in the repo at scripts/codemagic.py.
+- The green build's .ipa is delivered as a FILE (workspace
+  download/Shirox.ipa, sha256 4c60...f2ce): Codemagic's artifact links
+  UA-sniff (browsers get an itms-services install manifest, not the file)
+  and the presigned direct URL lives about a minute. Standard flow since:
+  `python3 scripts/codemagic.py ipa [--download PATH]` refreshes both
+  links or fetches the file for the latest green build — no build
+  triggered for links, ever.
 - The redesign is GREEN on the primary for the first time (build 6). The
   GitHub backup nightly still fails under its pinned Xcode 26.3 (three
   errors of its own: a HLSManifestParser type-check timeout, an ambiguous
