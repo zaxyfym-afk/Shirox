@@ -6,7 +6,7 @@ enum ToastType {
     case success
     case error
     case warning
-    
+
     var color: Color {
         switch self {
         case .info: return .blue
@@ -15,7 +15,7 @@ enum ToastType {
         case .warning: return .orange
         }
     }
-    
+
     var icon: String {
         switch self {
         case .info: return "info.circle.fill"
@@ -36,11 +36,11 @@ struct Toast: Identifiable {
 @MainActor
 final class ToastManager: ObservableObject {
     static let shared = ToastManager()
-    
+
     @Published var toasts: [Toast] = []
-    
+
     private init() {}
-    
+
     /// Most toasts that can ever be on screen at once. Beyond this the oldest are dropped:
     /// a burst (a failing provider, a batch finishing) should read as a stack with a count,
     /// never as a column tall enough to bury the app.
@@ -60,7 +60,7 @@ final class ToastManager: ObservableObject {
             self.remove(toast)
         }
     }
-    
+
     func remove(_ toast: Toast) {
         withAnimation(.spring()) {
             toasts.removeAll { $0.id == toast.id }
@@ -70,12 +70,161 @@ final class ToastManager: ObservableObject {
 
 /// Bottom-anchored toast overlay.
 ///
-/// Several toasts can land at once — a batch download resolving, a provider failing episode
-/// after episode — and rendering each as its own full-width card walled off the bottom of the
-/// screen. They now collapse into a stack: the newest is in front at full size, the ones behind
-/// peek out above it, and a count says how many there are. Tapping expands the stack into the
-/// full list; tapping a toast dismisses it.
+/// On iOS 26 the toasts are stacked glass capsules — the newest in front, the ones behind
+/// peeking out scaled above it, each tinted by what it's about (the reference SToasts).
+/// Below 26, and on a Mac and Apple TV, the same stack as cards: full-width glass chrome,
+/// a count badge, tap to expand the burst into the list. `ToastManager` — the API every
+/// call site knows — is the same in both.
 struct ToastView: View {
+    @ObservedObject var manager = ToastManager.shared
+
+    var body: some View {
+        Group {
+            #if os(iOS) && !targetEnvironment(macCatalyst)
+            if #available(iOS 26.0, *) {
+                StackedToastLayer()
+            } else {
+                ClassicToastStack()
+            }
+            #else
+            ClassicToastStack()
+            #endif
+        }
+        .padding(.horizontal, 16)
+        // Clear of the tab bar on iOS; a Mac window has none.
+        #if os(macOS)
+        .frame(maxWidth: 520)
+        .padding(.bottom, 24)
+        #else
+        .padding(.bottom, 88)
+        #endif
+    }
+}
+
+// MARK: - Stacked capsules (iOS 26+)
+
+#if os(iOS) && !targetEnvironment(macCatalyst)
+/// The toasts as a stack of glass capsules over a soft-blurred base, pushed and scaled by
+/// their place in the stack — a burst reads as depth, not as a column. Ported from the
+/// reference SToasts; the stack is a disabled scroll view purely for its geometry, so the
+/// cards behind the front one can be laid out by position rather than by hand.
+@available(iOS 26.0, *)
+private struct StackedToastLayer: View {
+    @ObservedObject private var manager = ToastManager.shared
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ScrollView(.vertical) {
+            VStack(spacing: 0) {
+                ForEach(manager.toasts.reversed()) { toast in
+                    let index = manager.toasts.firstIndex(where: { $0.id == toast.id }) ?? 0
+
+                    StackedToastCard(toast: toast) {
+                        manager.remove(toast)
+                    }
+                    .visualEffect { content, proxy in
+                        let minY = proxy.frame(in: .scrollView).minY
+                        let progress = minY / 65
+                        // Only ever the two cards behind the front one push up.
+                        let offset = min(progress * 10, 20)
+                        let scale = min(progress * 0.05, 0.1)
+
+                        return content
+                            .scaleEffect(1 - scale, anchor: .bottom)
+                            .offset(y: -minY)
+                            .offset(y: offset)
+                    }
+                    .zIndex(Double(index))
+                    .transition(reduceMotion ? .opacity : .asymmetric(
+                        insertion: .offset(y: 500).combined(with: AnyTransition(.blurReplace)),
+                        removal: .move(edge: .leading).combined(with: AnyTransition(.blurReplace))
+                    ))
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .scrollDisabled(true)
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+        .frame(height: 90)
+        // 90 - 65 = 25: the stack's own base, above wherever it's mounted.
+        .offset(y: 25 - max(min(CGFloat(manager.toasts.count - 1) * 12.5, 25), 0))
+        .background {
+            ScrollView(.vertical) { }
+                .frame(height: 0)
+                .allowsHitTesting(false)
+                .safeAreaBar(edge: .bottom, spacing: 0) {
+                    Text(" ")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 90)
+                }
+                .scrollEdgeEffectStyle(.soft, for: .bottom)
+                .opacity(manager.toasts.isEmpty ? 0 : 1)
+        }
+        .animation(.smooth(duration: 0.3, extraBounce: 0), value: manager.toasts)
+        .allowsHitTesting(!manager.toasts.isEmpty)
+    }
+}
+
+@available(iOS 26.0, *)
+private struct StackedToastCard: View {
+    let toast: Toast
+    let onDismiss: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        HStack(spacing: 15) {
+            IconView(toast.type.icon)
+                .font(.title3)
+                .foregroundStyle(toast.type.color.gradient)
+
+            Text(toast.message)
+                .font(.callout)
+                .foregroundStyle(Color.primary)
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
+        }
+        .padding(.horizontal, 20)
+        .frame(maxWidth: 310, alignment: .leading)
+        .frame(minHeight: 65)
+        .background {
+            // A subtle tint bleed, the Siri bubble's trick: strongest at the card's top,
+            // gone by its foot.
+            let row1 = Array(repeating: toast.type.color.opacity(0.15), count: 3)
+            let row2 = Array(repeating: toast.type.color.opacity(0.1), count: 3)
+            let row3 = Array(repeating: Color.clear, count: 3)
+
+            MeshGradient(
+                width: 3,
+                height: 3,
+                points: [
+                    [0, 0], [0.5, 0], [1, 0],
+                    [0, 0.5], [0.5, 0.5], [1, 0.5],
+                    [0, 1], [0.5, 1], [1, 1]
+                ],
+                colors: row1 + row2 + row3
+            )
+            .clipShape(.capsule)
+        }
+        .glassEffect(.regular, in: .capsule)
+        .contentShape(.capsule)
+        .compositingGroup()
+        .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 10)
+        .onTapGesture(perform: onDismiss)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(toast.message)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("shared.double_tap_to_dismiss")
+    }
+}
+#endif
+
+// MARK: - Cards (below iOS 26, and a Mac and Apple TV)
+
+/// The toasts as cards: the newest in front at full size, the ones behind peeking out
+/// above it, a count saying how many. Tapping the stack expands it into the full list;
+/// tapping a toast dismisses it.
+private struct ClassicToastStack: View {
     @ObservedObject var manager = ToastManager.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isExpanded = false
@@ -95,14 +244,6 @@ struct ToastView: View {
                 collapsedStack
             }
         }
-        .padding(.horizontal, 16)
-        // Clear of the tab bar on iOS; a Mac window has none.
-        #if os(macOS)
-        .frame(maxWidth: 520)
-        .padding(.bottom, 24)
-        #else
-        .padding(.bottom, 88)
-        #endif
         .animation(motion, value: manager.toasts.map(\.id))
         .animation(motion, value: isExpanded)
         .onChangeOf(manager.toasts.count) { count in
