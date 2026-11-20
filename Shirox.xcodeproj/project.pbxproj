@@ -324,6 +324,9 @@
 		1279E56F2FCA397700C9BA56 /* EpisodeSortManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4852FCA397700C9BA56 /* EpisodeSortManager.swift */; };
 		1279E5702FCA397700C9BA56 /* MacPlayerWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E48E2FCA397700C9BA56 /* MacPlayerWindowManager.swift */; };
 		1279E5712FCA397700C9BA56 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4CA2FCA397700C9BA56 /* ProfileView.swift */; };
+		FC6B0A6A9F40A58E75E946F1 /* AnimeArtworkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */; };
+		FCFF49237D7D9217B6837DC5 /* AnimeArtworkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */; };
+		BBB0CDD3338990ECE6CC8F09 /* AnimeArtworkPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */; };
 		1279E5722FCA397700C9BA56 /* LibraryEntryEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4AF2FCA397700C9BA56 /* LibraryEntryEditSheet.swift */; };
 		1279E5732FCA397700C9BA56 /* JSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E48A2FCA397700C9BA56 /* JSEngine.swift */; };
 		1279E5742FCA397700C9BA56 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4A22FCA397700C9BA56 /* DetailViewModel.swift */; };
@@ -402,6 +405,18 @@
 		1279E5BE2FCA397700C9BA56 /* WatchHistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E49E2FCA397700C9BA56 /* WatchHistoryService.swift */; };
 		1279E5BF2FCA397700C9BA56 /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E46E2FCA397700C9BA56 /* Media.swift */; };
 		1279E5C02FCA397700C9BA56 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4E42FCA397700C9BA56 /* SettingsView.swift */; };
+		DF9675DFFE906207BDFB9579 /* DetailExtrasSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D856B8465017881B5D900E /* DetailExtrasSections.swift */; };
+		1FC9B9A7907DD8D9D0CE7724 /* DetailExtrasSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D856B8465017881B5D900E /* DetailExtrasSections.swift */; };
+		B2982C1C3CFA3D6B9F647830 /* DetailExtrasSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D856B8465017881B5D900E /* DetailExtrasSections.swift */; };
+		7C819901FF8E8CB7491BECBA /* CustomizationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D76B85B29F2F8FF588E1E0 /* CustomizationSettingsView.swift */; };
+		ECD0618419CA5BD6CE58A0AB /* CustomizationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D76B85B29F2F8FF588E1E0 /* CustomizationSettingsView.swift */; };
+		3FE32E57718697793C61BAA0 /* CustomizationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D76B85B29F2F8FF588E1E0 /* CustomizationSettingsView.swift */; };
+		C8AE69E84BEAEF7B6F34CC33 /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDAF6B287BEE3CB75CDBA2F /* NotificationsSettingsView.swift */; };
+		B43E0B8DBF5981066A958F0A /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDAF6B287BEE3CB75CDBA2F /* NotificationsSettingsView.swift */; };
+		EACCE053B4C8A640F4142B22 /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDAF6B287BEE3CB75CDBA2F /* NotificationsSettingsView.swift */; };
+		33918892750AC563EA506C41 /* SettingsDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8EE65356CB30DCFFBB289A /* SettingsDesign.swift */; };
+		369B1867A8BF3DE67D540C17 /* SettingsDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8EE65356CB30DCFFBB289A /* SettingsDesign.swift */; };
+		5AEAEBEEEE9867E16D6546A1 /* SettingsDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8EE65356CB30DCFFBB289A /* SettingsDesign.swift */; };
 		1279E5C12FCA397700C9BA56 /* ProfileActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4C62FCA397700C9BA56 /* ProfileActivityView.swift */; };
 		1279E5C22FCA397700C9BA56 /* UserActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4752FCA397700C9BA56 /* UserActivity.swift */; };
 		1279E5C32FCA397700C9BA56 /* DownloadItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E46A2FCA397700C9BA56 /* DownloadItem.swift */; };
@@ -919,6 +934,12 @@
 		A00137A45A0CEF5CE53358BD /* PlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60B798231DDDA4482EFD7DF /* PlaybackEngine.swift */; };
 		A02A7D2553B9D9C1BFB5CFC6 /* SubtitleRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 471774F55A780636AB2EE602 /* SubtitleRoutingTests.swift */; };
 		A044BB41F2C2807DD5B5F873 /* AppAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02DCCB8FDDAB9943AE709D29 /* AppAppearance.swift */; };
+		FACFBC207DD3A402DDE09360 /* EpisodeReleaseNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 320EE26AAFC40D24A0FB0689 /* EpisodeReleaseNotifier.swift */; };
+		B32F8672C3463323274EA3DD /* EpisodeReleaseNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 320EE26AAFC40D24A0FB0689 /* EpisodeReleaseNotifier.swift */; };
+		6339DA0D26C853BBCF60F428 /* EpisodeReleaseNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 320EE26AAFC40D24A0FB0689 /* EpisodeReleaseNotifier.swift */; };
+		49B2959CAF90A055F131669F /* FollowedSeriesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D1FF03C4C06128042F8671 /* FollowedSeriesStore.swift */; };
+		B769076E6541967CDA5A3661 /* FollowedSeriesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D1FF03C4C06128042F8671 /* FollowedSeriesStore.swift */; };
+		028186E783CC4FE33052C14E /* FollowedSeriesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D1FF03C4C06128042F8671 /* FollowedSeriesStore.swift */; };
 		A05FBBC4521D380C9FD9BEA1 /* PlayerAssOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A08E27B4A688BE98644F700 /* PlayerAssOverlay.swift */; };
 		A06C948886D47E15E4842DF6 /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = C333924C8E6D85D22BFA180C /* MPVKit */; };
 		A0722750ED30A028878FF395 /* MALMangaLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BAE193514A5E83E81EF31B8 /* MALMangaLibraryService.swift */; };
@@ -1248,6 +1269,8 @@
 		01DD2646B2332E4566F4AFAA /* AniListTitleMatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AniListTitleMatcher.swift; sourceTree = "<group>"; };
 		0262667FE814DCD14467C158 /* BackupLocalLibrarySectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupLocalLibrarySectionTests.swift; sourceTree = "<group>"; };
 		02DCCB8FDDAB9943AE709D29 /* AppAppearance.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppAppearance.swift; sourceTree = "<group>"; };
+		320EE26AAFC40D24A0FB0689 /* EpisodeReleaseNotifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EpisodeReleaseNotifier.swift; sourceTree = "<group>"; };
+		A7D1FF03C4C06128042F8671 /* FollowedSeriesStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FollowedSeriesStore.swift; sourceTree = "<group>"; };
 		0336BA7D338DEF46346E5A68 /* SimklListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimklListView.swift; sourceTree = "<group>"; };
 		04868E273BE4E7CADEBC05A1 /* SimklModuleMatch.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimklModuleMatch.swift; sourceTree = "<group>"; };
 		060ADE252E98F5E5EB003812 /* StreamProbeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreamProbeTests.swift; sourceTree = "<group>"; };
@@ -1367,6 +1390,7 @@
 		1279E4C82FCA397700C9BA56 /* ProfileSocialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSocialView.swift; sourceTree = "<group>"; };
 		1279E4C92FCA397700C9BA56 /* ProfileStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStatsView.swift; sourceTree = "<group>"; };
 		1279E4CA2FCA397700C9BA56 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimeArtworkPickerView.swift; sourceTree = "<group>"; };
 		1279E4CC2FCA397700C9BA56 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		1279E4CD2FCA397700C9BA56 /* CloudflareBypassSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudflareBypassSheetView.swift; sourceTree = "<group>"; };
 		1279E4CE2FCA397700C9BA56 /* Color+SystemBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+SystemBackground.swift"; sourceTree = "<group>"; };
@@ -1391,6 +1415,10 @@
 		1279E4E22FCA397700C9BA56 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		1279E4E32FCA397700C9BA56 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		1279E4E42FCA397700C9BA56 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		79D856B8465017881B5D900E /* DetailExtrasSections.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DetailExtrasSections.swift; sourceTree = "<group>"; };
+		82D76B85B29F2F8FF588E1E0 /* CustomizationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomizationSettingsView.swift; sourceTree = "<group>"; };
+		5BDAF6B287BEE3CB75CDBA2F /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		BF8EE65356CB30DCFFBB289A /* SettingsDesign.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsDesign.swift; sourceTree = "<group>"; };
 		1279E4E52FCA397700C9BA56 /* StreamPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamPickerView.swift; sourceTree = "<group>"; };
 		1279E4E62FCA397700C9BA56 /* ViewTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewTracker.swift; sourceTree = "<group>"; };
 		12E407E2EB753E5929447BF8 /* MPVOptions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MPVOptions.swift; sourceTree = "<group>"; };
@@ -2058,6 +2086,8 @@
 				226570FE33308748149BEBBC /* AdvancedNetwork.swift */,
 				D069C5BCA76BEF15809ABF35 /* ManaWebPages.swift */,
 				02DCCB8FDDAB9943AE709D29 /* AppAppearance.swift */,
+				320EE26AAFC40D24A0FB0689 /* EpisodeReleaseNotifier.swift */,
+				A7D1FF03C4C06128042F8671 /* FollowedSeriesStore.swift */,
 				C5CE84DABC1229C256656877 /* IconPacks.swift */,
 				FBE4B8F016437376FFB554BE /* IconManifest.swift */,
 				3E73471E59E7AEA5DEF84E5E /* DiscordPresence.swift */,
@@ -2154,6 +2184,7 @@
 				1279E4C82FCA397700C9BA56 /* ProfileSocialView.swift */,
 				1279E4C92FCA397700C9BA56 /* ProfileStatsView.swift */,
 				1279E4CA2FCA397700C9BA56 /* ProfileView.swift */,
+				16123257EBB872E69FCC8351 /* AnimeArtworkPickerView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -2220,6 +2251,10 @@
 				1279E4E22FCA397700C9BA56 /* PlayerView.swift */,
 				1279E4E32FCA397700C9BA56 /* SearchView.swift */,
 				1279E4E42FCA397700C9BA56 /* SettingsView.swift */,
+				79D856B8465017881B5D900E /* DetailExtrasSections.swift */,
+				82D76B85B29F2F8FF588E1E0 /* CustomizationSettingsView.swift */,
+				5BDAF6B287BEE3CB75CDBA2F /* NotificationsSettingsView.swift */,
+				BF8EE65356CB30DCFFBB289A /* SettingsDesign.swift */,
 				BA0000000000000000000E41 /* BackupSettingsView.swift */,
 				1279E4E52FCA397700C9BA56 /* StreamPickerView.swift */,
 				1279E4E62FCA397700C9BA56 /* ViewTracker.swift */,
@@ -3108,6 +3143,7 @@
 				121D9B9D2FCA5636000FF9B4 /* NotificationsView.swift in Sources */,
 				121D9B9E2FCA5636000FF9B4 /* LikesSheetView.swift in Sources */,
 				121D9B9F2FCA5636000FF9B4 /* ProfileView.swift in Sources */,
+				FC6B0A6A9F40A58E75E946F1 /* AnimeArtworkPickerView.swift in Sources */,
 				121D9BA02FCA5636000FF9B4 /* ComposeStatusView.swift in Sources */,
 				121D9BA12FCA5636000FF9B4 /* ProfileActivityView.swift in Sources */,
 				121D9BA22FCA5636000FF9B4 /* ActivityDetailView.swift in Sources */,
@@ -3139,6 +3175,10 @@
 				8BD8E901FE5D4CF199886175 /* ScoreInputView.swift in Sources */,
 				121D9BAC2FCA563E000FF9B4 /* DetailView.swift in Sources */,
 				121D9BAD2FCA563E000FF9B4 /* SettingsView.swift in Sources */,
+				DF9675DFFE906207BDFB9579 /* DetailExtrasSections.swift in Sources */,
+				7C819901FF8E8CB7491BECBA /* CustomizationSettingsView.swift in Sources */,
+				C8AE69E84BEAEF7B6F34CC33 /* NotificationsSettingsView.swift in Sources */,
+				33918892750AC563EA506C41 /* SettingsDesign.swift in Sources */,
 				BA0000000000000000000E42 /* BackupSettingsView.swift in Sources */,
 				121D9BAE2FCA563E000FF9B4 /* ViewTracker.swift in Sources */,
 				121D9BAF2FCA563E000FF9B4 /* NavigationStack.swift in Sources */,
@@ -3340,6 +3380,8 @@
 				33978F8D0BB123DC707D0413 /* ManaWebPages.swift in Sources */,
 				AD84943AB15364CD958B2051 /* PlayerVideoInfoPanel.swift in Sources */,
 				A044BB41F2C2807DD5B5F873 /* AppAppearance.swift in Sources */,
+				6339DA0D26C853BBCF60F428 /* EpisodeReleaseNotifier.swift in Sources */,
+				028186E783CC4FE33052C14E /* FollowedSeriesStore.swift in Sources */,
 				6A5FC5A10818FFA2D2D52F89 /* GeneralSettingsView.swift in Sources */,
 				46C3D91AB05751508C1F0B76 /* IconPacks.swift in Sources */,
 				DF9F55C7DDCC34914F89D68B /* IconManifest.swift in Sources */,
@@ -3375,6 +3417,7 @@
 				1279E4F62FCA397700C9BA56 /* EpisodeSortManager.swift in Sources */,
 				1279E4F72FCA397700C9BA56 /* MacPlayerWindowManager.swift in Sources */,
 				1279E4F82FCA397700C9BA56 /* ProfileView.swift in Sources */,
+				FCFF49237D7D9217B6837DC5 /* AnimeArtworkPickerView.swift in Sources */,
 				1279E4F92FCA397700C9BA56 /* LibraryEntryEditSheet.swift in Sources */,
 				1279E4FA2FCA397700C9BA56 /* JSEngine.swift in Sources */,
 				1279E4FB2FCA397700C9BA56 /* DetailViewModel.swift in Sources */,
@@ -3477,6 +3520,10 @@
 				1279E5462FCA397700C9BA56 /* Media.swift in Sources */,
 				BA0000000000000000000E03 /* BackupEnvelope.swift in Sources */,
 				1279E5472FCA397700C9BA56 /* SettingsView.swift in Sources */,
+				1FC9B9A7907DD8D9D0CE7724 /* DetailExtrasSections.swift in Sources */,
+				ECD0618419CA5BD6CE58A0AB /* CustomizationSettingsView.swift in Sources */,
+				B43E0B8DBF5981066A958F0A /* NotificationsSettingsView.swift in Sources */,
+				369B1867A8BF3DE67D540C17 /* SettingsDesign.swift in Sources */,
 				BA0000000000000000000E43 /* BackupSettingsView.swift in Sources */,
 				1279E5482FCA397700C9BA56 /* ProfileActivityView.swift in Sources */,
 				1279E5492FCA397700C9BA56 /* UserActivity.swift in Sources */,
@@ -3675,6 +3722,8 @@
 				D88C108CD906D2539D7416D4 /* ManaWebPages.swift in Sources */,
 				DFAB4CCC07529FC1C787CBC4 /* PlayerVideoInfoPanel.swift in Sources */,
 				1F842210BB75A5F5C55CF37F /* AppAppearance.swift in Sources */,
+				B32F8672C3463323274EA3DD /* EpisodeReleaseNotifier.swift in Sources */,
+				B769076E6541967CDA5A3661 /* FollowedSeriesStore.swift in Sources */,
 				787F892E9CB2CE77C31DC0EE /* GeneralSettingsView.swift in Sources */,
 				14A4A2EEF853606FFD9C21CF /* IconPacks.swift in Sources */,
 				C9F5DBB95FB9F695DC721466 /* IconManifest.swift in Sources */,
@@ -3710,6 +3759,7 @@
 				1279E56F2FCA397700C9BA56 /* EpisodeSortManager.swift in Sources */,
 				1279E5702FCA397700C9BA56 /* MacPlayerWindowManager.swift in Sources */,
 				1279E5712FCA397700C9BA56 /* ProfileView.swift in Sources */,
+				BBB0CDD3338990ECE6CC8F09 /* AnimeArtworkPickerView.swift in Sources */,
 				1279E5722FCA397700C9BA56 /* LibraryEntryEditSheet.swift in Sources */,
 				1279E5732FCA397700C9BA56 /* JSEngine.swift in Sources */,
 				1279E5742FCA397700C9BA56 /* DetailViewModel.swift in Sources */,
@@ -3812,6 +3862,10 @@
 				1279E5BF2FCA397700C9BA56 /* Media.swift in Sources */,
 				BA0000000000000000000E04 /* BackupEnvelope.swift in Sources */,
 				1279E5C02FCA397700C9BA56 /* SettingsView.swift in Sources */,
+				B2982C1C3CFA3D6B9F647830 /* DetailExtrasSections.swift in Sources */,
+				3FE32E57718697793C61BAA0 /* CustomizationSettingsView.swift in Sources */,
+				EACCE053B4C8A640F4142B22 /* NotificationsSettingsView.swift in Sources */,
+				5AEAEBEEEE9867E16D6546A1 /* SettingsDesign.swift in Sources */,
 				BA0000000000000000000E44 /* BackupSettingsView.swift in Sources */,
 				1279E5C12FCA397700C9BA56 /* ProfileActivityView.swift in Sources */,
 				1279E5C22FCA397700C9BA56 /* UserActivity.swift in Sources */,
@@ -4011,6 +4065,8 @@
 				E1BE19F6D5535B0F189EDCB1 /* ManaWebPages.swift in Sources */,
 				819F1C4B9A92BE705287E1C9 /* PlayerVideoInfoPanel.swift in Sources */,
 				1C740592E5F96E2468C1346A /* AppAppearance.swift in Sources */,
+				FACFBC207DD3A402DDE09360 /* EpisodeReleaseNotifier.swift in Sources */,
+				49B2959CAF90A055F131669F /* FollowedSeriesStore.swift in Sources */,
 				2CC23752D1A41FDE78A5B8E9 /* GeneralSettingsView.swift in Sources */,
 				4BBFB1CDD35CCBCA65C3A837 /* IconPacks.swift in Sources */,
 				4BE00A6EE00E138ED5FF0D38 /* IconManifest.swift in Sources */,
@@ -4041,7 +4097,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 127;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -4058,7 +4114,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shirox.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -4079,7 +4135,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 127;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -4092,7 +4148,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.shirox.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -4199,7 +4255,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 127;
 				DEVELOPMENT_TEAM = JRMTH65Z3H;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = Shirox/Info.plist;
@@ -4208,7 +4264,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_NAME = Shirox;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -4244,7 +4300,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "shirox-icon";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 127;
 				DEAD_CODE_STRIPPING = YES;
 				INFOPLIST_FILE = "Shirox/Info-macOS.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
@@ -4253,7 +4309,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_NAME = Shirox;
 				SDKROOT = macosx;
 				SUPPORTS_MACCATALYST = NO;
@@ -4270,7 +4326,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 127;
 				DEVELOPMENT_TEAM = JRMTH65Z3H;
 				INFOPLIST_FILE = Shirox/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
@@ -4278,7 +4334,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_NAME = Shirox;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -4359,7 +4415,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "shirox-icon";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 127;
 				DEAD_CODE_STRIPPING = YES;
 				INFOPLIST_FILE = "Shirox/Info-macOS.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
@@ -4368,7 +4424,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_NAME = Shirox;
 				SDKROOT = macosx;
 				SUPPORTS_MACCATALYST = NO;
