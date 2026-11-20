@@ -46,3 +46,7 @@ released; apps.json still reads 1.1.0 (127).
 - The theme picker's segmented control declared its `@Namespace` inside the
   computed property (invalid scope; the first real compile verdict, Codemagic
   build 2): moved to the view's stored properties (cd8c299).
+- The thirteen-error compile round of Codemagic build 3 (a2d832c): the launch
+  screen now runs on the app's iOS 15 floor with the same behavior on 17+, the
+  tour carries an iOS 15 shape eraser instead of `AnyShape`, and a batch of
+  scope, type and availability errors were fixed across thirteen files.

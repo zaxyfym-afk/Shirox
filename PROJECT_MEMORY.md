@@ -70,11 +70,13 @@ Platform ladder used throughout: iOS 26 gets scenes and mesh effects, iOS 18
 gets sticky sections and the typewriter, Mac and tvOS keep the plain look and
 are excluded from the tour. The `ToastManager` API was left untouched.
 
-Known compile risk areas (first verdicts are in: Codemagic build 2 died at
-SettingsPickers.swift, fixed in cd8c299; the areas below are still unproven):
-the four availability-heavy ports (launch screen, toasts, sticky sections,
-tour) and the `animation(_:body:)` calls in LaunchScreen.swift (iOS 17 API,
-target is 17.0). See BUILD_STATUS.md.
+Known compile risk areas (verdicts so far: builds 2 and 3 died on a namespace
+scope error and then thirteen more errors, all fixed; the app has still never
+linked): the four availability-heavy ports (launch screen, toasts, sticky
+sections, tour). The app target's iOS deployment floor is 15.0 — the 17.0 in
+the project is the ShiroxTests target — so anything 16/17/18/26-only in
+ungated code goes through the shim pattern in View+AdaptiveSheet.swift or an
+#available branch. See BUILD_STATUS.md.
 
 ## Git discipline (the sync protocol)
 

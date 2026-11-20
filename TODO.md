@@ -8,8 +8,10 @@
   Codemagic API token, so the dashboard is the source of truth.
 - Build 1 (ac59ac3) failed on the missing Metal Toolchain, fixed in
   codemagic.yaml and confirmed working. Build 2 (6eb9103) failed on the
-  SettingsPickers.swift namespace scope error, fixed in cd8c299. Watch
-  build 3 on cd8c299.
+  SettingsPickers.swift namespace scope error, fixed in cd8c299. Build 3
+  (cd8c299) failed on thirteen errors across 13 files, fixed in a2d832c
+  (the app's iOS floor is 15.0, not 17.0 — that is the tests target).
+  Watch build 4 on a2d832c.
 - On failure: read the dashboard log, find the real `error:` diagnostics,
   fix, push (which rebuilds), repeat. Do not rebuild unchanged code; do
   not assume every exit code 65 is the same error.
@@ -19,8 +21,8 @@
 - Pushing while a nightly run is still PENDING supersedes (cancels) it;
   use `[skip ci]` on docs-only pushes.
 - Remaining compile risk areas: the four availability-heavy ports (launch
-  screen, toasts, sticky sections, tour) and the `animation(_:body:)`
-  calls in LaunchScreen.swift (iOS 17 API, target is 17.0).
+  screen, toasts, sticky sections, tour). The launch screen's
+  `animation(_:body:)` uses are gone with its iOS 15 rewrite in a2d832c.
 - Verify the built SHA equals the pushed SHA, then deliver the artifact
   link and the run link.
 

@@ -1,6 +1,6 @@
 # Build status
 
-## Current state (2026-11-20, early evening UTC)
+## Current state (2026-11-20, evening UTC)
 
 - Codemagic is the PRIMARY builder now. The repo is connected to a Codemagic
   app ("Shirox", Mac mini M2, latest Xcode, webhook on push to main) and
@@ -23,20 +23,40 @@
   (right below `@State private var isDark`). It was the only mis-scoped
   wrapper in the repo; the other 14 @Namespace declarations were checked
   and are already at view scope. That push also carried 4b93a9d (a second
-  daily cron, 21:07 UTC, in the European-night quiet window). Codemagic
-  build 3 on cd8c299 is auto-triggered by the push webhook; its verdict
-  lands on the Codemagic dashboard (no API token in this sandbox, so the
-  dashboard is the source of truth for it).
+  daily cron, 21:07 UTC, in the European-night quiet window).
+- Codemagic build 3 ran on cd8c299: the namespace fix held, and the compile
+  moved into the redesign's real error surface — exit 65, thirteen errors
+  across 13 files.
+- The big discovery in build 3's log: the APP target's iOS deployment floor
+  is 15.0. The 17.0 in the project belongs to the ShiroxTests target, which
+  an earlier note here had confused. The redesign had written 16/17/26-only
+  APIs into ungated code (LaunchScreen's AnyLayout, visualEffect, named
+  springs, Task.sleep(for:), presentationBackground, geometryGroup; AnyShape
+  in the tour).
+- Fixed in a2d832c, one commit, all thirteen errors, no features removed.
+  Scope and type errors: Self in two stored-property initializers
+  (ModuleStoreEntry, ModuleStoreService), optional chaining on a
+  non-optional AppIconOption (CustomizationSettingsView), the generic nested
+  StickySection.Config hoisted to file-scope StickySectionConfig,
+  Image(decorative:) given its 17 gate with an Image(uiImage:) fallback
+  (ProfilesView), the optional screenshots guard (ModuleStoreView), and the
+  ShiroxApp type-check timeout decomposed into a tabCell helper.
+  Availability ladders: LaunchScreen rewritten to run on the iOS 15 floor
+  with the same behavior on 17+ (the project's View+AdaptiveSheet shim
+  pattern), AnyTourShape (an iOS 15 shape eraser) replacing AnyShape in the
+  tour plus @ViewBuilder on its two extension methods, TypingAnimation and
+  MorphingBlob gated to 18, Toast made Equatable for animation(value:).
+  Access fix: the theme scene's private Color constants made fileprivate
+  (private extension members don't reach other types in the same file).
+- Codemagic build 4 runs on a2d832c (push webhook). Its verdict is on the
+  Codemagic dashboard (no API token in this sandbox). The redesign still has
+  never linked, so more rounds are possible.
 - GitHub Actions stays as the backup: the nightly runs on push and on two
   crons (21:07 and 03:07 UTC, macos-15, Xcode 26.3 pinned via
-  DEVELOPER_DIR). It still cannot get a runner at European peak: five more
-  attempts on 2026-11-20 (dispatched 16:17, 16:33 and 16:51, plus two runs
-  superseded while pending) each waited ~15 minutes in queue and were
-  cancelled with no runner ever assigned. The cron times sit in the
+  DEVELOPER_DIR). It still cannot get a runner at European peak: the runs
+  queued 2026-11-20 between 14:09 and 17:38 UTC were all cancelled after
+  ~15 minutes with no runner ever assigned. The cron times sit in the
   windows that have always landed (23:30-02:41 UTC).
-- The redesign is still not compiled green anywhere. Build 2 was the first
-  real Swift verdict; more errors past SettingsPickers.swift are expected.
-  The risk areas are unchanged, below.
 
 ## Next build procedure
 
@@ -55,14 +75,13 @@
    commit equals the pushed SHA, then deliver the artifact link, the run
    link and the release download.
 
-## Known compile risk areas (never yet compiled green)
+## Known compile risk areas (never yet linked)
 
-- The four availability-heavy ports: launch screen (485765a), toasts
-  (50458de), sticky sections (421723b), tour (ab31eae, platform guards in
-  4585a2a).
-- The `animation(_:body:)` calls in LaunchScreen.swift (iOS 17 API; the
-  deployment target is 17.0).
-- iOS availability guards across the platform ladder (26 / 18 / Mac / tvOS).
+- The four availability-heavy ports: launch screen (485765a, rewritten to
+  the iOS 15 floor in a2d832c), toasts (50458de), sticky sections (421723b),
+  tour (ab31eae, platform guards in 4585a2a).
+- iOS availability guards across the platform ladder (26 / 18 / Mac /
+  tvOS); the app's floor is iOS 15, the tests' is 17.
 
 ## History
 
@@ -81,4 +100,5 @@
 | 2026-11-20 17:05 | 6eb9103 | cancelled in queue | superseded by the cd8c299 push while pending |
 | 2026-11-20 | ac59ac3 | Codemagic failed | build 1 6b007c7f8f52ca27512968dd: missing Metal Toolchain at AlphaThreshold.metal |
 | 2026-11-20 | 6eb9103 | Codemagic failed | build 2 6b007de98f52ca275129695b, 2m14s: Metal fixed; SettingsPickers.swift:194 namespace scope |
-| 2026-11-20 17:23 | cd8c299 | pending | Codemagic build 3 (dashboard) + GitHub nightly 44782836661 (backup) |
+| 2026-11-20 17:23 | cd8c299 | Codemagic failed | build 3: Metal ok, namespace ok; 13 errors (16/17 APIs against the 15.0 app floor, scope and type errors). GitHub nightly 44782836661 starved in queue, 15:06 |
+| 2026-11-20 18:08 | a2d832c | pending | build 4: the thirteen errors fixed; GitHub nightly 44789885826 as backup |

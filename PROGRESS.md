@@ -10,12 +10,14 @@ Updated: 2026-11-20, fifth session (Codemagic era: the first compile verdicts).
   ac59ac3 and 6eb9103 themselves (codemagic.yaml and its Metal Toolchain
   step).
 - Codemagic is the primary builder now (the repo is connected; every push
-  to main builds). Its first two builds gave the redesign its first real
-  compile verdicts: build 1 failed on a missing Metal Toolchain (fixed in
-  codemagic.yaml by the user, confirmed working in build 2), build 2 failed
-  on the SettingsPickers.swift namespace scope error (fixed in cd8c299).
-  Build 3 on cd8c299 is auto-triggered; its verdict is on the Codemagic
-  dashboard (no API token in this sandbox).
+  to main builds). Verdicts so far: build 1 failed on a missing Metal
+  Toolchain (fixed in codemagic.yaml by the user, confirmed working), build
+  2 on the SettingsPickers.swift namespace scope error (fixed in cd8c299),
+  build 3 on thirteen more errors across 13 files (fixed in a2d832c; the
+  app's iOS floor turned out to be 15.0, and 16/17/26-only APIs in ungated
+  code were the root of most of them). Build 4 on a2d832c is
+  auto-triggered; its verdict is on the Codemagic dashboard (no API token
+  in this sandbox).
 - The redesign is still not compiled green anywhere. SwiftLint, Semgrep,
   Strings and icons are green. The full build story, including GitHub
   Actions' peak starvation and its two quiet-window crons, is in
@@ -50,11 +52,11 @@ Session four on top: 045a789 (merge of the bot's apps.json stamp), db1f1c9
 (docs), 0d88a56 and 1a4ebbf (lint green), 691b25d (build CI), 0ada78d
 (docs). Session five on top: the user's ac59ac3 and 6eb9103 (codemagic.yaml
 and the Metal Toolchain step), 4b93a9d (second cron), cd8c299 (namespace
-fix).
+fix), d614cc7 (docs), a2d832c (the thirteen compile errors of build 3).
 
 ## Pending, in order
 
-1. First green build of the redesign: Codemagic build 3 on cd8c299 (the
+1. First green build of the redesign: Codemagic build 4 on a2d832c (the
    dashboard has the verdict; no API token here). On compile errors: read
    the log, fix, push (which rebuilds), repeat. GitHub Actions stays as
    backup with crons at 21:07 and 03:07 UTC.
@@ -71,5 +73,5 @@ now handled by the macos-15 pool and the 03:07 UTC cron.
 
 ## Latest verified GitHub commit
 
-cd8c299 (fix: move theme picker namespace to view scope), verified
+a2d832c (fix: the thirteen compile errors of Codemagic build 3), verified
 2026-11-20 by `git ls-remote`.
