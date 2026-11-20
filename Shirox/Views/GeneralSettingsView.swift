@@ -42,6 +42,9 @@ struct GeneralSettingsView: View {
     var body: some View {
         SettingsList {
             Section {
+                SettingsIntroRow(icon: "gearshape", title: "settings.general", subtitle: "settings.general_intro")
+            }
+            Section {
                 Picker("settings.appearance", selection: $colorScheme) {
                     ForEach(AppColorScheme.allCases) { scheme in
                         Text(scheme.title).tag(scheme.rawValue)
@@ -232,7 +235,7 @@ struct GeneralSettingsView: View {
 extension View {
     /// A list row's menu picker draws its value in the tint, but kept the old colour after the
     /// accent colour changed until the page was opened again. A new identity per colour redraws it.
-    fileprivate func retinted(_ tint: String) -> some View {
+    func retinted(_ tint: String) -> some View {
         id(tint)
     }
 }
@@ -406,7 +409,7 @@ struct IconPacksSettingsView: View {
 
 /// The colours as swatches in one row, spread across it, the current one ringed. Not in a
 /// horizontal scroller: a scroll view inside a list row didn't redraw, so the ring stayed put.
-private struct TintColorRow: View {
+struct TintColorRow: View {
     @Binding var tint: String
 
     var body: some View {

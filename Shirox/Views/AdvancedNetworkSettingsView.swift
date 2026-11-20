@@ -10,6 +10,9 @@ import SwiftUI
 struct AdvancedNetworkSettingsView: View {
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "network", title: "settings.advanced_network", subtitle: "settings.network_intro")
+            }
             TMDBProxySections()
             SecureDNSSections()
             ProxySections()

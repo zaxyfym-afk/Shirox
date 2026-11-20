@@ -28,6 +28,11 @@ struct BackupSettingsView: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "arrow.up.arrow.down.circle",
+                                 title: "settings.backup_and_restore",
+                                 subtitle: "settings.backup_intro")
+            }
             exportSection
             importSection
             if let report { reportSection(report) }

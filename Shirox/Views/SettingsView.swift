@@ -76,16 +76,17 @@ struct SettingsList<Content: View>: View {
 }
 
 #if !os(tvOS)
-/// The active profile, at the top of Settings.
+/// The active profile, at the top of Settings: a picture card — photo, anime artwork or
+/// colour — with the account's name under it.
 private struct ProfileSettingsRow: View {
     @ObservedObject private var profiles = ProfileManager.shared
 
     var body: some View {
         HStack(spacing: 14) {
             if let active = profiles.active {
-                ProfileAvatarView(profile: active, size: 52, glass: true)
+                ProfileAvatarView(profile: active, size: 54, square: true)
             }
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(profiles.active?.name ?? String(localized: "common.profile"))
                     .font(.headline.weight(.semibold))
                 Text(subtitle)
@@ -97,8 +98,16 @@ private struct ProfileSettingsRow: View {
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(.tertiary)
         }
-        .contentShape(Rectangle())
-        .padding(.vertical, 4)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.secondary.opacity(0.08))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     /// "Add a Profile" only while the one profile is still as Shirox made it: named
@@ -120,6 +129,8 @@ struct SettingsView: View {
     @AppStorage("preferredQuality") private var preferredQuality: String = "auto"
     #if !os(tvOS)
     @State private var totalUsage = 0
+    /// The introduction, again, for whoever wants the tour a second time.
+    @State private var showOnboardingReplay = false
     #endif
 
     /// The services signed in, short, for the Providers row.
@@ -158,6 +169,12 @@ struct SettingsView: View {
             }
             .softScrollEdges()
             .navigationTitle("settings.settings")
+            #if !os(tvOS)
+            .navigationDestinationCompat(isPresented: $showOnboardingReplay) {
+                OnboardingView()
+                    .environmentObject(moduleManager)
+            }
+            #endif
             #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
             .onAppear {
@@ -184,6 +201,8 @@ struct SettingsView: View {
                     ProfileSettingsRow()
                 }
                 .buttonStyle(.plain)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 #endif
             }
 
@@ -193,7 +212,8 @@ struct SettingsView: View {
                 } label: {
                     SettingsNavRow(
                         icon: "gearshape",
-                        title: String(localized: "settings.general")
+                        title: String(localized: "settings.general"),
+                        subtitle: String(localized: "settings.general_subtitle")
                     )
                 }
 
@@ -222,7 +242,8 @@ struct SettingsView: View {
                 } label: {
                     SettingsNavRow(
                         icon: "captions.bubble",
-                        title: String(localized: "settings.subtitles")
+                        title: String(localized: "settings.subtitles"),
+                        subtitle: String(localized: "settings.subtitles_subtitle")
                     )
                 }
 
@@ -232,7 +253,8 @@ struct SettingsView: View {
                 } label: {
                     SettingsNavRow(
                         icon: "book",
-                        title: String(localized: "settings.reader")
+                        title: String(localized: "settings.reader"),
+                        subtitle: String(localized: "settings.reader_subtitle")
                     )
                 }
                 #endif
@@ -247,7 +269,46 @@ struct SettingsView: View {
                     )
                 }
             } header: {
-                Text("settings.section_preferences")
+                SettingsSectionHeader(icon: "slider.horizontal.3", title: "settings.section_preferences")
+            }
+
+            // What the app looks like and how it tells the user things: one place for the
+            // surface-level choices, and the tour again for whoever wants it.
+            Section {
+                NavigationLink {
+                    CustomizationSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "paintpalette",
+                        title: String(localized: "settings.customization"),
+                        subtitle: String(localized: "settings.customization_subtitle")
+                    )
+                }
+
+                NavigationLink {
+                    NotificationsSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "bell",
+                        title: String(localized: "settings.notifications"),
+                        subtitle: String(localized: "settings.notifications_subtitle")
+                    )
+                }
+
+                #if !os(tvOS)
+                Button {
+                    showOnboardingReplay = true
+                } label: {
+                    SettingsNavRow(
+                        icon: "graduationcap",
+                        title: String(localized: "settings.replay_introduction"),
+                        subtitle: String(localized: "settings.replay_introduction_subtitle")
+                    )
+                }
+                .buttonStyle(.plain)
+                #endif
+            } header: {
+                SettingsSectionHeader(icon: "sparkles", title: "settings.section_experience")
             }
 
             Section {
@@ -266,7 +327,8 @@ struct SettingsView: View {
                 } label: {
                     SettingsNavRow(
                         icon: "arrow.down.circle",
-                        title: String(localized: "common.downloads")
+                        title: String(localized: "common.downloads"),
+                        subtitle: String(localized: "settings.downloads_subtitle")
                     )
                 }
 
@@ -282,7 +344,7 @@ struct SettingsView: View {
                 }
                 #endif
             } header: {
-                Text("settings.section_library_storage")
+                SettingsSectionHeader(icon: "externaldrive", title: "settings.section_library_storage")
             }
 
             Section {
@@ -309,7 +371,7 @@ struct SettingsView: View {
                 // Expert settings for blocked regions, deliberately last.
                 NavigationLink { AdvancedNetworkSettingsView() } label: { SettingsNavRow(icon: "network", title: String(localized: "settings.advanced_network")) }
             } header: {
-                Text("settings.section_data")
+                SettingsSectionHeader(icon: "arrow.up.arrow.down", title: "settings.section_data")
             }
 
             Section {
@@ -334,7 +396,7 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 4)
             } header: {
-                Text("settings.section_about")
+                SettingsSectionHeader(icon: "info.circle", title: "settings.section_about")
             }
 
             Section {
@@ -343,7 +405,7 @@ struct SettingsView: View {
                 copyRow(SettingsNavRow(icon: "info.circle", title: String(localized: "modules.version"), subtitle: Self.appVersion),
                         copying: Self.appVersion, toast: String(localized: "settings.version_copied"))
             } header: {
-                Text("settings.section_device")
+                SettingsSectionHeader(icon: "iphone", title: "settings.section_device")
             }
     }
 
@@ -510,6 +572,9 @@ struct AccountsSettingsView: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "person.2", title: "settings.providers", subtitle: "settings.providers_intro")
+            }
             ProvidersSettingsSection()
 
             // Simkl is a write-side tracker, not a browsing source, so it isn't in the provider list,
@@ -749,6 +814,9 @@ struct PlayerSettingsView: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "play.tv", title: "settings.player", subtitle: "settings.player_intro")
+            }
             Section("settings.display_and_style") {
                 // A phone's: a Mac's player is a window.
                 #if !os(macOS)
@@ -907,6 +975,9 @@ struct SubtitleSettingsPage: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "captions.bubble", title: "settings.subtitles", subtitle: "settings.subtitles_intro")
+            }
             Section("settings.preview") {
                 preview
                     .listRowInsets(EdgeInsets())
@@ -1073,6 +1144,9 @@ struct ReaderSettingsView: View {
     var body: some View {
         SettingsList {
             Section {
+                SettingsIntroRow(icon: "book", title: "settings.reader", subtitle: "settings.reader_intro")
+            }
+            Section {
                 Toggle("settings.tap_sides_to_scroll_or", isOn: $tapZones)
                     .switchTint()
             } header: {
@@ -1179,6 +1253,9 @@ struct ModulesSettingsView: View {
     var body: some View {
         SettingsList {
             Section {
+                SettingsIntroRow(icon: "puzzlepiece.extension", title: "common.modules", subtitle: "settings.modules_intro")
+            }
+            Section {
                 NavigationLink {
                     ModuleListView()
                 } label: {
@@ -1251,6 +1328,9 @@ struct LibrarySettingsView: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "books.vertical", title: "common.library", subtitle: "settings.library_intro")
+            }
             Section {
                 NavigationLink {
                     LibraryListOrderView()
@@ -1403,6 +1483,9 @@ struct DownloadsSettingsView: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "arrow.down.circle", title: "common.downloads", subtitle: "settings.downloads_intro")
+            }
             Section("common.downloads") {
                 Picker("settings.download_quality", selection: $downloadQuality) {
                     Text("settings.best").tag("highest")
@@ -1492,6 +1575,9 @@ struct StorageSettingsView: View {
 
     var body: some View {
         SettingsList {
+            Section {
+                SettingsIntroRow(icon: "internaldrive", title: "settings.storage_and_cache", subtitle: "settings.storage_intro")
+            }
             Section("settings.data") {
                 Toggle("settings.data_saver", isOn: $dataSaverEnabled)
                     .switchTint()
