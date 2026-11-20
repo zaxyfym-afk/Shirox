@@ -3,10 +3,15 @@
 ## Current state (2026-11-20, evening UTC)
 
 - Codemagic is the PRIMARY builder now. The repo is connected to a Codemagic
-  app ("Shirox", Mac mini M2, latest Xcode, webhook on push to main) and
+  app ("Shirox", id 6b007bef80479dc6751778f3, Mac mini M2, latest Xcode) and
   codemagic.yaml at the repo root drives it: Metal toolchain install, then
   the same buildipa.sh (unsigned IPA at build/Shirox.ipa), then an IPA
-  verification step, artifacts build/Shirox.ipa + build/dSYMs.
+  verification step, artifacts build/Shirox.ipa + build/dSYMs. CORRECTION of
+  an earlier claim here: pushes do NOT start Codemagic builds. Despite the
+  triggering section in codemagic.yaml, no webhook delivers push events
+  (proven: a2d832c, pushed 18:08 without [skip ci], never built). Builds 1-3
+  were started from the dashboard; from build 4 on, builds start through
+  the API, only on the user's explicit authorization.
 - First compile verdict of the redesign came from Codemagic build 1
   (6b007c7f8f52ca27512968dd, ac59ac3): failed compiling
   Shirox/Views/Shared/AlphaThreshold.metal, "cannot execute tool 'metal'
@@ -24,9 +29,11 @@
   wrapper in the repo; the other 14 @Namespace declarations were checked
   and are already at view scope. That push also carried 4b93a9d (a second
   daily cron, 21:07 UTC, in the European-night quiet window).
-- Codemagic build 3 ran on cd8c299: the namespace fix held, and the compile
-  moved into the redesign's real error surface — exit 65, thirteen errors
-  across 13 files.
+- Codemagic build 3 (6b0083b58f52ca2751296b63, 17:31-17:36, 4m48s) ran on
+  d614cc7 — the tip when it started; code identical to cd8c299 for compile
+  purposes. The namespace fix held, and the compile moved into the
+  redesign's real error surface — exit 65, thirteen error groups / 45 raw
+  diagnostics across 13 files.
 - The big discovery in build 3's log: the APP target's iOS deployment floor
   is 15.0. The 17.0 in the project belongs to the ShiroxTests target, which
   an earlier note here had confused. The redesign had written 16/17/26-only
@@ -48,8 +55,14 @@
   MorphingBlob gated to 18, Toast made Equatable for animation(value:).
   Access fix: the theme scene's private Color constants made fileprivate
   (private extension members don't reach other types in the same file).
-- Codemagic build 4 runs on a2d832c (push webhook). Its verdict is on the
-  Codemagic dashboard (no API token in this sandbox). The redesign still has
+- a2d832c (the thirteen fixes) has NOT been built yet — no webhook fired.
+  The next build, build 4, starts through the API on the user's explicit
+  authorization (procedure below). The API integration is ready and tested
+  against build 3's real data: /home/z/my-project/scripts/codemagic.py
+  does trigger (guarded by --authorized), 5 s polling wait, step logs,
+  grouped compiler-error extraction (file:line), artifacts with download
+  URLs, and the full report. The token lives at .scratch/codemagic-token
+  (outside the repo, never committed or printed). The redesign still has
   never linked, so more rounds are possible.
 - GitHub Actions stays as the backup: the nightly runs on push and on two
   crons (21:07 and 03:07 UTC, macos-15, Xcode 26.3 pinned via
@@ -58,22 +71,39 @@
   ~15 minutes with no runner ever assigned. The cron times sit in the
   windows that have always landed (23:30-02:41 UTC).
 
-## Next build procedure
+## Next build procedure (the API era)
 
-1. Push local main and verify the remote SHA (`git ls-remote origin main`).
-   Note: a push while a nightly run is still PENDING supersedes (cancels) it;
-   a push while one is RUNNING does not. Use `[skip ci]` on docs-only pushes.
-2. Every push to main triggers both a Codemagic build (webhook; primary,
-   its dashboard is the verdict) and the GitHub nightly (backup).
-3. Codemagic logs are read on the dashboard (no API token here). If a token
-   is added to the sandbox later, the Codemagic builds API can be polled.
-4. GitHub nightly: poll the run authenticated; on failure read the failing
-   step's logs. A dispatch, if one is needed:
-   `curl -X POST -H "Authorization: Bearer $PAT" -H "Accept: application/vnd.github+json" https://api.github.com/repos/zaxyfym-afk/Shirox/actions/workflows/nightly.yaml/dispatches -d '{"ref":"main"}'`
-5. Fix, commit, push, rebuild, until green. Do not rebuild unchanged code,
-   and do not assume every exit code 65 is the same error. Verify the built
-   commit equals the pushed SHA, then deliver the artifact link, the run
-   link and the release download.
+Pushes do NOT start Codemagic builds (no webhook). A build starts only
+through the API, only on the user's explicit authorization. On "build the
+IPA":
+
+1. Commit and push any pending work; verify the remote SHA
+   (`git ls-remote origin main`). Pushes trigger the GitHub nightly
+   (backup); a push while a nightly run is PENDING supersedes it. Docs-only
+   pushes carry `[skip ci]` so no Actions run starts.
+2. `python3 /home/z/my-project/scripts/codemagic.py build --authorized`
+   starts exactly one build on main (workflow shirox-ios-ipa), records the
+   build id + commit SHA in .scratch/codemagic-build-log.jsonl, polls every
+   5 s (429-aware backoff), and prints the final report. Separate tools:
+   `trigger --authorized`, `wait <id>`, `status <id>`, `logs <id>`,
+   `errors <id>` (real `error:` diagnostics, file:line, grouped),
+   `artifacts <id>`, `report <id>`, `builds`, `apps`. All tested against
+   build 3's real data.
+3. On failure: `errors <buildId>` gives the real compiler errors. Fix,
+   commit, push, ask for authorization again. Do not rebuild unchanged
+   code, and do not assume every exit code 65 is the same error.
+4. On success: `report`/`artifacts` print the unsigned IPA download URL
+   (short-lived signed link from the API); verify the built commit SHA
+   equals the pushed SHA before delivering anything.
+
+API map (base https://api.codemagic.io, header `x-auth-token`):
+GET /apps; GET /builds?limit=N; GET /builds/{id} (the build doc sits in
+"build": status, artefacts, buildActions with per-step logUrl,
+commit.hash, fileWorkflowId); POST /builds {appId, workflowId, branch} ->
+{buildId}; POST /builds/{id}/cancel (208 when already finished); step logs
+at GET /builds/{id}/step/{actionId} (plain text, HTML-escaped); v3 mirror
+at codemagic.io/api/v3/builds/{id} (+ /actions; artifacts there carry
+short_lived_download_url).
 
 ## Known compile risk areas (never yet linked)
 
@@ -100,5 +130,5 @@
 | 2026-11-20 17:05 | 6eb9103 | cancelled in queue | superseded by the cd8c299 push while pending |
 | 2026-11-20 | ac59ac3 | Codemagic failed | build 1 6b007c7f8f52ca27512968dd: missing Metal Toolchain at AlphaThreshold.metal |
 | 2026-11-20 | 6eb9103 | Codemagic failed | build 2 6b007de98f52ca275129695b, 2m14s: Metal fixed; SettingsPickers.swift:194 namespace scope |
-| 2026-11-20 17:23 | cd8c299 | Codemagic failed | build 3: Metal ok, namespace ok; 13 errors (16/17 APIs against the 15.0 app floor, scope and type errors). GitHub nightly 44782836661 starved in queue, 15:06 |
-| 2026-11-20 18:08 | a2d832c | pending | build 4: the thirteen errors fixed; GitHub nightly 44789885826 as backup |
+| 2026-11-20 17:31 | d614cc7 | Codemagic failed | build 3 6b0083b58f52ca2751296b63, 4m48s: Metal ok, namespace ok; 13 error groups (16/17 APIs against the 15.0 app floor, scope and type errors). GitHub nightly 44782836661 starved in queue, 15:06 |
+| 2026-11-20 18:08 | a2d832c | not built | no webhook: pushes don't start Codemagic builds; awaiting the authorized API trigger (GitHub nightly 44789885826 as backup) |

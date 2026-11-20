@@ -35,13 +35,21 @@ require it; do not remove the Mac paths unless the user asks again):
 `buildipa.sh`, `buildcatalyst.sh`, `builddmg.sh`, `buildtvos.sh`.
 
 Codemagic is the primary builder since 2026-11-20: the repo is connected to
-a Codemagic app ("Shirox", Mac mini M2, latest Xcode, webhook on push to
-main). codemagic.yaml installs the Metal Toolchain first (the app has a
-Metal shader, Shirox/Views/Shared/AlphaThreshold.metal, and fresh CI
-machines ship without the Metal compiler; that step is proven working and
-must stay), then runs the same buildipa.sh, verifies the IPA and exposes
-build/Shirox.ipa plus dSYMs as artifacts. The dashboard is the verdict;
-there is no Codemagic API token in the sandbox.
+a Codemagic app ("Shirox", app id 6b007bef80479dc6751778f3, workflow
+`shirox-ios-ipa`, Mac mini M2, latest Xcode). codemagic.yaml installs the
+Metal Toolchain first (the app has a Metal shader,
+Shirox/Views/Shared/AlphaThreshold.metal, and fresh CI machines ship
+without the Metal compiler; that step is proven working and must stay),
+then runs the same buildipa.sh, verifies the IPA and exposes
+build/Shirox.ipa plus dSYMs as artifacts. Pushes do NOT trigger Codemagic
+(no webhook despite the yaml triggering section; builds 1-3 were
+dashboard-started): builds start only via the API, only on the user's
+explicit authorization, through `/home/z/my-project/scripts/codemagic.py`
+(`build --authorized` = one build + 5 s polling + report; plus trigger /
+wait / status / logs / errors / artifacts / report / builds / apps; the
+API map is in BUILD_STATUS.md). The API token lives at
+.scratch/codemagic-token in the sandbox (outside the repo; never printed,
+never committed).
 
 GitHub Actions is the backup: the `nightly` workflow
 (.github/workflows/nightly.yaml) runs on every push to main, on
@@ -101,8 +109,8 @@ Xcode build. If a push or build fails, investigate, fix and retry.
 
 ## Credentials
 
-GitHub credentials are never written to disk in the sandbox (by policy), so
-each session that needs to push or dispatch a workflow must ask the user for
-a PAT. It needs contents: write (push) and actions: write (dispatch), classic
-or fine-grained, short expiry is fine. Everything above is arranged so that
-the PAT is the only missing piece at any given moment.
+GitHub pushes need a PAT supplied by the user (kept for the session in
+.scratch/git-cred.sh, outside the repo, never committed). The Codemagic API
+token is persistent at .scratch/codemagic-token (chmod 600, outside the
+repo, never printed or committed); scripts/codemagic.py reads it from there
+or from the CODEMAGIC_API_TOKEN environment variable.

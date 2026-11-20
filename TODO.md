@@ -2,19 +2,25 @@
 
 ## 1. First green build (Codemagic primary, Actions backup)
 
-- Codemagic builds every push to main (webhook; Mac mini M2, latest Xcode,
-  the Metal Toolchain step in codemagic.yaml, unsigned IPA via buildipa.sh).
-  The verdict lands on the Codemagic dashboard; this sandbox has no
-  Codemagic API token, so the dashboard is the source of truth.
+- Builds start ONLY through the Codemagic API and ONLY on the user's
+  explicit authorization (pushes do not trigger Codemagic; no webhook).
+  The tool is `python3 /home/z/my-project/scripts/codemagic.py`:
+  `build --authorized` = trigger exactly one build on main + poll 5 s +
+  report; also `trigger --authorized`, `wait <id>`, `status`, `logs`,
+  `errors <id>` (real `error:` diagnostics with file:line, grouped),
+  `artifacts <id>` (IPA download URLs), `builds`, `apps`. Token:
+  .scratch/codemagic-token (outside the repo; never printed or committed).
 - Build 1 (ac59ac3) failed on the missing Metal Toolchain, fixed in
   codemagic.yaml and confirmed working. Build 2 (6eb9103) failed on the
   SettingsPickers.swift namespace scope error, fixed in cd8c299. Build 3
-  (cd8c299) failed on thirteen errors across 13 files, fixed in a2d832c
-  (the app's iOS floor is 15.0, not 17.0 — that is the tests target).
-  Watch build 4 on a2d832c.
-- On failure: read the dashboard log, find the real `error:` diagnostics,
-  fix, push (which rebuilds), repeat. Do not rebuild unchanged code; do
-  not assume every exit code 65 is the same error.
+  (d614cc7 tip, 4m48s) failed on thirteen error groups across 13 files,
+  fixed in a2d832c (the app's iOS floor is 15.0, not 17.0 — that is the
+  tests target). a2d832c is UNBUILT: the next build is build 4, awaiting
+  the user's go.
+- On failure: `errors <buildId>` gives the real diagnostics; fix, commit,
+  push (a push triggers only the GitHub nightly backup), ask for
+  authorization, rebuild. Do not rebuild unchanged code; do not assume
+  every exit code 65 is the same error.
 - GitHub Actions stays as backup: push-triggered plus crons at 21:07 and
   03:07 UTC (macos-15, Xcode 26.3). It cannot get a runner at European
   peak; the crons land in the quiet windows.
