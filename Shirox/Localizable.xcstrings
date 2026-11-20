@@ -27576,6 +27576,17 @@
         }
       }
     },
+    "library.add_to_watchlist" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Watchlist"
+          }
+        }
+      }
+    },
     "library.all_genres" : {
       "comment" : "LibraryView",
       "localizations" : {
@@ -35319,6 +35330,28 @@
         }
       }
     },
+    "library.status_failed" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save to your library"
+          }
+        }
+      }
+    },
+    "library.status_saved %@" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved as %@"
+          }
+        }
+      }
+    },
     "library.tap_to_create_a_collection" : {
       "comment" : "ManageCollectionsView",
       "localizations" : {
@@ -36011,6 +36044,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "累计重看次数"
+          }
+        }
+      }
+    },
+    "library.track_on %@" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Track on %@"
           }
         }
       }
@@ -51623,6 +51667,17 @@
         }
       }
     },
+    "onboarding.page_of %lld %lld" : {
+      "comment" : "OnboardingProgress",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page %lld of %lld"
+          }
+        }
+      }
+    },
     "onboarding.set_up_shirox" : {
       "comment" : "OnboardingView",
       "localizations" : {
@@ -52330,6 +52385,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将你的进度同步到 AniList 或 MyAnimeList"
+          }
+        }
+      }
+    },
+    "onboarding.tour" : {
+      "comment" : "OnboardingView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a look around"
           }
         }
       }
@@ -110742,6 +110808,17 @@
         }
       }
     },
+    "shared.add_to_favorites" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Favorites"
+          }
+        }
+      }
+    },
     "shared.added_missing_audio_count %lld" : {
       "comment" : "DownloadManager",
       "localizations" : {
@@ -113940,6 +114017,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "拷贝错误"
+          }
+        }
+      }
+    },
+    "shared.copy_link" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Link"
           }
         }
       }
@@ -118832,6 +118920,17 @@
         }
       }
     },
+    "shared.favorites_updated" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites updated"
+          }
+        }
+      }
+    },
     "shared.file_moved_or_unavailable_remove" : {
       "comment" : "ContinueWatchingCard, LibraryView",
       "localizations" : {
@@ -121053,6 +121152,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "链接"
+          }
+        }
+      }
+    },
+    "shared.link_copied" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link copied"
           }
         }
       }
@@ -123723,6 +123833,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 条通知"
+          }
+        }
+      }
+    },
+    "shared.open_in_anilist" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in AniList"
+          }
+        }
+      }
+    },
+    "shared.open_in_mal" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in MyAnimeList"
           }
         }
       }
@@ -126660,6 +126792,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "由你设定"
+          }
+        }
+      }
+    },
+    "shared.share_anime" : {
+      "comment" : "AnimeContextMenuItems",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share Anime"
           }
         }
       }

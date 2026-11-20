@@ -1,16 +1,14 @@
 import SwiftUI
 
-/// First-run setup.
+/// First-run setup, redesigned.
 ///
-/// The design premise: Shirox ships with no content of its own, so a new user's real problem
-/// isn't "what is this app" — it's "why is every screen empty". Onboarding therefore isn't a
-/// carousel of feature slides; it's a checklist of the two things that actually make the app
-/// work, wired to the real flows and reflecting real state. Rows tick themselves as soon as a
-/// source or an account exists, so the screen always describes the app as it currently is.
-///
-/// The mark carries that idea: the app's 白 sits in an empty poster frame — dashed and grey
-/// while nothing is connected, solid and tinted once a source is in place. The app is a frame
-/// the user fills, and the frame says so.
+/// The design premise is unchanged — Shirox ships with no content of its own, so a new
+/// user's real problem isn't "what is this app", it's "why is every screen empty". The
+/// presentation around that premise is new: a hero mark that floats over a soft accent
+/// wash, pages that carry themselves in from the direction they're read, a mark-shaped
+/// progress that grows instead of a row of dots, and a checklist whose rows tick with a
+/// spring the moment a source or an account exists, so the screen always describes the
+/// app as it currently is.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
@@ -27,6 +25,10 @@ struct OnboardingView: View {
     /// The page being shown: a tour of what the app does, then the setup checklist it ends on.
     @State private var page = 0
     private let lastPage = 6
+    /// Which way the last page turn went, so the arriving page enters from that side.
+    @State private var turnDirection: Edge = .trailing
+    /// The welcome mark's slow float, running only where motion is allowed.
+    @State private var markFloats = false
 
     /// The one thing that has to be true before the app can show anything.
     private var hasSource: Bool { !moduleManager.modules.isEmpty }
@@ -45,13 +47,15 @@ struct OnboardingView: View {
         #endif
     }
 
+    private var motion: Animation? {
+        reduceMotion ? nil : Animation.spring(response: 0.5, dampingFraction: 0.85)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             topBar
 
             Group {
-                // A plain page switch, not a paging TabView: the page style has no Mac or
-                // Apple TV equivalent, and this way the dots and buttons are the same everywhere.
                 switch page {
                 case 0: welcomePage
                 case 1: TourPage(icon: "books.vertical", title: "onboarding.tour_library_title", text: "onboarding.tour_library_body", accent: accent)
@@ -63,6 +67,9 @@ struct OnboardingView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .transition(pageTurn)
+            .id(page)
+            .animation(motion, value: page)
 
             controls
         }
@@ -88,6 +95,19 @@ struct OnboardingView: View {
         }
     }
 
+    /// Pages carry themselves in from the direction the turn went, with a little blur on
+    /// the way, and leave by the other side.
+    private var pageTurn: AnyTransition {
+        if reduceMotion { return .opacity }
+        return .asymmetric(
+            insertion: .move(edge: turnDirection)
+                .combined(with: .opacity)
+                .combined(with: .offset(y: 12)),
+            removal: .move(edge: turnDirection == .trailing ? .leading : .trailing)
+                .combined(with: .opacity)
+        )
+    }
+
     // MARK: - Chrome
 
     /// Back when there's a page behind, Skip until the checklist.
@@ -95,15 +115,16 @@ struct OnboardingView: View {
         HStack {
             if page > 0 {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) { page -= 1 }
+                    goBack()
                 } label: {
                     IconView("chevron.left")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .frame(width: 38, height: 38)
-                        .contentShape(Rectangle())
+                        .background(Color.secondary.opacity(0.1), in: Circle())
+                        .contentShape(Circle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(OnboardingPressStyle())
                 .accessibilityLabel("onboarding.back")
             }
             Spacer()
@@ -111,90 +132,113 @@ struct OnboardingView: View {
                 Button("onboarding.skip", action: finish)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.secondary.opacity(0.1), in: Capsule())
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.top, 6)
+        .buttonStyle(OnboardingPressStyle())
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
     }
 
-    /// The dots and the next button; the checklist page carries its own call to action.
+    /// The mark-shaped progress and the next button; the checklist page carries its own
+    /// call to action. The progress grows a rounded tail on the page it's on rather than
+    /// lighting a row of separate dots.
     private var controls: some View {
-        HStack {
-            HStack(spacing: 7) {
-                ForEach(0...lastPage, id: \.self) { index in
-                    Capsule()
-                        .fill(index == page ? accent : Color.secondary.opacity(0.35))
-                        .frame(width: index == page ? 18 : 7, height: 7)
-                }
-            }
+        HStack(spacing: 16) {
+            OnboardingProgress(page: page, lastPage: lastPage, accent: accent)
+
             Spacer()
+
             if page < lastPage {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) { page += 1 }
+                    goForward()
                 } label: {
-                    Text("onboarding.next")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 22)
-                        .padding(.vertical, 9)
-                        .background(Capsule().fill(accent))
+                    HStack(spacing: 7) {
+                        Text(LocalizedStringKey(page == 0 ? "onboarding.tour" : "onboarding.next"))
+                        IconView("chevron.right")
+                            .font(.caption.weight(.bold))
+                    }
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 11)
+                    .background(Capsule().fill(accent))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(OnboardingPressStyle())
+                .accessibilityHint("onboarding.next")
             }
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 24)
     }
 
+    private func goForward() {
+        turnDirection = .trailing
+        withAnimation(motion) { page += 1 }
+    }
+
+    private func goBack() {
+        turnDirection = .leading
+        withAnimation(motion) { page -= 1 }
+    }
+
     // MARK: - Pages
 
-    /// The app in one poster frame: the mark, the promise, and what it doesn't host.
+    /// The app in one poster frame: the floating mark over a soft accent wash, the typed
+    /// promise, and what the app doesn't host.
     private var welcomePage: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 16)
-            frame
-                .frame(maxWidth: .infinity)
-                .padding(.top, 24)
-                .padding(.bottom, 32)
-
-            VStack(alignment: .leading, spacing: 0) {
-                Text("onboarding.set_up_shirox")
-                    .font(.caption.weight(.semibold))
-                    .tracking(2.2)
-                    .foregroundStyle(.secondary)
-
-                #if os(iOS)
-                // The promise, typed out one phrase at a time above the headline that says
-                // it in full. Below iOS 18, and on a Mac and Apple TV, the headline carries
-                // the page alone.
-                if #available(iOS 18.0, *) {
-                    TypeWriterHeadline(phrases: [
-                        String(localized: "onboarding.type_watch"),
-                        String(localized: "onboarding.type_read"),
-                        String(localized: "onboarding.type_track")
-                    ])
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 6)
-                }
-                #endif
-
-                Text("onboarding.bring_your_own_nlibrary")
-                    .font(.system(size: 36, weight: .heavy))
-                    .lineSpacing(-2)
-                    .padding(.top, 8)
-
-                Text("onboarding.shirox_doesnt_host_any_content")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(spacing: 0) {
+                Spacer(minLength: 20)
+                frame
                     .padding(.top, 12)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 36)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("onboarding.set_up_shirox")
+                        .font(.caption.weight(.semibold))
+                        .tracking(2.2)
+                        .foregroundStyle(accent)
+
+                    #if os(iOS)
+                    // The promise, typed out one phrase at a time above the headline that says
+                    // it in full. Below iOS 18, and on a Mac and Apple TV, the headline carries
+                    // the page alone.
+                    if #available(iOS 18.0, *) {
+                        TypeWriterHeadline(phrases: [
+                            String(localized: "onboarding.type_watch"),
+                            String(localized: "onboarding.type_read"),
+                            String(localized: "onboarding.type_track")
+                        ])
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 6)
+                    }
+                    #endif
+
+                    Text("onboarding.bring_your_own_nlibrary")
+                        .font(.system(size: 36, weight: .heavy))
+                        .lineSpacing(-2)
+                        .padding(.top, 8)
+
+                    Text("onboarding.shirox_doesnt_host_any_content")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 12)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: 560, alignment: .leading)
+                Spacer(minLength: 20)
             }
-            .frame(maxWidth: 560)
-            Spacer(minLength: 16)
+            .padding(.horizontal, 24)
         }
-        .padding(.horizontal, 24)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
+                markFloats = true
+            }
+        }
     }
 
     /// The checklist the tour ends on: the two things that make the app work, and the start
@@ -206,14 +250,14 @@ struct OnboardingView: View {
                 Text("onboarding.set_up_shirox")
                     .font(.caption.weight(.semibold))
                     .tracking(2.2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(accent)
 
                 Text("onboarding.bring_your_own_nlibrary")
                     .font(.system(size: 30, weight: .heavy))
                     .lineSpacing(-2)
                     .padding(.top, 8)
 
-                VStack(spacing: 10) {
+                VStack(spacing: 12) {
                     stepRow(
                         title: String(localized: "onboarding.add_a_source"),
                         detail: hasSource
@@ -222,7 +266,7 @@ struct OnboardingView: View {
                         isDone: hasSource,
                         isRequired: true
                     ) { showSources = true }
-                    .zoomSource("sources", in: sourcesZoom, cornerRadius: 14)
+                    .zoomSource("sources", in: sourcesZoom, cornerRadius: 16)
 
                     stepRow(
                         title: String(localized: "onboarding.sign_in_to_a_tracker"),
@@ -231,7 +275,7 @@ struct OnboardingView: View {
                         isRequired: false,
                         action: { showTracker = true }
                     )
-                    .zoomSource("tracker", in: sourcesZoom, cornerRadius: 14)
+                    .zoomSource("tracker", in: sourcesZoom, cornerRadius: 16)
                 }
                 .padding(.top, 24)
 
@@ -239,15 +283,15 @@ struct OnboardingView: View {
                     Text(hasSource ? String(localized: "onboarding.start_watching") : String(localized: "onboarding.skip_for_now"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
+                        .padding(.vertical, 16)
                         .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
                                 .fill(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.15)))
                         )
                         .foregroundStyle(hasSource ? .white : Color.primary)
                 }
-                .buttonStyle(.plain)
-                .padding(.top, 24)
+                .buttonStyle(OnboardingPressStyle())
+                .padding(.top, 28)
 
                 Text("onboarding.you_can_change_any_of")
                     .font(.caption)
@@ -271,9 +315,18 @@ struct OnboardingView: View {
     // MARK: - The frame
 
     /// A poster-shaped outline holding the app's mark: empty and dashed until a source exists,
-    /// filled once one does. The same 2:3 as every poster elsewhere in the app.
+    /// filled once one does. The same 2:3 as every poster elsewhere in the app, over a soft
+    /// wash of the accent, and floating slowly while the page shows.
     private var frame: some View {
         ZStack {
+            // The wash: the accent blurred into the poster's neighbourhood, so the hero
+            // reads as lit rather than drawn.
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(accent.opacity(0.12))
+                .blur(radius: 24)
+                .padding(-14)
+                .opacity(markFloats ? 0.9 : 0.65)
+
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(
                     hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.4)),
@@ -293,8 +346,9 @@ struct OnboardingView: View {
                 .scaledToFit()
                 .frame(width: 86)
                 .foregroundStyle(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.35)))
+                .offset(y: markFloats ? -7 : 7)
         }
-        .frame(width: 116, height: 174)
+        .frame(width: 128, height: 192)
         .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.8), value: hasSource)
         .accessibilityHidden(true)
     }
@@ -315,11 +369,12 @@ struct OnboardingView: View {
                     Circle()
                         .strokeBorder(isDone ? Color.clear : Color.secondary.opacity(0.35), lineWidth: 1.5)
                         .background(Circle().fill(isDone ? accent : Color.clear))
-                        .frame(width: 26, height: 26)
+                        .frame(width: 28, height: 28)
                     if isDone {
                         IconView("checkmark")
                             .font(.caption2.weight(.bold))
                             .foregroundStyle(.white)
+                            .transition(reduceMotion ? .opacity : .scale(scale: 0.4).combined(with: .opacity))
                     }
                 }
 
@@ -350,14 +405,14 @@ struct OnboardingView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .padding(14)
+            .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color.secondary.opacity(0.09))
             )
         }
-        .buttonStyle(.plain)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: isDone)
+        .buttonStyle(OnboardingPressStyle())
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: isDone)
     }
 
     // MARK: - Actions
@@ -368,36 +423,88 @@ struct OnboardingView: View {
     }
 }
 
-/// One page of the tour: an icon in a tinted tile, a headline, and a paragraph. All words,
-/// no fake screenshots — the app's real screens are a page-turn away.
+/// A button that leans into the touch: a small spring press, the app's standard onboarding
+/// feedback, on every control this screen has.
+private struct OnboardingPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .animation(.spring(response: 0.28, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+/// The onboarding's progress: one capsule that stretches to show where the read is, with
+/// the passed pages behind it — a mark-shaped line rather than a row of dots.
+private struct OnboardingProgress: View {
+    let page: Int
+    let lastPage: Int
+    let accent: Color
+
+    private let dotSize: CGFloat = 7
+    private let spacing: CGFloat = 6
+
+    var body: some View {
+        HStack(spacing: spacing) {
+            ForEach(0...lastPage, id: \.self) { index in
+                Capsule()
+                    .fill(index == page ? accent : Color.secondary.opacity(0.30))
+                    .frame(width: index == page ? 20 : dotSize, height: dotSize)
+            }
+        }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: page)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("onboarding.page_of \(page + 1) \(lastPage + 1)"))
+    }
+}
+
+/// One page of the tour: an icon in a tinted tile that arrives with a small overshoot, a
+/// headline, and a paragraph. All words, no fake screenshots — the app's real screens are
+/// a page-turn away.
 private struct TourPage: View {
     let icon: String
     let title: LocalizedStringKey
     let text: LocalizedStringKey
     let accent: Color
 
+    @State private var shown = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
-        VStack(spacing: 22) {
-            Spacer(minLength: 32)
-            IconView(icon)
-                .font(.system(size: 42, weight: .medium))
-                .foregroundStyle(accent)
-                .frame(width: 108, height: 108)
-                .background(
-                    RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(accent.opacity(0.12))
-                )
-            Text(title)
-                .font(.system(size: 27, weight: .heavy))
-                .multilineTextAlignment(.center)
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 32)
+        ScrollView {
+            VStack(spacing: 24) {
+                Spacer(minLength: 40)
+                IconView(icon)
+                    .font(.system(size: 42, weight: .medium))
+                    .foregroundStyle(accent)
+                    .frame(width: 108, height: 108)
+                    .background(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .fill(accent.opacity(0.12))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .strokeBorder(accent.opacity(0.18), lineWidth: 1)
+                    )
+                    .scaleEffect(shown ? 1 : 0.7)
+                    .opacity(shown ? 1 : 0)
+                Text(title)
+                    .font(.system(size: 27, weight: .heavy))
+                    .multilineTextAlignment(.center)
+                Text(text)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 40)
+            }
+            .padding(.horizontal, 28)
+            .frame(maxWidth: 560)
         }
-        .padding(.horizontal, 28)
-        .frame(maxWidth: 560)
+        .onAppear {
+            guard !reduceMotion, !shown else { return }
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.65)) { shown = true }
+        }
+        .onDisappear { shown = false }
     }
 }

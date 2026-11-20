@@ -158,3 +158,216 @@ extension View {
         #endif
     }
 }
+
+// MARK: - Anime long-press actions
+
+/// What a title can be linked out to. AniList and MyAnimeList are different databases with
+/// different ids — an AniList id is never a MAL id — so each link is built from its own
+/// identifier, and a title without one gets no link rather than a broken one.
+enum AnimeExternalLink {
+    case anilist(id: Int, isManga: Bool)
+    case mal(id: Int, isManga: Bool)
+
+    var url: URL? {
+        switch self {
+        case .anilist(let id, let isManga):
+            return URL(string: "https://anilist.co/\(isManga ? "manga" : "anime")/\(id)")
+        case .mal(let id, let isManga):
+            return URL(string: "https://myanimelist.net/\(isManga ? "manga" : "anime")/\(id)")
+        }
+    }
+
+    /// AniList's link, from the media's own provider id: an AniList title's `id` is its
+    /// AniList id; anything else has none to give here.
+    static func anilist(for media: Media) -> AnimeExternalLink? {
+        guard media.provider == .anilist else { return nil }
+        return .anilist(id: media.id, isManga: media.isManga)
+    }
+
+    /// MyAnimeList's link, from the media's MAL id — the field AniList titles carry, or the
+    /// id itself on a MAL-provider title.
+    static func mal(for media: Media) -> AnimeExternalLink? {
+        let malId: Int?
+        if media.provider == .mal {
+            malId = media.id
+        } else {
+            malId = media.idMal
+        }
+        guard let malId else { return nil }
+        return .mal(id: malId, isManga: media.isManga)
+    }
+}
+
+/// The long-press menu for an anime or manga card: open the details, the two trackers'
+/// pages, the library statuses the signed-in service takes, favourites, sharing, and the
+/// copies. Every action is real: a link builds from its own id or doesn't appear, and the
+/// tracking rows talk to the provider the title came from.
+///
+/// `onOpenDetails` is for rows a tap doesn't already open — a library row's menu, a
+/// schedule entry's. Cards that already push the details on tap leave it off.
+struct AnimeContextMenuItems: View {
+    let media: Media
+    var onOpenDetails: (() -> Void)? = nil
+
+    @ObservedObject private var aniListAuth = AniListAuthManager.shared
+    @ObservedObject private var malAuth = MALAuthManager.shared
+
+    /// The tracking service this title actually belongs to, when there is one signed in.
+    private var trackingProvider: MediaProvider? {
+        switch media.provider {
+        case .mal where malAuth.isLoggedIn: return MALProvider.shared
+        case .anilist where aniListAuth.isLoggedIn: return AniListProvider.shared
+        default: return nil
+        }
+    }
+
+    var body: some View {
+        Section {
+            Text(media.title.displayTitle)
+
+            if let onOpenDetails {
+                Button {
+                    onOpenDetails()
+                } label: {
+                    Label("shared.view_details", icon: "list.bullet.below.rectangle")
+                }
+            }
+
+            if let anilist = AnimeExternalLink.anilist(for: media), let url = anilist.url {
+                Link(destination: url) {
+                    Label("shared.open_in_anilist", icon: "arrow.up.right.square")
+                }
+            }
+
+            if let mal = AnimeExternalLink.mal(for: media), let url = mal.url {
+                Link(destination: url) {
+                    Label("shared.open_in_mal", icon: "arrow.up.right.square")
+                }
+            }
+
+            if let url = AnimeExternalLink.anilist(for: media)?.url ?? AnimeExternalLink.mal(for: media)?.url {
+                if #available(iOS 16.0, macOS 13.0, *) {
+                    ShareLink(item: url) {
+                        Label("shared.share_anime", icon: "square.and.arrow.up")
+                    }
+                }
+                Button {
+                    Clipboard.copy(url.absoluteString)
+                    #if os(iOS)
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    #endif
+                    ToastManager.shared.show(message: String(localized: "shared.link_copied"), type: .success, duration: 1.6)
+                } label: {
+                    Label("shared.copy_link", icon: "link")
+                }
+            } else {
+                Button {
+                    Clipboard.copy(media.title.displayTitle)
+                    #if os(iOS)
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    #endif
+                    ToastManager.shared.show(message: String(localized: "shared.title_copied"), type: .success, duration: 1.6)
+                } label: {
+                    Label("shared.copy_title", icon: "doc.on.doc")
+                }
+            }
+        }
+
+        if let provider = trackingProvider {
+            Section {
+                statusButton(.planning, label: "library.add_to_watchlist", icon: "text.badge.checkmark")
+                statusButton(.current, label: "shared.watching", icon: "play.circle")
+                statusButton(.completed, label: "shared.completed", icon: "checkmark.circle")
+            } header: {
+                Text(String(localized: "library.track_on \(provider.displayName)"))
+            }
+        }
+
+        // Favourites are AniList's heart, so they take the AniList id — for a MAL-provider
+        // title through its mapping, and for an AniList title directly.
+        if aniListAuth.isLoggedIn, let favouriteId = anilistFavouriteId {
+            Section {
+                Button {
+                    Task { await toggleFavourite(id: favouriteId) }
+                } label: {
+                    Label("shared.add_to_favorites", icon: "heart")
+                }
+            }
+        }
+    }
+
+    /// The AniList id favourites toggle with: the title's own on an AniList title. A
+    /// MAL-provider title's mapping is an asynchronous lookup the menu can't wait on, so
+    /// favourites are offered where AniList already knows the id.
+    private var anilistFavouriteId: Int? {
+        media.provider == .anilist ? media.id : nil
+    }
+
+    private func statusButton(_ status: MediaListStatus, label: LocalizedStringKey, icon: String) -> some View {
+        Button {
+            Task { await setStatus(status) }
+        } label: {
+            Label(label, icon: icon)
+        }
+    }
+
+    /// Saves a status with the provider the title belongs to, keeping the progress and
+    /// score already on the entry — a status change from a menu must never reset them.
+    /// Completing a title moves its progress to everything aired or announced.
+    private func setStatus(_ status: MediaListStatus) async {
+        guard let provider = trackingProvider else { return }
+        let id = media.id
+        do {
+            let entry = try? await provider.fetchEntry(mediaId: id)
+            var progress = entry?.progress ?? 0
+            if status == .completed, let aired = media.airedOrAnnouncedEpisodes, aired > progress {
+                progress = aired
+            }
+            try await provider.updateEntry(mediaId: id, status: status, progress: progress, score: entry?.score ?? 0)
+            #if os(iOS)
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            #endif
+            ToastManager.shared.show(message: String(localized: "library.status_saved \(status.displayName(for: media.isManga ? .manga : .tv))"), type: .success, duration: 1.8)
+        } catch {
+            #if os(iOS)
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            #endif
+            ToastManager.shared.show(message: String(localized: "library.status_failed"), type: .error, duration: 2.5)
+        }
+    }
+
+    private func toggleFavourite(id: Int) async {
+        do {
+            if media.isManga {
+                try await AniListSocialService.shared.toggleFavourite(mangaId: id)
+            } else {
+                try await AniListSocialService.shared.toggleFavourite(animeId: id)
+            }
+            #if os(iOS)
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            #endif
+            ToastManager.shared.show(message: String(localized: "shared.favorites_updated"), type: .success, duration: 1.6)
+        } catch {
+            #if os(iOS)
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            #endif
+            ToastManager.shared.show(message: String(localized: "library.status_failed"), type: .error, duration: 2.5)
+        }
+    }
+}
+
+extension View {
+    /// Long-press (right-click on macOS) a title card for the full set of actions: details,
+    /// AniList and MyAnimeList, the library statuses, favourites, share, copy link. See
+    /// `AnimeContextMenuItems` for what's offered and when.
+    @ViewBuilder
+    func animeContextMenu(media: Media, onOpenDetails: (() -> Void)? = nil) -> some View {
+        #if os(tvOS)
+        self
+        #else
+        self.contextMenu {
+            AnimeContextMenuItems(media: media, onOpenDetails: onOpenDetails)
+        }
+        #endif
+    }
+}

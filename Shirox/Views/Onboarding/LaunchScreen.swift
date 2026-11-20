@@ -12,6 +12,10 @@ struct LaunchConfig {
     var iconPadding: CGFloat = 30
     var iconSize = CGSize(width: 150, height: 150)
     var iconRadius: CGFloat = 45
+    /// The mark's size while the splash is still holding still, standing in for the launch
+    /// screen's own. The asset is a 1024pt master; shown at its natural size it fills the
+    /// screen several times over — the zoomed-in first frame the splash had.
+    var launchMarkSize: CGFloat = 90
 }
 
 // MARK: - Modifier
@@ -130,13 +134,14 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
             RoundedRectangle(cornerRadius: animateIcon ? config.iconRadius : 0)
                 .fill(config.tint)
 
-            // The mark at the size the launch screen would show it, cross-fading into
-            // the resizable one as the icon shrinks — the swap never shows.
+            // The mark at the size the splash shows it while it holds still, cross-fading
+            // into the resizable one as the icon shrinks — the swap never shows. Both are
+            // resizable and fitted: at the asset's natural 1024pt the still frame filled
+            // the whole screen and read as a zoomed-in poster.
             config.logo
-                .frame(
-                    width: animateIcon ? config.iconSize.width : nil,
-                    height: animateIcon ? config.iconSize.height : nil
-                )
+                .resizable().scaledToFit()
+                .frame(width: animateIcon ? config.iconSize.width : config.launchMarkSize,
+                       height: animateIcon ? config.iconSize.height : config.launchMarkSize)
                 .opacity(animateIcon ? 0 : 1)
                 .transaction { $0.disablesAnimations = true }
                 .overlay {
@@ -145,6 +150,8 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
                         .opacity(animateIcon ? 1 : 0)
                         .transaction { $0.disablesAnimations = true }
                         .padding(animateIcon ? config.iconPadding : 0)
+                        .frame(width: animateIcon ? config.iconSize.width : nil,
+                               height: animateIcon ? config.iconSize.height : nil)
                 }
         }
         .frame(
@@ -253,6 +260,10 @@ private struct LaunchScreenOnly: View {
     @ViewBuilder
     private func logo(isMask: Bool, size: CGSize) -> some View {
         config.logo
+            .resizable().scaledToFit()
+            // At the splash's own size: the 1024pt asset at its natural size swallowed the
+            // screen before the animation ever ran.
+            .frame(width: config.launchMarkSize, height: config.launchMarkSize)
             .blendMode(isMask ? .destinationOut : .normal)
             .scaleEffect(scaleDown ? 0.8 : 1)
             .modifier(MaskGrow(scaleUp: scaleUp, isMask: isMask, canvasSize: size))

@@ -496,6 +496,36 @@ final class AniListSocialService {
         return r.data.ToggleFollow.isFollowing
     }
 
+    /// Favourites (the heart on AniList). One of the two ids: an anime's AniList id, or a
+    /// manga's. A no-op result still means the toggle went through.
+    func toggleFavourite(animeId: Int? = nil, mangaId: Int? = nil) async throws {
+        struct ResponseData: Decodable { let ToggleFavourite: [FavouriteEntry]? }
+        struct FavouriteEntry: Decodable { let __typename: String? }
+        struct Response: Decodable {
+            let data: ResponseData?
+        }
+        var arguments = ""
+        var declaration = ""
+        var variables: [String: Any] = [:]
+        if let animeId {
+            arguments = "animeId: $animeId"
+            declaration = "($animeId: Int)"
+            variables["animeId"] = animeId
+        }
+        if let mangaId {
+            if arguments.isEmpty {
+                arguments = "mangaId: $mangaId"
+                declaration = "($mangaId: Int)"
+            } else {
+                arguments += ", mangaId: $mangaId"
+                declaration = "($animeId: Int, $mangaId: Int)"
+            }
+            variables["mangaId"] = mangaId
+        }
+        let q = "mutation\(declaration) { ToggleFavourite(\(arguments)) { __typename } }"
+        let _: Response = try await performQuery(query: q, variables: variables, auth: true)
+    }
+
     func deleteActivity(id: Int) async throws {
         struct Deleted: Decodable { let deleted: Bool? }
         struct ResponseData: Decodable { let DeleteActivity: Deleted? }
