@@ -1,0 +1,8 @@
+{
+  "categories": [
+    { "id": "video", "name": "Video", "kind": "video" },
+    { "id": "manga", "name": "Manga", "kind": "manga" },
+    { "id": "utility", "name": "Utility", "kind": "utility" }
+  ],
+  "entries": []
+}

@@ -60,7 +60,7 @@ SKIP_LINE = re.compile(r'Logger\.shared\.log|print\(|UserDefaults|forKey:|NSLog|
 # The areas keys start with; anything else with a dot is a symbol or file name.
 AREA_NAMES = ("app", "common", "settings", "player", "reader", "downloads", "library", "profile",
               "onboarding", "simkl", "home", "search", "jellyfin", "modules", "detail", "shared",
-              "notifications", "schedule")
+              "notifications", "schedule", "store")
 KEY = re.compile(r'^(?:' + "|".join(AREA_NAMES) + r')\.(?!(?:json|js|com|org|net|html|txt)$)[a-z0-9_]+$')
 INTERPOLATION = re.compile(r'\\\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)')
 

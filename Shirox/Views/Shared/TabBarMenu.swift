@@ -218,6 +218,7 @@ struct TabBarMenu: View {
         case .settings:  return "gearshape"
         case .search:    return "magnifyingglass"
         case .notifications: return "bell"
+        case .store:     return "bag"
         }
     }
 

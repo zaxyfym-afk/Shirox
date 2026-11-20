@@ -208,6 +208,18 @@ struct ModuleListView: View {
                     EditButton()
                 }
                 #endif
+                ToolbarItem(placement: .automatic) {
+                    // The store's door from the module list. From a sheet it closes it first,
+                    // from a push the Settings stack stays one level shallower behind it.
+                    Button {
+                        dismiss()
+                        TabRequests.shared.requestedTab = .store
+                    } label: {
+                        IconView("bag")
+                            .font(.system(size: 14, weight: .medium))
+                    }
+                    .accessibilityLabel("store.get_more")
+                }
             }
             .modifier(DoneItem(isShown: showsDone) { dismiss() })
             .confirmationDialog(

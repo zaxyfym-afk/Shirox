@@ -1292,6 +1292,31 @@ struct ModulesSettingsView: View {
             }
 
             Section {
+                // The store is a tab of its own; this row is its door from Settings.
+                Button {
+                    TabRequests.shared.requestedTab = .store
+                } label: {
+                    HStack(spacing: 12) {
+                        IconView("bag.fill")
+                            .font(.title)
+                            .foregroundStyle(Color.red)
+                            .frame(width: 44, height: 44)
+                            .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("store.title")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                            Text("store.get_more")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Section {
                 Toggle("settings.use_default_extension", isOn: $useDefaultExtension)
                     .switchTint()
                     .disabled(moduleManager.activeModule == nil)

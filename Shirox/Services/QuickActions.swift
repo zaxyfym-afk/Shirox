@@ -12,6 +12,7 @@ enum QuickAction: String, CaseIterable {
     case search
     case downloads
     case library
+    case store
 
     /// Stable reverse-DNS identifier used as `UIApplicationShortcutItem.type`.
     var shortcutItemType: String { "com.shirox.quickaction.\(rawValue)" }
@@ -21,6 +22,7 @@ enum QuickAction: String, CaseIterable {
         case .search:    return String(localized: "common.search")
         case .downloads: return String(localized: "common.downloads")
         case .library:   return String(localized: "common.library")
+        case .store:     return String(localized: "store.title")
         }
     }
 
@@ -29,6 +31,7 @@ enum QuickAction: String, CaseIterable {
         case .search:    return "magnifyingglass"
         case .downloads: return "arrow.down.circle.fill"
         case .library:   return "books.vertical.fill"
+        case .store:     return "bag.fill"
         }
     }
 
