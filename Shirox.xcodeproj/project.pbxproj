@@ -335,6 +335,7 @@
 		4E976F36F624276822C2D3ED /* ModuleStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086F2B861F00D174C404C9E3 /* ModuleStoreView.swift */; };
 		4FF36D72CA4B5976DBC1F7EA /* AlphaThreshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */; };
 		51EB973596412444E96398D2 /* AlphaThreshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */; };
+		52DAD1318624DB660FDAA608 /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF7F4EC4A44ABCD34641C9F /* LaunchScreen.swift */; };
 		5682A80B18AFFB067FC8FF95 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
 		5EEE1B19AAB806CAA901B4D6 /* ModuleStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043AED3ADE2B78DCC7B67CC1 /* ModuleStoreTests.swift */; };
 		6645D7A40C2A37578CDAEF69 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
@@ -342,11 +343,13 @@
 		6C9931D8642DDCCA825AC17D /* SettingsPickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF449F6ED3F6FE15E99F1C0B /* SettingsPickers.swift */; };
 		78EEAD969AE4CA3A00C67B64 /* ModuleStoreEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D192C896CE949CC6820D710 /* ModuleStoreEntry.swift */; };
 		80899D5EA49A408548096616 /* ProfileAvatarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFB4F7554B9BEED574D1262 /* ProfileAvatarTests.swift */; };
+		8989292A7B550EB100D6D6C3 /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF7F4EC4A44ABCD34641C9F /* LaunchScreen.swift */; };
 		8D1AEE1731E04D465F91F6EE /* ModuleStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFE201E450481574B60526D /* ModuleStoreService.swift */; };
 		9047FAF03B8D21CD07294FA7 /* default-catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 794DDE78086D2BD33D7B3BA1 /* default-catalog.json */; };
 		90A9D7213D04F62E4B729F38 /* ModuleStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086F2B861F00D174C404C9E3 /* ModuleStoreView.swift */; };
 		9970813DCFDECACA81F5B865 /* TrackerSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBC6519CD49DC216A51BD48B /* TrackerSignInView.swift */; };
 		9DB6771E03911C464B548732 /* ModuleStoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEFE201E450481574B60526D /* ModuleStoreService.swift */; };
+		A2A7BE5633F2DC926D6DAE63 /* LaunchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEF7F4EC4A44ABCD34641C9F /* LaunchScreen.swift */; };
 		ACF086B37E5EA819C11A1230 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
 		B14ED57FC01F5BEACE383E30 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
 		BF9E00B609797609665A605A /* ModuleStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086F2B861F00D174C404C9E3 /* ModuleStoreView.swift */; };
@@ -1822,6 +1825,7 @@
 		EE954610BF4D5511D8C184B8 /* SimklHomeRows.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimklHomeRows.swift; sourceTree = "<group>"; };
 		EED059849EA0848003353806 /* TrackPreferencesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrackPreferencesTests.swift; sourceTree = "<group>"; };
 		EEF179C5853A32B15AFE3F8A /* ModuleWebsiteButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModuleWebsiteButton.swift; sourceTree = "<group>"; };
+		EEF7F4EC4A44ABCD34641C9F /* LaunchScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaunchScreen.swift; sourceTree = "<group>"; };
 		EEF962B875F8593B7E95F5B6 /* DownloadRequestHeadersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DownloadRequestHeadersTests.swift; sourceTree = "<group>"; };
 		EEFA93DA5617959381E10D85 /* BookmarkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkButton.swift; sourceTree = "<group>"; };
 		EF0E7B33317FF24B0C7CCE88 /* SkyStreamRuntimeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SkyStreamRuntimeTests.swift; sourceTree = "<group>"; };
@@ -2642,6 +2646,7 @@
 			isa = PBXGroup;
 			children = (
 				B7E87688CB577983F43E550D /* OnboardingView.swift */,
+				EEF7F4EC4A44ABCD34641C9F /* LaunchScreen.swift */,
 				DBC6519CD49DC216A51BD48B /* TrackerSignInView.swift */,
 				0D9D985D9ED34BCD80E74692 /* SplashView.swift */,
 			);
@@ -3336,6 +3341,7 @@
 				8D6DC81DF20E6467EBB9BA32 /* LibrarySyncPlanner.swift in Sources */,
 				94B697176EF98978DE15DF49 /* LibrarySyncService.swift in Sources */,
 				06ADAE227115BFC37CA3EB39 /* OnboardingView.swift in Sources */,
+				A2A7BE5633F2DC926D6DAE63 /* LaunchScreen.swift in Sources */,
 				FC161F89743C42A65E3C9614 /* TrackerSignInView.swift in Sources */,
 				129B779ABD06E650EF5A8C12 /* SplashView.swift in Sources */,
 				FB1F41A3B622DF404AFB0D61 /* SearchBrowseView.swift in Sources */,
@@ -3685,6 +3691,7 @@
 				074D937EBB3DF5A34CCD9F10 /* LibrarySyncPlanner.swift in Sources */,
 				3FCE9A2E8111478BC412C937 /* LibrarySyncService.swift in Sources */,
 				AF16A368F3EF69CDB09A5E4E /* OnboardingView.swift in Sources */,
+				52DAD1318624DB660FDAA608 /* LaunchScreen.swift in Sources */,
 				05CEEF2179CBD1C66E6B8BEF /* TrackerSignInView.swift in Sources */,
 				4DDE1E62511C9512D8074969 /* SplashView.swift in Sources */,
 				F37F644897820C9D2466E987 /* SearchBrowseView.swift in Sources */,
@@ -4035,6 +4042,7 @@
 				FB157A299403D6BF6BC1D083 /* LibrarySyncPlanner.swift in Sources */,
 				E905B6BA7539F65C8321C3DD /* LibrarySyncService.swift in Sources */,
 				217A6412F78995A7A5F5F4B0 /* OnboardingView.swift in Sources */,
+				8989292A7B550EB100D6D6C3 /* LaunchScreen.swift in Sources */,
 				9970813DCFDECACA81F5B865 /* TrackerSignInView.swift in Sources */,
 				0345A08DCF61CF5C647B7CD5 /* SplashView.swift in Sources */,
 				142FD17B4EC3BD021DEF20A0 /* SearchBrowseView.swift in Sources */,

@@ -133,10 +133,13 @@ struct ShiroxApp: App {
     @AppStorage(AppTab.orderKey) private var tabOrder = ""
     @AppStorage(AppTab.hiddenKey) private var hiddenTabs = ""
     #endif
-    /// Shown on every cold start, not just the first — the system launch screen is blank, so
-    /// without this the app opens on nothing and then snaps to content.
+    #if os(macOS) || os(tvOS)
+    /// Shown on every cold start on the platforms the carry-on splash doesn't reach — the
+    /// system launch screen is blank, so without this the app opens on nothing and then
+    /// snaps to content. (iOS — Catalyst included — has `launchScreen`, below.)
     @State private var showSplash = true
     @State private var showOnboarding = false
+    #endif
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -196,13 +199,24 @@ struct ShiroxApp: App {
                 // otherwise opens a new one for every file.
                 .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
                 #endif
+                #if os(iOS)
                 // First run: the app ships with no sources, so every tab is empty until one is
                 // connected. Onboarding says so and wires up the two things that fix it.
                 //
-                // Driven by plain state rather than a binding computed from the stored flag.
-                // SwiftUI calls a presentation binding's setter with `false` whenever the cover
-                // isn't showing, and a setter that wrote "finished" on that marked onboarding
-                // complete before it had ever been seen.
+                // The carry-on launch screen presents it, revealed beneath the shrunk launch
+                // icon, so it never slides in over a finished splash. `onFinished` covers the
+                // other start: the reveal done, the profile picker asks at launch when it should.
+                .launchScreen(
+                    config: LaunchConfig(),
+                    showOnBoarding: !hasCompletedOnboarding,
+                    onFinished: {
+                        if hasCompletedOnboarding { ProfileManager.shared.presentAtLaunchIfNeeded() }
+                    }
+                ) {
+                    OnboardingView()
+                        .environmentObject(moduleManager)
+                }
+                #else
                 .fullScreenCoverCompat(isPresented: $showOnboarding) {
                     OnboardingView()
                         .environmentObject(moduleManager)
@@ -217,6 +231,7 @@ struct ShiroxApp: App {
                     showOnboarding = !hasCompletedOnboarding
                     if hasCompletedOnboarding { ProfileManager.shared.presentAtLaunchIfNeeded() }
                 }
+                #endif
                 .onChangeOf(scenePhase) { phase in
                     switch phase {
                     case .active:
