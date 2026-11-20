@@ -43,3 +43,6 @@ released; apps.json still reads 1.1.0 (127).
 - Duplicate settings doors consolidated (appearance and layout only on
   Customization, which owns the icon picker and packs).
 - The tour stays off Mac and tvOS (no tour flag, no replay entry).
+- The theme picker's segmented control declared its `@Namespace` inside the
+  computed property (invalid scope; the first real compile verdict, Codemagic
+  build 2): moved to the view's stored properties (cd8c299).

@@ -15,7 +15,7 @@ at github.com/zaxyfym-afk/Shirox and is public.
   `upstream` = xibrox/Shirox.
 - Development happens in the z.ai Linux sandbox at `/home/z/my-project/repo`.
   That box has no Swift toolchain: nothing is ever compiled there. All builds
-  go through GitHub Actions (the `nightly` workflow on a macos-26 runner) or
+  go through Codemagic (primary since 2026-11-20), GitHub Actions (backup) or
   the user's Mac.
 - The version lives in `apps.json` (1.1.0, build 127) and names the release.
 - Port scripts and generators live OUTSIDE the repo, in the sandbox workspace
@@ -34,13 +34,27 @@ require it; do not remove the Mac paths unless the user asks again):
 `Shirox_iOS`, `Shirox_macOS`, `Shirox_tvOS`, `Shirox_MacCatalyst`, plus
 `buildipa.sh`, `buildcatalyst.sh`, `builddmg.sh`, `buildtvos.sh`.
 
-The `nightly` workflow (.github/workflows/nightly.yaml) runs on every push to
-main and on workflow_dispatch, one run at a time (concurrency group
-`nightly`): it moves the `latest` tag to the commit, builds an unsigned IPA on
-macos-26 (CODE_SIGNING_ALLOWED=NO), uploads artifact `Shirox-Nightly-IPA`,
-uploads `Shirox.ipa` to the `latest` release, has the bot stamp size and date
-into apps.json, and renames the release from apps.json. Other workflows:
-i18n, commit-messages, semgrep, swiftlint.
+Codemagic is the primary builder since 2026-11-20: the repo is connected to
+a Codemagic app ("Shirox", Mac mini M2, latest Xcode, webhook on push to
+main). codemagic.yaml installs the Metal Toolchain first (the app has a
+Metal shader, Shirox/Views/Shared/AlphaThreshold.metal, and fresh CI
+machines ship without the Metal compiler; that step is proven working and
+must stay), then runs the same buildipa.sh, verifies the IPA and exposes
+build/Shirox.ipa plus dSYMs as artifacts. The dashboard is the verdict;
+there is no Codemagic API token in the sandbox.
+
+GitHub Actions is the backup: the `nightly` workflow
+(.github/workflows/nightly.yaml) runs on every push to main, on
+workflow_dispatch and on two crons (21:07 and 03:07 UTC), one run at a time
+(concurrency group `nightly`): it moves the `latest` tag to the commit,
+builds an unsigned IPA on macos-15 with Xcode 26.3 pinned via DEVELOPER_DIR
+(CODE_SIGNING_ALLOWED=NO), uploads artifact `Shirox-Nightly-IPA`, uploads
+`Shirox.ipa` to the `latest` release, has the bot stamp size and date into
+apps.json, and renames the release from apps.json. The free macOS pools do
+not allocate at European peak: runs queued then are cancelled after about
+15 minutes with no runner ever assigned, while every success this month
+landed between 23:30 and 02:41 UTC, which is where the crons sit. Other
+workflows: i18n, commit-messages, semgrep, swiftlint.
 
 ## The redesign arc (November 2026)
 
@@ -56,7 +70,8 @@ Platform ladder used throughout: iOS 26 gets scenes and mesh effects, iOS 18
 gets sticky sections and the typewriter, Mac and tvOS keep the plain look and
 are excluded from the tour. The `ToastManager` API was left untouched.
 
-Known compile risk areas (written to the bar but never compiled anywhere):
+Known compile risk areas (first verdicts are in: Codemagic build 2 died at
+SettingsPickers.swift, fixed in cd8c299; the areas below are still unproven):
 the four availability-heavy ports (launch screen, toasts, sticky sections,
 tour) and the `animation(_:body:)` calls in LaunchScreen.swift (iOS 17 API,
 target is 17.0). See BUILD_STATUS.md.

@@ -1,18 +1,25 @@
 # Progress
 
-Updated: 2026-11-20, fourth session (recovery, sync, lint, CI).
+Updated: 2026-11-20, fifth session (Codemagic era: the first compile verdicts).
 
 ## Where things stand
 
-- Remote `origin/main`: 691b25d, verified with `git ls-remote` after every
-  push. Pushed this session: db1f1c9 (the 17 redesign commits + merge + the
-  five memory files), 0d88a56 (swiftlint's own fixes, extracted from CI's
-  diff), 1a4ebbf (three hand lint fixes), 691b25d (macos-15 + Xcode 26.3 +
-  the 03:07 UTC cron).
-- The redesign is fully on GitHub. SwiftLint, Semgrep, Strings and icons are
-  green. The code has never been compiled (no Swift toolchain in the sandbox,
-  and the macOS pool starved at European peak all afternoon; the full story
-  and the automation that replaces the waiting are in BUILD_STATUS.md).
+- Remote `origin/main`: cd8c299, verified with `git ls-remote` after every
+  push. Pushed this session: 4b93a9d (a second daily cron, 21:07 UTC) and
+  cd8c299 (the SettingsPickers.swift namespace fix). The user pushed
+  ac59ac3 and 6eb9103 themselves (codemagic.yaml and its Metal Toolchain
+  step).
+- Codemagic is the primary builder now (the repo is connected; every push
+  to main builds). Its first two builds gave the redesign its first real
+  compile verdicts: build 1 failed on a missing Metal Toolchain (fixed in
+  codemagic.yaml by the user, confirmed working in build 2), build 2 failed
+  on the SettingsPickers.swift namespace scope error (fixed in cd8c299).
+  Build 3 on cd8c299 is auto-triggered; its verdict is on the Codemagic
+  dashboard (no API token in this sandbox).
+- The redesign is still not compiled green anywhere. SwiftLint, Semgrep,
+  Strings and icons are green. The full build story, including GitHub
+  Actions' peak starvation and its two quiet-window crons, is in
+  BUILD_STATUS.md.
 - The `latest` release IPA ("Shirox 1.1.0 (127)", 2026-11-20 02:51 UTC) was
   built from bfeb07a, before the redesign. It does not contain the new work.
 - Full backup: `shirox-local-backup-2026-11-20.bundle` in the workspace root.
@@ -40,12 +47,17 @@ Updated: 2026-11-20, fourth session (recovery, sync, lint, CI).
 | 4585a2a | Tour platform guards (no tour on Mac and tvOS) |
 
 Session four on top: 045a789 (merge of the bot's apps.json stamp), db1f1c9
-(docs), 0d88a56 and 1a4ebbf (lint green), 691b25d (build CI).
+(docs), 0d88a56 and 1a4ebbf (lint green), 691b25d (build CI), 0ada78d
+(docs). Session five on top: the user's ac59ac3 and 6eb9103 (codemagic.yaml
+and the Metal Toolchain step), 4b93a9d (second cron), cd8c299 (namespace
+fix).
 
 ## Pending, in order
 
-1. First green build of the redesign: run 5 (44763289051) or the 03:07 UTC
-   cron. On compile errors: read the logs, fix, push, repeat.
+1. First green build of the redesign: Codemagic build 3 on cd8c299 (the
+   dashboard has the verdict; no API token here). On compile errors: read
+   the log, fix, push (which rebuilds), repeat. GitHub Actions stays as
+   backup with crons at 21:07 and 03:07 UTC.
 2. After green: verify the built SHA, deliver the IPA, then the verification
    list in TODO.md.
 3. Module Store completion (TODO.md). The catalog research is done: 287 real
@@ -59,5 +71,5 @@ now handled by the macos-15 pool and the 03:07 UTC cron.
 
 ## Latest verified GitHub commit
 
-691b25d (ci: macos-15 with Xcode 26.3 for the IPA, and a 03:07 UTC cron),
-verified 2026-11-20 by `git ls-remote`.
+cd8c299 (fix: move theme picker namespace to view scope), verified
+2026-11-20 by `git ls-remote`.

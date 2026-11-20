@@ -1,18 +1,28 @@
 # Todo
 
-## 1. First green build (automated now, watch it)
+## 1. First green build (Codemagic primary, Actions backup)
 
-- Pushes to main and the daily 03:07 UTC cron both build the nightly on
-  macos-15 with Xcode 26.3 (691b25d). Watch run 5 (44763289051) or the next
-  cron run; on failure, read the failing step's logs, fix, push, rebuild.
-- Pushing while a nightly run is PENDING supersedes (cancels) it; pushing
-  while one is RUNNING does not. Use `[skip ci]` on docs-only pushes.
-- Fix compile errors, push, rebuild, until green. Risk areas: the four
-  availability-heavy ports (launch screen, toasts, sticky sections, tour) and
-  the `animation(_:body:)` calls in LaunchScreen.swift (iOS 17 API, target is
-  17.0).
-- Verify the built SHA equals the pushed SHA, then deliver the artifact link
-  and the run link.
+- Codemagic builds every push to main (webhook; Mac mini M2, latest Xcode,
+  the Metal Toolchain step in codemagic.yaml, unsigned IPA via buildipa.sh).
+  The verdict lands on the Codemagic dashboard; this sandbox has no
+  Codemagic API token, so the dashboard is the source of truth.
+- Build 1 (ac59ac3) failed on the missing Metal Toolchain, fixed in
+  codemagic.yaml and confirmed working. Build 2 (6eb9103) failed on the
+  SettingsPickers.swift namespace scope error, fixed in cd8c299. Watch
+  build 3 on cd8c299.
+- On failure: read the dashboard log, find the real `error:` diagnostics,
+  fix, push (which rebuilds), repeat. Do not rebuild unchanged code; do
+  not assume every exit code 65 is the same error.
+- GitHub Actions stays as backup: push-triggered plus crons at 21:07 and
+  03:07 UTC (macos-15, Xcode 26.3). It cannot get a runner at European
+  peak; the crons land in the quiet windows.
+- Pushing while a nightly run is still PENDING supersedes (cancels) it;
+  use `[skip ci]` on docs-only pushes.
+- Remaining compile risk areas: the four availability-heavy ports (launch
+  screen, toasts, sticky sections, tour) and the `animation(_:body:)`
+  calls in LaunchScreen.swift (iOS 17 API, target is 17.0).
+- Verify the built SHA equals the pushed SHA, then deliver the artifact
+  link and the run link.
 
 ## 2. Verification after the first green build
 
