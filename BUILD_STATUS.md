@@ -55,21 +55,41 @@
   MorphingBlob gated to 18, Toast made Equatable for animation(value:).
   Access fix: the theme scene's private Color constants made fileprivate
   (private extension members don't reach other types in the same file).
-- a2d832c (the thirteen fixes) has NOT been built yet — no webhook fired.
-  The next build, build 4, starts through the API on the user's explicit
-  authorization (procedure below). The API integration is ready and tested
-  against build 3's real data: /home/z/my-project/scripts/codemagic.py
-  does trigger (guarded by --authorized), 5 s polling wait, step logs,
-  grouped compiler-error extraction (file:line), artifacts with download
-  URLs, and the full report. The token lives at .scratch/codemagic-token
-  (outside the repo, never committed or printed). The redesign still has
-  never linked, so more rounds are possible.
+- The authorized API loop, 2026-11-20 19:53-20:24 UTC, ran three builds to
+  the first green build of the redesign. Build 4 (6b00a5412c8557a2754b8cbe,
+  on 9b7d783e, failed 3m19s): the thirteen fixes held, and the compile
+  moved on — 7 new errors in 4 files, fixed in 89e2166 (ShiroxApp's
+  tabCell: a ViewBuilder cannot build `Tab`, and TabContent.badge takes an
+  Int; a second type-check timeout on the pre-18 tabItem chain, extracted
+  into legacyTabCell; LaunchScreen's `.task` chained on an if/else block,
+  wrapped in a Group; ProfilesView's Image(decorative:) is asset-name-only,
+  so Image(uiImage:); StickySection's .fill.tertiary gated to 17+ with
+  UIKit's tertiarySystemFill below). Build 5 (6b00a8e5cf51ef96776f360c, on
+  89e21666, failed 2m34s): TabContentBuilder is generic
+  (@TabContentBuilder<Int>), and View.badge also takes a non-optional Int —
+  the redesign's Int? badge had never actually compiled (builds 3 and 4
+  died before reaching it); fixed in e21f70d. Build 6
+  (6b00aad5c1876cf706761326, on e21f70de): FINISHED, 5m04s, every step
+  green, Verify IPA passed, built SHA = pushed SHA. Unsigned Shirox.ipa
+  27.1 MB (v1.1.0 build 127, iPhoneOS, min iOS 15.0) plus
+  Shirox.app.dSYM.zip 21.3 MB. Artifacts come from `artifacts <buildId>`:
+  the v3 short_lived_download_url links are signed (no auth needed, but
+  short-lived — regenerate with the same command); the v1
+  /artifacts/<uuid>/<uuid>/<file> form needs the x-auth-token header.
+  Codemagic's success status string is "finished".
 - GitHub Actions stays as the backup: the nightly runs on push and on two
   crons (21:07 and 03:07 UTC, macos-15, Xcode 26.3 pinned via
   DEVELOPER_DIR). It still cannot get a runner at European peak: the runs
   queued 2026-11-20 between 14:09 and 17:38 UTC were all cancelled after
   ~15 minutes with no runner ever assigned. The cron times sit in the
-  windows that have always landed (23:30-02:41 UTC).
+  windows that have always landed (23:30-02:41 UTC). KNOWN GAP: the
+  nightlies on 89e2166 (run 44808737313) and e21f70d (44809997043) got
+  runners and FAILED for real — under the pinned Xcode 26.3 the same green
+  code hits three of its own errors (a type-check timeout at
+  HLSManifestParser.swift:152, "ambiguous use of operator '-'" at
+  PosterViewer.swift:37, and '*' at SettingsPickers.swift:447) that
+  Codemagic's Xcode 26.6 compiles fine. The backup needs its own pass:
+  fix those three spots or unpin to the latest Xcode in nightly.yaml.
 
 ## Next build procedure (the API era)
 
@@ -105,13 +125,13 @@ at GET /builds/{id}/step/{actionId} (plain text, HTML-escaped); v3 mirror
 at codemagic.io/api/v3/builds/{id} (+ /actions; artifacts there carry
 short_lived_download_url).
 
-## Known compile risk areas (never yet linked)
+## Known compile risk areas
 
-- The four availability-heavy ports: launch screen (485765a, rewritten to
-  the iOS 15 floor in a2d832c), toasts (50458de), sticky sections (421723b),
-  tour (ab31eae, platform guards in 4585a2a).
-- iOS availability guards across the platform ladder (26 / 18 / Mac /
-  tvOS); the app's floor is iOS 15, the tests' is 17.
+The primary (Codemagic, Xcode latest) is green end to end since build 6.
+Remaining compile risk lives in the backup's pinned Xcode 26.3 (the three
+errors in the bullet above) and in the never-yet-built macOS/tvOS/Catalyst
+targets (the user's Mac). The four availability-heavy ports (launch screen,
+toasts, sticky sections, tour) all compiled and are inside the green IPA.
 
 ## History
 
@@ -131,4 +151,7 @@ short_lived_download_url).
 | 2026-11-20 | ac59ac3 | Codemagic failed | build 1 6b007c7f8f52ca27512968dd: missing Metal Toolchain at AlphaThreshold.metal |
 | 2026-11-20 | 6eb9103 | Codemagic failed | build 2 6b007de98f52ca275129695b, 2m14s: Metal fixed; SettingsPickers.swift:194 namespace scope |
 | 2026-11-20 17:31 | d614cc7 | Codemagic failed | build 3 6b0083b58f52ca2751296b63, 4m48s: Metal ok, namespace ok; 13 error groups (16/17 APIs against the 15.0 app floor, scope and type errors). GitHub nightly 44782836661 starved in queue, 15:06 |
-| 2026-11-20 18:08 | a2d832c | not built | no webhook: pushes don't start Codemagic builds; awaiting the authorized API trigger (GitHub nightly 44789885826 as backup) |
+| 2026-11-20 18:08 | a2d832c | built as build 4's base | the thirteen-fix code first compiled in build 4 (on 9b7d783, docs + script on top); GitHub nightly 44789885826 got a runner late and was cancelled mid-run, no verdict |
+| 2026-11-20 19:53 | 9b7d783 | Codemagic failed | build 4 6b00a5412c8557a2754b8cbe, 3m19s: 7 errors in 4 files (tabCell builder/badge, tabItem chain timeout, .task on if/else, Image(decorative:) String, .fill.tertiary 17+). Fixed in 89e2166 |
+| 2026-11-20 20:09 | 89e2166 | Codemagic failed | build 5 6b00a8e5cf51ef96776f360c, 2m34s: @TabContentBuilder needs <Int>; View.badge takes a plain Int (the old Int? badge never compiled). Fixed in e21f70d. Nightly 44808737313: real failure under Xcode 26.3 |
+| 2026-11-20 20:15 | e21f70d | Codemagic GREEN | build 6 6b00aad5c1876cf706761326, 5m04s, finished: FIRST GREEN BUILD of the redesign; Shirox.ipa 27.1 MB verified (min iOS 15.0), built SHA = pushed SHA. Nightly 44809997043: Xcode 26.3 fails on 3 of its own (HLSManifestParser timeout, PosterViewer '-', SettingsPickers '*') |

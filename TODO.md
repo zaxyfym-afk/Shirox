@@ -1,36 +1,29 @@
 # Todo
 
-## 1. First green build (Codemagic primary, Actions backup)
+## 1. Build pipeline (Codemagic primary GREEN, Actions backup needs a pass)
 
-- Builds start ONLY through the Codemagic API and ONLY on the user's
-  explicit authorization (pushes do not trigger Codemagic; no webhook).
-  The tool is `python3 /home/z/my-project/scripts/codemagic.py`:
-  `build --authorized` = trigger exactly one build on main + poll 5 s +
-  report; also `trigger --authorized`, `wait <id>`, `status`, `logs`,
-  `errors <id>` (real `error:` diagnostics with file:line, grouped),
-  `artifacts <id>` (IPA download URLs), `builds`, `apps`. Token:
-  .scratch/codemagic-token (outside the repo; never printed or committed).
-- Build 1 (ac59ac3) failed on the missing Metal Toolchain, fixed in
-  codemagic.yaml and confirmed working. Build 2 (6eb9103) failed on the
-  SettingsPickers.swift namespace scope error, fixed in cd8c299. Build 3
-  (d614cc7 tip, 4m48s) failed on thirteen error groups across 13 files,
-  fixed in a2d832c (the app's iOS floor is 15.0, not 17.0 — that is the
-  tests target). a2d832c is UNBUILT: the next build is build 4, awaiting
-  the user's go.
-- On failure: `errors <buildId>` gives the real diagnostics; fix, commit,
-  push (a push triggers only the GitHub nightly backup), ask for
-  authorization, rebuild. Do not rebuild unchanged code; do not assume
-  every exit code 65 is the same error.
-- GitHub Actions stays as backup: push-triggered plus crons at 21:07 and
-  03:07 UTC (macos-15, Xcode 26.3). It cannot get a runner at European
-  peak; the crons land in the quiet windows.
-- Pushing while a nightly run is still PENDING supersedes (cancels) it;
-  use `[skip ci]` on docs-only pushes.
-- Remaining compile risk areas: the four availability-heavy ports (launch
-  screen, toasts, sticky sections, tour). The launch screen's
-  `animation(_:body:)` uses are gone with its iOS 15 rewrite in a2d832c.
-- Verify the built SHA equals the pushed SHA, then deliver the artifact
-  link and the run link.
+- THE REDESIGN IS GREEN: Codemagic build 6 (6b00aad5c1876cf706761326, on
+  e21f70de, 5m04s, 2026-11-20 ~20:24 UTC) built and verified the unsigned
+  IPA — 27.1 MB, 1.1.0 (127), iPhoneOS, min iOS 15.0. The loop was fully
+  API-driven: build 4 (7 errors, fixed in 89e2166), build 5 (3 errors,
+  fixed in e21f70d), build 6 green. The script lives in the repo at
+  scripts/codemagic.py; builds start ONLY via `build --authorized` /
+  `trigger --authorized` (pushes do not trigger Codemagic; no webhook).
+  Token: .scratch/codemagic-token (outside the repo; never printed or
+  committed).
+- Remaining in the pipeline: the GitHub backup nightly fails under its
+  pinned Xcode 26.3 even on the green code (HLSManifestParser.swift:152
+  type-check timeout, PosterViewer.swift:37 "ambiguous '-'",
+  SettingsPickers.swift:447 "ambiguous '*'"); fix those or unpin to the
+  latest Xcode in nightly.yaml. Do not rebuild unchanged code; do not
+  assume every exit code 65 is the same error.
+- GitHub Actions backup: push-triggered plus crons at 21:07 and 03:07 UTC
+  (macos-15, Xcode 26.3); it cannot get a runner at European peak, the
+  crons land in the quiet windows. Pushing while a nightly run is still
+  PENDING supersedes (cancels) it; use `[skip ci]` on docs-only pushes.
+- Built SHA = pushed SHA was verified for build 6; the artifact links were
+  delivered (signed short-lived links via
+  `python3 scripts/codemagic.py artifacts 6b00aad5c1876cf706761326`).
 
 ## 2. Verification after the first green build
 
