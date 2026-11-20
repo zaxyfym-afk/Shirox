@@ -3,7 +3,6 @@ import SwiftUI
 // MARK: - General Settings
 
 struct GeneralSettingsView: View {
-    @AppStorage(AppColorScheme.key) private var colorScheme = AppColorScheme.system.rawValue
     @AppStorage(AppTint.key) private var tint = AppTint.monochrome.rawValue
     @AppStorage(AppTab.launchKey) private var launchTab = LaunchTab.home.rawValue
     @AppStorage(AppTab.orderKey) private var tabOrder = ""
@@ -12,13 +11,7 @@ struct GeneralSettingsView: View {
     @AppStorage(AppTab.minimizeKey) private var minimizeTabBar = false
     @AppStorage(PullToRefreshStyle.key) private var refreshStyle = PullToRefreshStyle.defaultStyle
     @AppStorage(CardTitleSetting.hiddenKey) private var hideCardTitles = false
-    @AppStorage(DetailLayoutSetting.cinematicKey) private var cinematicDetailLayout = true
-    @AppStorage(DetailLayoutSetting.cinematicHomeKey) private var cinematicHomeLayout = true
     @AppStorage(ProviderMenuStyle.key) private var providerMenuStyle = ProviderMenuStyle.iconAndName
-    #if os(iOS) && !targetEnvironment(macCatalyst)
-    @State private var appIcon = UIApplication.shared.alternateIconName
-    @State private var appIconError: String?
-    #endif
 
     /// The bottom tab bar's: label and minimize switches apply only there.
     private static var isPhone: Bool {
@@ -41,39 +34,8 @@ struct GeneralSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section {
-                Picker("settings.appearance", selection: $colorScheme) {
-                    ForEach(AppColorScheme.allCases) { scheme in
-                        Text(scheme.title).tag(scheme.rawValue)
-                    }
-                }
-                .pickerStyle(.menu)
-
-                #if os(iOS) && !targetEnvironment(macCatalyst)
-                Picker("settings.app_icon", selection: appIconSelection) {
-                    ForEach(AppIconOption.all) { option in
-                        Text(option.title).tag(option.name)
-                    }
-                }
-                .pickerStyle(.menu)
-                .retinted(tint)
-                #endif
-
-                TintColorRow(tint: $tint)
-                note(String(localized: "settings.buttons_switches_and_highlights_monochrome"))
-
-                NavigationLink {
-                    IconPacksSettingsView()
-                } label: {
-                    LabeledContent("settings.icon_packs") {
-                        Text(IconPackStore.shared.selected?.pack.name ?? String(localized: "settings.sf_symbols"))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            } header: {
-                Text("settings.appearance")
-            }
-
+            // Appearance — colour, app icon, icon packs — lives on the Customization page;
+            // this page is the app's behaviour.
             Section {
                 #if !os(tvOS)
                 NavigationLink {
@@ -108,19 +70,6 @@ struct GeneralSettingsView: View {
                 }
             } header: {
                 Text(Self.hasTabBar ? String(localized: "settings.tab_bar") : String(localized: "settings.tabs"))
-            }
-
-            if DetailLayoutSetting.isOffered {
-                Section {
-                    Toggle("settings.cinematic_home", isOn: $cinematicHomeLayout)
-                        .switchTint()
-                    Toggle("settings.cinematic_detail_pages", isOn: $cinematicDetailLayout)
-                        .switchTint()
-                } header: {
-                    Text("settings.layout")
-                } footer: {
-                    Text("settings.cinematic_note")
-                }
             }
 
             Section {
@@ -175,14 +124,6 @@ struct GeneralSettingsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        #if os(iOS) && !targetEnvironment(macCatalyst)
-        .alert("settings.couldnt_change_icon",
-               isPresented: Binding(get: { appIconError != nil }, set: { if !$0 { appIconError = nil } })) {
-            Button("common.ok", role: .cancel) {}
-        } message: {
-            Text(appIconError ?? "")
-        }
-        #endif
     }
 
     /// The explanation under a row, as the other settings pages have them.
@@ -205,28 +146,6 @@ struct GeneralSettingsView: View {
         let shown = AppTab.visible(order: tabOrder, hidden: hiddenTabs).count
         return shown == all ? String(localized: "common.all") : "\(shown) of \(all)"
     }
-
-    #if os(iOS) && !targetEnvironment(macCatalyst)
-    /// Picking an icon asks iOS to switch to it; the picker only moves once it has.
-    private var appIconSelection: Binding<String?> {
-        Binding(get: { appIcon }, set: { name in
-            guard name != appIcon else { return }
-            guard UIApplication.shared.supportsAlternateIcons else {
-                appIconError = String(localized: "settings.this_device_doesnt_support_changing")
-                return
-            }
-            UIApplication.shared.setAlternateIconName(name) { error in
-                DispatchQueue.main.async {
-                    if let error {
-                        appIconError = error.localizedDescription
-                    } else {
-                        appIcon = name
-                    }
-                }
-            }
-        })
-    }
-    #endif
 }
 
 extension View {

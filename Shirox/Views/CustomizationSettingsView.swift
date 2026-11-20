@@ -1,17 +1,20 @@
 import SwiftUI
 
-/// Settings ▸ Customization: everything that shapes how Shirox looks and behaves, in one
-/// place — appearance, layout, episodes, and the schedule's starting point. Every control
-/// here is real and saved; what a page owns outright (player, subtitles) is linked to
-/// rather than duplicated.
+/// Settings ▸ Customization: everything that shapes how Shirox looks — appearance and app
+/// icon, layout, episodes, and the schedule's starting point. Every control here is real
+/// and saved; appearance lives on this page alone, and the pages that own the rest (player,
+/// subtitles, tabs) each have their one door on the root.
 struct CustomizationSettingsView: View {
     @AppStorage(AppColorScheme.key) private var colorScheme = AppColorScheme.system.rawValue
     @AppStorage(AppTint.key) private var tint = AppTint.monochrome.rawValue
     @AppStorage(DetailLayoutSetting.cinematicHomeKey) private var cinematicHomeLayout = true
     @AppStorage(DetailLayoutSetting.cinematicKey) private var cinematicDetailLayout = true
-    @AppStorage(CardTitleSetting.hiddenKey) private var hideCardTitles = false
     @AppStorage("hideFillerEpisodes") private var hideFillerEpisodes = false
     @AppStorage(UpcomingCalendarViewModel.libraryOnlyDefaultKey) private var scheduleStartsInLibrary = false
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+    @State private var appIcon = UIApplication.shared.alternateIconName
+    @State private var appIconError: String?
+    #endif
 
     var body: some View {
         SettingsList {
@@ -25,7 +28,26 @@ struct CustomizationSettingsView: View {
                 .pickerStyle(.menu)
                 .retinted(tint)
 
+                #if os(iOS) && !targetEnvironment(macCatalyst)
+                Picker("settings.app_icon", selection: appIconSelection) {
+                    ForEach(AppIconOption.all) { option in
+                        Text(option.title).tag(option.name)
+                    }
+                }
+                .pickerStyle(.menu)
+                .retinted(tint)
+                #endif
+
                 TintColorRow(tint: $tint)
+
+                NavigationLink {
+                    IconPacksSettingsView()
+                } label: {
+                    LabeledContent("settings.icon_packs") {
+                        Text(IconPackStore.shared.selected?.pack.name ?? String(localized: "settings.sf_symbols"))
+                            .foregroundStyle(.secondary)
+                    }
+                }
             } header: {
                 SettingsSectionHeader(icon: "circle", title: "settings.appearance")
             } footer: {
@@ -37,8 +59,6 @@ struct CustomizationSettingsView: View {
                     Toggle("settings.cinematic_home", isOn: $cinematicHomeLayout)
                         .switchTint()
                     Toggle("settings.cinematic_detail_pages", isOn: $cinematicDetailLayout)
-                        .switchTint()
-                    Toggle("settings.hide_titles_on_cards", isOn: $hideCardTitles)
                         .switchTint()
                 } header: {
                     SettingsSectionHeader(icon: "square.grid.3x2", title: "settings.layout")
@@ -66,35 +86,41 @@ struct CustomizationSettingsView: View {
             } header: {
                 SettingsSectionHeader(icon: "calendar", title: "shared.upcoming")
             }
-
-            Section {
-                NavigationLink {
-                    PlayerSettingsView()
-                } label: {
-                    SettingsNavRow(icon: "play.tv", title: String(localized: "settings.player"))
-                }
-                NavigationLink {
-                    SubtitleSettingsPage()
-                } label: {
-                    SettingsNavRow(icon: "captions.bubble", title: String(localized: "settings.subtitles"))
-                }
-                #if !os(tvOS)
-                NavigationLink {
-                    TabBarCustomizationView()
-                } label: {
-                    SettingsNavRow(icon: "square.stack.3d.up", title: String(localized: "settings.customize_tabs"))
-                }
-                #endif
-            } header: {
-                SettingsSectionHeader(icon: "ellipsis.circle", title: "settings.more_to_customize")
-            } footer: {
-                Text("settings.more_to_customize_note")
-            }
         }
         .softScrollEdges()
         .navigationTitle("settings.customization")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        #if os(iOS) && !targetEnvironment(macCatalyst)
+        .alert("settings.couldnt_change_icon",
+               isPresented: Binding(get: { appIconError != nil }, set: { if !$0 { appIconError = nil } })) {
+            Button("common.ok", role: .cancel) {}
+        } message: {
+            Text(appIconError ?? "")
+        }
+        #endif
     }
+
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+    /// Picking an icon asks iOS to switch to it; the picker only moves once it has.
+    private var appIconSelection: Binding<String?> {
+        Binding(get: { appIcon }, set: { name in
+            guard name != appIcon else { return }
+            guard UIApplication.shared.supportsAlternateIcons else {
+                appIconError = String(localized: "settings.this_device_doesnt_support_changing")
+                return
+            }
+            UIApplication.shared.setAlternateIconName(name) { error in
+                DispatchQueue.main.async {
+                    if let error {
+                        appIconError = error.localizedDescription
+                    } else {
+                        appIcon = name
+                    }
+                }
+            }
+        })
+    }
+    #endif
 }

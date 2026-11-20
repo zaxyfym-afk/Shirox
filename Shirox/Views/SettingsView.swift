@@ -177,6 +177,7 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var sections: some View {
+            // Who's using the app, and the accounts that follow them.
             Section {
                 #if !os(tvOS)
                 Button {
@@ -188,18 +189,6 @@ struct SettingsView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 #endif
-            }
-
-            Section {
-                NavigationLink {
-                    GeneralSettingsView()
-                } label: {
-                    SettingsNavRow(
-                        icon: "gearshape",
-                        title: String(localized: "settings.general"),
-                        subtitle: String(localized: "settings.general_subtitle")
-                    )
-                }
 
                 NavigationLink {
                     AccountsSettingsView()
@@ -211,6 +200,21 @@ struct SettingsView: View {
                     )
                 }
 
+                NavigationLink {
+                    NotificationsSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "bell",
+                        title: String(localized: "settings.notifications"),
+                        subtitle: String(localized: "settings.notifications_subtitle")
+                    )
+                }
+            } header: {
+                SettingsSectionHeader(icon: "person.fill", title: "settings.section_you")
+            }
+
+            // Where things play.
+            Section {
                 NavigationLink {
                     PlayerSettingsView()
                 } label: {
@@ -242,57 +246,8 @@ struct SettingsView: View {
                     )
                 }
                 #endif
-
-                NavigationLink {
-                    ModulesSettingsView()
-                } label: {
-                    SettingsNavRow(
-                        icon: "puzzlepiece.extension",
-                        title: String(localized: "common.modules"),
-                        subtitle: modulesSubtitle
-                    )
-                }
             } header: {
-                SettingsSectionHeader(icon: "slider.horizontal.3", title: "settings.section_preferences")
-            }
-
-            // What the app looks like and how it tells the user things: one place for the
-            // surface-level choices, and the tour again for whoever wants it.
-            Section {
-                NavigationLink {
-                    CustomizationSettingsView()
-                } label: {
-                    SettingsNavRow(
-                        icon: "paintpalette",
-                        title: String(localized: "settings.customization"),
-                        subtitle: String(localized: "settings.customization_subtitle")
-                    )
-                }
-
-                NavigationLink {
-                    NotificationsSettingsView()
-                } label: {
-                    SettingsNavRow(
-                        icon: "bell",
-                        title: String(localized: "settings.notifications"),
-                        subtitle: String(localized: "settings.notifications_subtitle")
-                    )
-                }
-
-                #if !os(tvOS)
-                Button {
-                    showOnboardingReplay = true
-                } label: {
-                    SettingsNavRow(
-                        icon: "graduationcap",
-                        title: String(localized: "settings.replay_introduction"),
-                        subtitle: String(localized: "settings.replay_introduction_subtitle")
-                    )
-                }
-                .buttonStyle(.plain)
-                #endif
-            } header: {
-                SettingsSectionHeader(icon: "sparkles", title: "settings.section_experience")
+                SettingsSectionHeader(icon: "play.tv", title: "settings.section_playback")
             }
 
             Section {
@@ -331,7 +286,55 @@ struct SettingsView: View {
                 SettingsSectionHeader(icon: "externaldrive", title: "settings.section_library_storage")
             }
 
+            // What the app plays from.
             Section {
+                NavigationLink {
+                    ModulesSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "puzzlepiece.extension",
+                        title: String(localized: "common.modules"),
+                        subtitle: modulesSubtitle
+                    )
+                }
+
+                // The store is a tab of its own; this row is its door from Settings.
+                Button {
+                    TabRequests.shared.requestedTab = .store
+                } label: {
+                    SettingsNavRow(
+                        icon: "bag.fill",
+                        title: String(localized: "store.title"),
+                        subtitle: String(localized: "store.get_more")
+                    )
+                }
+                .buttonStyle(.plain)
+            } header: {
+                SettingsSectionHeader(icon: "puzzlepiece.extension", title: "settings.section_sources")
+            }
+
+            // The app itself.
+            Section {
+                NavigationLink {
+                    GeneralSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "gearshape",
+                        title: String(localized: "settings.general"),
+                        subtitle: String(localized: "settings.general_subtitle")
+                    )
+                }
+
+                NavigationLink {
+                    CustomizationSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "paintpalette",
+                        title: String(localized: "settings.customization"),
+                        subtitle: String(localized: "settings.customization_subtitle")
+                    )
+                }
+
                 #if !os(tvOS)
                 NavigationLink {
                     BackupSettingsView()
@@ -354,8 +357,21 @@ struct SettingsView: View {
 
                 // Expert settings for blocked regions, deliberately last.
                 NavigationLink { AdvancedNetworkSettingsView() } label: { SettingsNavRow(icon: "network", title: String(localized: "settings.advanced_network")) }
+
+                #if !os(tvOS)
+                Button {
+                    showOnboardingReplay = true
+                } label: {
+                    SettingsNavRow(
+                        icon: "graduationcap",
+                        title: String(localized: "settings.replay_introduction"),
+                        subtitle: String(localized: "settings.replay_introduction_subtitle")
+                    )
+                }
+                .buttonStyle(.plain)
+                #endif
             } header: {
-                SettingsSectionHeader(icon: "arrow.up.arrow.down", title: "settings.section_data")
+                SettingsSectionHeader(icon: "gearshape", title: "settings.section_app")
             }
 
             Section {
@@ -1719,7 +1735,8 @@ struct StorageSettingsView: View {
                 }
                 .foregroundStyle(.red)
                 .disabled(downloadsSize == 0)
-                NavigationLink("settings.download_settings") { DownloadsSettingsView() }
+                // The download settings themselves are the root's Downloads row: one door,
+                // and this page stays about what the downloads take.
             } header: {
                 Text("common.downloads")
             } footer: {
