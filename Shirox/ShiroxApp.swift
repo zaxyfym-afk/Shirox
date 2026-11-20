@@ -314,7 +314,7 @@ struct ShiroxApp: App {
 
 #if targetEnvironment(macCatalyst) || os(macOS)
 enum SidebarTab: Int, CaseIterable, Hashable {
-    case home, search, library, downloads, settings, notifications, store
+    case home, search, library, downloads, settings
 
     /// What the sidebar lists: the tabs left showing, in the order set in Settings › General.
     static var available: [SidebarTab] { AppTab.visible.map(SidebarTab.init) }
@@ -326,8 +326,6 @@ enum SidebarTab: Int, CaseIterable, Hashable {
         case .downloads: self = .downloads
         case .settings:  self = .settings
         case .search:    self = .search
-        case .notifications: self = .notifications
-        case .store:     self = .store
         }
     }
 
@@ -338,8 +336,6 @@ enum SidebarTab: Int, CaseIterable, Hashable {
         case .downloads: return String(localized: "common.downloads")
         case .settings:  return String(localized: "settings.settings")
         case .search:    return String(localized: "common.search")
-        case .notifications: return String(localized: "profile.notifications")
-        case .store:     return String(localized: "store.title")
         }
     }
 
@@ -350,8 +346,6 @@ enum SidebarTab: Int, CaseIterable, Hashable {
         case .downloads: return "arrow.down.circle"
         case .settings:  return "gearshape"
         case .search:    return "magnifyingglass"
-        case .notifications: return "bell"
-        case .store:     return "bag"
         }
     }
 
@@ -555,8 +549,6 @@ private struct RootTabView: View {
         case .settings:  SettingsView()
         case .search:
             if #available(macOS 15, *) { SearchView(toolbarSearch: toolbarSearch) } else { SearchView() }
-        case .notifications: NotificationsTabView()
-        case .store:     ModuleStoreView()
         }
     }
     #endif
@@ -574,7 +566,6 @@ private struct RootTabView: View {
         case .library:   tab = .library
         case .downloads: tab = .downloads
         case .search:    tab = .search
-        case .store:     tab = .store
         }
         // A hidden tab isn't there to go to.
         if visibleTabs.contains(tab) { selectedTab = tab.rawValue }
@@ -595,15 +586,7 @@ private struct RootTabView: View {
         #endif
         case .settings:  SettingsView()
         case .search:    SearchView()
-        case .notifications: NotificationsTabView()
-        case .store:     ModuleStoreView()
         }
-    }
-
-    /// The notifications tab's badge: AniList's unread count, the same one the Library's
-    /// bell carries.
-    private var notificationsBadge: Int? {
-        anilistAuth.unreadNotificationCount > 0 ? anilistAuth.unreadNotificationCount : nil
     }
 
     /// Icon only when labels are hidden (iPhone); VoiceOver still reads the name.
@@ -631,13 +614,6 @@ private struct RootTabView: View {
             } label: {
                 tabLabel(tab)
             }
-        } else if tab == .notifications, let badge = notificationsBadge {
-            Tab(value: tab.rawValue) {
-                page(tab)
-            } label: {
-                tabLabel(tab)
-            }
-            .badge(badge)
         } else {
             Tab(value: tab.rawValue) {
                 page(tab)
@@ -652,14 +628,9 @@ private struct RootTabView: View {
     /// checker could weigh in reasonable time.
     @ViewBuilder
     private func legacyTabCell(_ tab: AppTab) -> some View {
-        let cell = page(tab)
+        page(tab)
             .tabItem { tabLabel(tab) }
             .tag(tab.rawValue)
-        if tab == .notifications, let badge = notificationsBadge {
-            cell.badge(badge)
-        } else {
-            cell
-        }
     }
     #endif
 
@@ -689,8 +660,6 @@ private struct RootTabView: View {
                     case .downloads: DownloadsView()
                     case .settings:  SettingsView()
                     case .search:    SearchView()
-                    case .notifications: NotificationsTabView()
-                    case .store:     ModuleStoreView()
                     }
                 }
                 #elseif os(macOS)
@@ -752,12 +721,6 @@ private struct RootTabView: View {
                     SearchView()
                         .tabItem { Label("common.search", icon: "magnifyingglass") }
                         .tag(4)
-                    NotificationsTabView()
-                        .tabItem { Label("profile.notifications", icon: "bell.fill") }
-                        .tag(5)
-                    ModuleStoreView()
-                        .tabItem { Label("store.title", icon: "bag.fill") }
-                        .tag(6)
                 }
                 .appTint()
                 #else

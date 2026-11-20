@@ -17,6 +17,8 @@ struct ModuleListView: View {
     @State private var isAddingJellyfinModule = false
     @FocusState private var isTextFieldFocused: Bool
     @State private var isCheckingAll = false
+    /// The Module Store, over the module list: the store is not a tab of the bar.
+    @State private var showStore = false
     /// Set after Check All finds broken modules, to offer removing them.
     @State private var offerRemovingBroken = false
     /// A module just added whose check failed, to keep or remove.
@@ -209,11 +211,10 @@ struct ModuleListView: View {
                 }
                 #endif
                 ToolbarItem(placement: .automatic) {
-                    // The store's door from the module list. From a sheet it closes it first,
-                    // from a push the Settings stack stays one level shallower behind it.
+                    // The store's door from the module list, over this screen as a sheet:
+                    // the store is not a tab of the bar.
                     Button {
-                        dismiss()
-                        TabRequests.shared.requestedTab = .store
+                        showStore = true
                     } label: {
                         IconView("bag")
                             .font(.system(size: 14, weight: .medium))
@@ -249,6 +250,13 @@ struct ModuleListView: View {
             moduleManager.errorMessage = nil
         }
         #if !os(tvOS)
+        .sheet(isPresented: $showStore) {
+            NavigationStack {
+                ModuleStoreView()
+            }
+            .environmentObject(moduleManager)
+            .macSheetFrame()
+        }
         .sheet(isPresented: $showModuleImport, onDismiss: checkNewModule) {
             NavigationStack {
                 ModuleImportView()

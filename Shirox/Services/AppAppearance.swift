@@ -248,7 +248,7 @@ enum AppLanguage {
 /// The tabs of the tab bar, and of a Mac's toolbar or sidebar. Raw values are the `TabView` selection
 /// values, which quick actions and the tab bar menu use too.
 enum AppTab: Int, CaseIterable, Identifiable {
-    case home = 0, library = 1, downloads = 2, settings = 3, search = 4, notifications = 5, store = 6
+    case home = 0, library = 1, downloads = 2, settings = 3, search = 4
 
     static let orderKey = "tabOrder"
     static let hiddenKey = "hiddenTabs"
@@ -265,8 +265,6 @@ enum AppTab: Int, CaseIterable, Identifiable {
         case .downloads: return String(localized: "common.downloads")
         case .settings:  return String(localized: "settings.settings")
         case .search:    return String(localized: "common.search")
-        case .notifications: return String(localized: "profile.notifications")
-        case .store:     return String(localized: "store.title")
         }
     }
 
@@ -277,8 +275,6 @@ enum AppTab: Int, CaseIterable, Identifiable {
         case .downloads: return "arrow.down.circle.fill"
         case .settings:  return "gearshape.fill"
         case .search:    return "magnifyingglass"
-        case .notifications: return "bell.fill"
-        case .store:     return "bag.fill"
         }
     }
 
@@ -286,15 +282,15 @@ enum AppTab: Int, CaseIterable, Identifiable {
     var canHide: Bool { self != .settings }
 
     /// The tabs this platform has, in their default order. Apple TV has no downloads; a Mac
-    /// lists search second and settings last. Saved orders from before the notifications and
-    /// store tabs don't carry them, so they land after the ones they do.
+    /// lists search second and settings last. Notifications live behind Home's bell, the
+    /// store behind Settings — neither is a tab of the bar.
     static var available: [AppTab] {
         #if os(tvOS)
-        return [.home, .library, .notifications, .store, .settings, .search]
+        return [.home, .library, .settings, .search]
         #elseif os(macOS) || targetEnvironment(macCatalyst)
-        return [.home, .search, .library, .notifications, .store, .downloads, .settings]
+        return [.home, .search, .library, .downloads, .settings]
         #else
-        return [.home, .library, .notifications, .downloads, .store, .settings, .search]
+        return [.home, .library, .downloads, .settings, .search]
         #endif
     }
 
@@ -330,7 +326,7 @@ enum AppTab: Int, CaseIterable, Identifiable {
 
 /// The tab Shirox opens on. Stored by name so the Mac's sidebar and the tab bar share it.
 enum LaunchTab: String, CaseIterable, Identifiable {
-    case home, library, downloads, search, notifications, store
+    case home, library, downloads, search
 
     var id: String { rawValue }
 
@@ -342,8 +338,6 @@ enum LaunchTab: String, CaseIterable, Identifiable {
         case .library:   return .library
         case .downloads: return .downloads
         case .search:    return .search
-        case .notifications: return .notifications
-        case .store:     return .store
         }
     }
 

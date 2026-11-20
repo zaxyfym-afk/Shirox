@@ -8,10 +8,13 @@ struct SettingsNavRow: View {
     let icon: String
     let title: String
     var subtitle: String?
+    /// The row tile's accent, so a page can group by colour.
+    var tint: Color = .accentColor
+    var showsChevron: Bool = true
 
     var body: some View {
         HStack(spacing: 12) {
-            SettingsIconTile(icon: icon)
+            SettingsIconTile(icon: icon, size: 34, cornerRadius: 9, tint: tint)
 
             Text(title)
                 .font(.body)
@@ -22,8 +25,17 @@ struct SettingsNavRow: View {
                 Text(subtitle)
                     .font(.body)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.trailing)
+            }
+
+            if showsChevron {
+                IconView("chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
             }
         }
+        .padding(.vertical, 3)
+        .contentShape(Rectangle())
     }
 }
 
@@ -59,6 +71,20 @@ struct SettingsList<Content: View>: View {
     }
 }
 
+/// A settings section with the design system's header: the same shape as `Section("…")`,
+/// so a page's bare headers become one consistent, tiled look with a one-line swap.
+struct SettingsSection<Content: View>: View {
+    let icon: String
+    let titleKey: LocalizedStringKey
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        Section { content } header: {
+            SettingsSectionHeader(icon: icon, title: titleKey)
+        }
+    }
+}
+
 #if !os(tvOS)
 /// The active profile, at the top of Settings: a picture card — photo, anime artwork or
 /// colour — with the account's name under it.
@@ -69,6 +95,8 @@ private struct ProfileSettingsRow: View {
         HStack(spacing: 14) {
             if let active = profiles.active {
                 ProfileAvatarView(profile: active, size: 54, square: true)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(profiles.active?.name ?? String(localized: "common.profile"))
@@ -82,16 +110,16 @@ private struct ProfileSettingsRow: View {
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(.tertiary)
         }
-        .padding(14)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Color.secondary.opacity(0.08))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
         )
-        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     /// "Add a Profile" only while the one profile is still as Shirox made it: named
@@ -111,13 +139,15 @@ struct SettingsView: View {
     @ObservedObject private var providerManager = ProviderManager.shared
     @EnvironmentObject private var moduleManager: ModuleManager
     @AppStorage("preferredQuality") private var preferredQuality: String = "auto"
-    #if !os(tvOS)
     @State private var totalUsage = 0
+    #if !os(tvOS)
     /// The introduction, again, for whoever wants the tour a second time.
     @State private var showOnboardingReplay = false
     /// Set by the replay row's tour option; Home reads it and runs the tour again.
     @AppStorage("homeTourPending") private var homeTourPending = false
     #endif
+    /// The Module Store, pushed inside Settings: the store is not a tab of the bar.
+    @State private var showStore = false
 
     /// The services signed in, short, for the Providers row.
     private var providersSubtitle: String {
@@ -155,6 +185,10 @@ struct SettingsView: View {
             }
             .softScrollEdges()
             .navigationTitle("settings.settings")
+            .navigationDestinationCompat(isPresented: $showStore) {
+                ModuleStoreView()
+                    .environmentObject(moduleManager)
+            }
             #if !os(tvOS)
             .navigationDestinationCompat(isPresented: $showOnboardingReplay) {
                 OnboardingView()
@@ -300,9 +334,10 @@ struct SettingsView: View {
                     )
                 }
 
-                // The store is a tab of its own; this row is its door from Settings.
+                // The store's only doors are here in Settings and on the Modules page:
+                // it is not a tab of the bar.
                 Button {
-                    TabRequests.shared.requestedTab = .store
+                    showStore = true
                 } label: {
                     SettingsNavRow(
                         icon: "bag.fill",
@@ -638,7 +673,7 @@ struct AccountsSettingsView: View {
             #endif
 
             if aniListAuth.isLoggedIn || malAuth.isLoggedIn || simklAuth.isLoggedIn {
-                Section("library.tracking") {
+                SettingsSection(icon: "arrow.left.arrow.right", titleKey: "library.tracking") {
                     if aniListAuth.isLoggedIn {
                         Toggle("settings.track_on_anilist", isOn: $aniListTrackingEnabled)
                             .switchTint()
@@ -675,7 +710,7 @@ struct AccountsSettingsView: View {
             }
 
             if signedInSides.count >= 2 {
-                Section("settings.sync_library") {
+                SettingsSection(icon: "arrow.triangle.2.circlepath", titleKey: "settings.sync_library") {
                     ForEach(SyncRun.runs(in: .sync, among: signedInSides)) { run in
                         syncRow(run)
                     }
@@ -684,7 +719,7 @@ struct AccountsSettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("settings.overwrite_library") {
+                SettingsSection(icon: "square.and.arrow.down", titleKey: "settings.overwrite_library") {
                     ForEach(SyncRun.runs(in: .overwrite, among: signedInSides)) { run in
                         syncRow(run)
                     }
@@ -693,7 +728,7 @@ struct AccountsSettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Section("settings.mirror_library") {
+                SettingsSection(icon: "arrow.left.arrow.right.square", titleKey: "settings.mirror_library") {
                     ForEach(SyncRun.runs(in: .mirror, among: signedInSides)) { run in
                         syncRow(run)
                     }
@@ -819,7 +854,7 @@ struct PlayerSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section("settings.display_and_style") {
+            SettingsSection(icon: "paintbrush", titleKey: "settings.display_and_style") {
                 // A phone's: a Mac's player is a window.
                 #if !os(macOS)
                 Toggle("settings.force_landscape_mode", isOn: $forceLandscape)
@@ -918,7 +953,7 @@ struct PlayerSettingsView: View {
                 #endif
             }
 
-            Section("settings.skipping") {
+            SettingsSection(icon: "forward.end", titleKey: "settings.skipping") {
                 Picker("settings.skip_duration", selection: $skipShort) {
                     ForEach(shortOptions, id: \.self) { s in
                         Text("common.seconds_short \(s)").tag(s)
@@ -936,7 +971,7 @@ struct PlayerSettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("settings.episodes_and_progress") {
+            SettingsSection(icon: "list.number", titleKey: "settings.episodes_and_progress") {
                 Toggle("settings.auto_next_episode", isOn: $autoNextEpisode)
                     .switchTint()
 
@@ -977,7 +1012,7 @@ struct SubtitleSettingsPage: View {
 
     var body: some View {
         SettingsList {
-            Section("settings.preview") {
+            SettingsSection(icon: "eye", titleKey: "settings.preview") {
                 preview
                     .listRowInsets(EdgeInsets())
             }
@@ -1018,7 +1053,7 @@ struct SubtitleSettingsPage: View {
                 #endif
             }
 
-            Section("settings.background") {
+            SettingsSection(icon: "photo", titleKey: "settings.background") {
                 Toggle("settings.show_background", isOn: $settings.backgroundEnabled)
                     .switchTint()
                 #if !os(tvOS)
@@ -1245,6 +1280,8 @@ struct ModulesSettingsView: View {
     @AppStorage("autoPickLastStream") private var autoPickLastStream = false
     @EnvironmentObject private var moduleManager: ModuleManager
     @ObservedObject private var providerManager = ProviderManager.shared
+    /// The Module Store, pushed inside Settings: the store is not a tab of the bar.
+    @State private var showStore = false
 
     var body: some View {
         SettingsList {
@@ -1285,9 +1322,9 @@ struct ModulesSettingsView: View {
             }
 
             Section {
-                // The store is a tab of its own; this row is its door from Settings.
+                // The store's door from the Modules page, pushed in the Settings stack.
                 Button {
-                    TabRequests.shared.requestedTab = .store
+                    showStore = true
                 } label: {
                     HStack(spacing: 12) {
                         IconView("bag.fill")
@@ -1325,6 +1362,10 @@ struct ModulesSettingsView: View {
         }
         .softScrollEdges()
         .navigationTitle("common.modules")
+        .navigationDestinationCompat(isPresented: $showStore) {
+            ModuleStoreView()
+                .environmentObject(moduleManager)
+        }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -1364,7 +1405,7 @@ struct LibrarySettingsView: View {
                 SettingsSectionHeader(icon: "photo.on.rectangle", title: "settings.cards")
             }
 
-            Section("settings.matching") {
+            SettingsSection(icon: "magnifyingglass", titleKey: "settings.matching") {
                 ForEach(orderedLanguages, id: \.self) { lang in
                     HStack {
                         IconView("line.3.horizontal")
@@ -1498,7 +1539,7 @@ struct DownloadsSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section("common.downloads") {
+            SettingsSection(icon: "arrow.down.circle", titleKey: "common.downloads") {
                 Picker("settings.download_quality", selection: $downloadQuality) {
                     Text("settings.best").tag("highest")
                     Text("1080p").tag("1080")
@@ -1587,7 +1628,7 @@ struct StorageSettingsView: View {
 
     var body: some View {
         SettingsList {
-            Section("settings.data") {
+            SettingsSection(icon: "externaldrive", titleKey: "settings.data") {
                 Toggle("settings.data_saver", isOn: $dataSaverEnabled)
                     .switchTint()
                 Text("settings.loads_smaller_artwork_and_skips")
@@ -1595,7 +1636,7 @@ struct StorageSettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("settings.storage_and_cache") {
+            SettingsSection(icon: "internaldrive", titleKey: "settings.storage_and_cache") {
                 Button(role: .destructive) {
                     guard !isClearing else { return }
                     isClearing = true

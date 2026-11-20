@@ -217,11 +217,8 @@ struct TabBarMenu: View {
         case .downloads: return "arrow.down.circle"
         case .settings:  return "gearshape"
         case .search:    return "magnifyingglass"
-        case .notifications: return "bell"
-        case .store:     return "bag"
         }
     }
-
     private var completedDownloads: Int {
         downloads.items.lazy.filter { $0.state == .completed }.count
     }
