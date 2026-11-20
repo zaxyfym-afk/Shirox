@@ -26,8 +26,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     // A notification that arrives while the app is frontmost still shows as a banner; the
     // release check posts on activation, exactly when the system's default would suppress it.
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                               willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
         [.banner, .sound]
     }
 
