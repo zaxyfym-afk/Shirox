@@ -105,7 +105,8 @@ final class ProfileManager: ObservableObject {
         update(id) { $0.colorHex = hex }
     }
 
-    /// A picture for the profile, or nil to go back to its account's or the coloured initial.
+    /// A picture for the profile, or nil to go back to its artwork, account's or the
+    /// coloured initial.
     func setPhoto(_ data: Data?, for id: UUID) {
         if let data {
             let saved = savePhoto(data, for: id)
@@ -115,6 +116,14 @@ final class ProfileManager: ObservableObject {
             update(id) { $0.hasPhoto = false }
         }
         photoVersion += 1
+    }
+
+    /// An anime cover as the profile's picture, or nil to clear it.
+    func setArtwork(_ url: String?, title: String?, for id: UUID) {
+        update(id) {
+            $0.artworkURL = url
+            $0.artworkTitle = url == nil ? nil : title
+        }
     }
 
     /// Bumped when a picture changes, so views showing the file read it again.
@@ -211,6 +220,7 @@ final class ProfileManager: ObservableObject {
         ModuleWebLinks.shared.reloadForProfileSwitch()
         AniListMappingManager.shared.reloadForProfileSwitch()
         NewEpisodeTracker.shared.reloadForProfileSwitch()
+        FollowedSeriesStore.shared.reloadForProfileSwitch()
         #if !os(tvOS)
         SimklOnlyAnimeStore.shared.reloadForProfileSwitch()
         SimklModulePages.shared.reloadForProfileSwitch()

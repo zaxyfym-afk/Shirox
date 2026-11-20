@@ -153,7 +153,11 @@ struct SettingsBackupSection: BackupSection {
         "librarySortAscending", "playerLiquidGlass", "rateOnFinish", "playerSpatialAudio", "playerPlayInBackground",
         "readerLiquidGlass", "readerPageCurl", "readerPortraitOnly", "readerTapZones", "readerTapZonesReversed", "skipReWatchTracking", "useDefaultExtension",
         "dataSaverEnabled", "gooeyRefresh", AppTab.hideLabelsKey, AppTab.minimizeKey,
-        "discordPresenceEnabled", "discordShowsCover", "discordShowsDetails"
+        "discordPresenceEnabled", "discordShowsCover", "discordShowsDetails",
+        // The app's own preferences: episode notifications, filler hiding, the schedule's
+        // starting filter. `episodeNotificationsLastCheck` is deliberately excluded — it's
+        // a throttle, not a choice, and a restored device should check right away.
+        "hideFillerEpisodes", "episodeNotificationsEnabled", "scheduleStartsInLibrary"
     ]
 
     static let intKeys = [
@@ -167,7 +171,9 @@ struct SettingsBackupSection: BackupSection {
         "preferredQuality", "titleLanguagePriority", SyncTargets.key,
         DiscoverySource.choiceKey, DiscoverySource.kindKey, "playerHoldAction",
         AppTint.key, AppColorScheme.key, AppTab.orderKey, AppTab.hiddenKey, AppTab.launchKey,
-        PullToRefreshStyle.key, "discordApplicationID"
+        PullToRefreshStyle.key, "discordApplicationID",
+        // The followed series, as JSON — what release notifications are scheduled from.
+        FollowedSeriesStore.storageKey
     ]
 
     static let stringListKeys = [AniListMappingManager.manualTrackingKey]

@@ -3,14 +3,18 @@ import SwiftUI
 #if os(iOS)
 import AVFoundation
 import UIKit
+import UserNotifications
 #if canImport(GoogleCast)
 import GoogleCast
 #endif
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         configureAudioSession()
         configureURLSession()
+        // Release notifications must show while the app is open too — the check that posts
+        // them runs on activation, exactly when the system would otherwise swallow them.
+        UNUserNotificationCenter.current().delegate = self
         IDMappingService.shared.prefetchAllMappingsIfNeeded()
         #if os(iOS)
         configureGlobalBarAppearances()
@@ -18,6 +22,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #endif
         application.shortcutItems = QuickAction.registeredItems
         return true
+    }
+
+    // A notification that arrives while the app is frontmost still shows as a banner; the
+    // release check posts on activation, exactly when the system's default would suppress it.
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound]
     }
 
     func application(_ application: UIApplication,
@@ -212,6 +223,9 @@ struct ShiroxApp: App {
                         // been away a while — activity checks are charged to the user's own
                         // request budget. Nothing polls; this is activation-driven only.
                         Task { await SimklLibraryService.shared.refreshOnActivation() }
+                        // Release notifications: what's aired for followed series since the
+                        // last visit, and the next broadcast's scheduled reminder.
+                        Task { await EpisodeReleaseNotifier.shared.checkNow() }
                     case .background, .inactive:
                         SimklLibraryService.shared.noteEnteredBackground()
                     @unknown default:
