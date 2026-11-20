@@ -619,10 +619,11 @@ private struct RootTabView: View {
     /// One tab of the bar. Kept to itself: the whole TabView, its ForEach and these
     /// branches in one expression were more than the type checker could weigh in
     /// reasonable time. The bar's content closure builds TabContent, not Views (a
-    /// `Tab` is no `View`), and `TabContent.badge` takes a count, so the badge is
-    /// applied only where there is one.
+    /// `Tab` is no `View`); its builder is generic over the tab's value type, and
+    /// `TabContent.badge` takes a count, so the badge is applied only where there
+    /// is one.
     @available(iOS 18.0, tvOS 18.0, *)
-    @TabContentBuilder
+    @TabContentBuilder<Int>
     private func tabCell(_ tab: AppTab) -> some TabContent<Int> {
         if tab == .search {
             Tab(value: tab.rawValue, role: .search) {
@@ -654,8 +655,8 @@ private struct RootTabView: View {
         let cell = page(tab)
             .tabItem { tabLabel(tab) }
             .tag(tab.rawValue)
-        if tab == .notifications {
-            cell.badge(notificationsBadge)
+        if tab == .notifications, let badge = notificationsBadge {
+            cell.badge(badge)
         } else {
             cell
         }
