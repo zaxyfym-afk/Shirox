@@ -27,6 +27,9 @@ struct OnboardingView: View {
     #if os(iOS)
     @State private var presentationWindow: UIWindow?
     #endif
+    /// The page being shown: a tour of what the app does, then the setup checklist it ends on.
+    @State private var page = 0
+    private let lastPage = 6
 
     /// The one thing that has to be true before the app can show anything.
     private var hasSource: Bool { !moduleManager.modules.isEmpty }
@@ -46,72 +49,25 @@ struct OnboardingView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                frame
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 28)
-                    .padding(.bottom, 32)
+        VStack(spacing: 0) {
+            topBar
 
-                Text("onboarding.set_up_shirox")
-                    .font(.caption.weight(.semibold))
-                    .tracking(2.2)
-                    .foregroundStyle(.secondary)
-
-                Text("onboarding.bring_your_own_nlibrary")
-                    .font(.system(size: 40, weight: .heavy))
-                    .lineSpacing(-2)
-                    .padding(.top, 8)
-
-                Text("onboarding.shirox_doesnt_host_any_content")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 12)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                VStack(spacing: 10) {
-                    stepRow(
-                        title: String(localized: "onboarding.add_a_source"),
-                        detail: hasSource
-                            ? "\(moduleManager.modules.count) connected"
-                            : String(localized: "onboarding.a_module_a_jellyfin_server"),
-                        isDone: hasSource,
-                        isRequired: true
-                    ) { showSources = true }
-                    .zoomSource("sources", in: sourcesZoom, cornerRadius: 14)
-
-                    stepRow(
-                        title: String(localized: "onboarding.sign_in_to_a_tracker"),
-                        detail: trackerDetail,
-                        isDone: hasTracker,
-                        isRequired: false,
-                        action: signInToAniList
-                    )
+            Group {
+                // A plain page switch, not a paging TabView: the page style has no Mac or
+                // Apple TV equivalent, and this way the dots and buttons are the same everywhere.
+                switch page {
+                case 0: welcomePage
+                case 1: TourPage(icon: "books.vertical", title: "onboarding.tour_library_title", text: "onboarding.tour_library_body", accent: accent)
+                case 2: TourPage(icon: "puzzlepiece.extension", title: "onboarding.tour_modules_title", text: "onboarding.tour_modules_body", accent: accent)
+                case 3: TourPage(icon: "arrow.down.circle", title: "onboarding.tour_downloads_title", text: "onboarding.tour_downloads_body", accent: accent)
+                case 4: TourPage(icon: "bell", title: "onboarding.tour_notifications_title", text: "onboarding.tour_notifications_body", accent: accent)
+                case 5: TourPage(icon: "paintpalette", title: "onboarding.tour_customize_title", text: "onboarding.tour_customize_body", accent: accent)
+                default: setupPage
                 }
-                .padding(.top, 28)
-
-                Button(action: finish) {
-                    Text(hasSource ? String(localized: "onboarding.start_watching") : String(localized: "onboarding.skip_for_now"))
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.15)))
-                        )
-                        .foregroundStyle(hasSource ? .white : Color.primary)
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 28)
-
-                Text("onboarding.you_can_change_any_of")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 14)
-                    .padding(.bottom, 32)
             }
-            .padding(.horizontal, 24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            controls
         }
         .background(platformBackground.ignoresSafeArea())
         .sheet(isPresented: $showSources) {
@@ -132,6 +88,163 @@ struct OnboardingView: View {
                 .first { $0.isKeyWindow }
         }
         #endif
+    }
+
+    // MARK: - Chrome
+
+    /// Back when there's a page behind, Skip until the checklist.
+    private var topBar: some View {
+        HStack {
+            if page > 0 {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { page -= 1 }
+                } label: {
+                    IconView("chevron.left")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 38, height: 38)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("onboarding.back")
+            }
+            Spacer()
+            if page < lastPage {
+                Button("onboarding.skip", action: finish)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.top, 6)
+    }
+
+    /// The dots and the next button; the checklist page carries its own call to action.
+    private var controls: some View {
+        HStack {
+            HStack(spacing: 7) {
+                ForEach(0...lastPage, id: \.self) { index in
+                    Capsule()
+                        .fill(index == page ? accent : Color.secondary.opacity(0.35))
+                        .frame(width: index == page ? 18 : 7, height: 7)
+                }
+            }
+            Spacer()
+            if page < lastPage {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { page += 1 }
+                } label: {
+                    Text("onboarding.next")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 9)
+                        .background(Capsule().fill(accent))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 24)
+    }
+
+    // MARK: - Pages
+
+    /// The app in one poster frame: the mark, the promise, and what it doesn't host.
+    private var welcomePage: some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 16)
+            frame
+                .frame(maxWidth: .infinity)
+                .padding(.top, 24)
+                .padding(.bottom, 32)
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text("onboarding.set_up_shirox")
+                    .font(.caption.weight(.semibold))
+                    .tracking(2.2)
+                    .foregroundStyle(.secondary)
+
+                Text("onboarding.bring_your_own_nlibrary")
+                    .font(.system(size: 36, weight: .heavy))
+                    .lineSpacing(-2)
+                    .padding(.top, 8)
+
+                Text("onboarding.shirox_doesnt_host_any_content")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 12)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: 560)
+            Spacer(minLength: 16)
+        }
+        .padding(.horizontal, 24)
+    }
+
+    /// The checklist the tour ends on: the two things that make the app work, and the start
+    /// button. Rows tick themselves from real state, so this page always describes the app
+    /// as it currently is.
+    private var setupPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("onboarding.set_up_shirox")
+                    .font(.caption.weight(.semibold))
+                    .tracking(2.2)
+                    .foregroundStyle(.secondary)
+
+                Text("onboarding.bring_your_own_nlibrary")
+                    .font(.system(size: 30, weight: .heavy))
+                    .lineSpacing(-2)
+                    .padding(.top, 8)
+
+                VStack(spacing: 10) {
+                    stepRow(
+                        title: String(localized: "onboarding.add_a_source"),
+                        detail: hasSource
+                            ? "\(moduleManager.modules.count) connected"
+                            : String(localized: "onboarding.a_module_a_jellyfin_server"),
+                        isDone: hasSource,
+                        isRequired: true
+                    ) { showSources = true }
+                    .zoomSource("sources", in: sourcesZoom, cornerRadius: 14)
+
+                    stepRow(
+                        title: String(localized: "onboarding.sign_in_to_a_tracker"),
+                        detail: trackerDetail,
+                        isDone: hasTracker,
+                        isRequired: false,
+                        action: signInToAniList
+                    )
+                }
+                .padding(.top, 24)
+
+                Button(action: finish) {
+                    Text(hasSource ? String(localized: "onboarding.start_watching") : String(localized: "onboarding.skip_for_now"))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.15)))
+                        )
+                        .foregroundStyle(hasSource ? .white : Color.primary)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 24)
+
+                Text("onboarding.you_can_change_any_of")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 14)
+                    .padding(.bottom, 32)
+            }
+            .padding(.horizontal, 24)
+            .frame(maxWidth: 560)
+        }
     }
 
     private var trackerDetail: String {
@@ -248,5 +361,39 @@ struct OnboardingView: View {
     private func finish() {
         hasCompletedOnboarding = true
         dismiss()
+    }
+}
+
+/// One page of the tour: an icon in a tinted tile, a headline, and a paragraph. All words,
+/// no fake screenshots — the app's real screens are a page-turn away.
+private struct TourPage: View {
+    let icon: String
+    let title: LocalizedStringKey
+    let text: LocalizedStringKey
+    let accent: Color
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer(minLength: 32)
+            IconView(icon)
+                .font(.system(size: 42, weight: .medium))
+                .foregroundStyle(accent)
+                .frame(width: 108, height: 108)
+                .background(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(accent.opacity(0.12))
+                )
+            Text(title)
+                .font(.system(size: 27, weight: .heavy))
+                .multilineTextAlignment(.center)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 32)
+        }
+        .padding(.horizontal, 28)
+        .frame(maxWidth: 560)
     }
 }
