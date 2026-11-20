@@ -1,0 +1,27 @@
+
+workflows:
+  shirox-ios-ipa:
+    name: Shirox iOS IPA (unsigned)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      xcode: latest
+    scripts:
+      - name: Check Xcode
+        script: |
+          xcodebuild -version
+          xcodebuild -list -project Shirox.xcodeproj
+
+      - name: Build iOS IPA
+        script: |
+          chmod +x ./buildipa.sh
+          ./buildipa.sh
+
+      - name: Verify IPA
+        script: |
+          test -s build/Shirox.ipa
+          unzip -l build/Shirox.ipa | grep 'Payload/Shirox.app/'
+
+    artifacts:
+      - build/Shirox.ipa
+      - build/dSYMs/**/*
