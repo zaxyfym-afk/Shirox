@@ -60,7 +60,10 @@ def default_repo():
 
 REPO = os.environ.get("SHIROX_REPO") or default_repo()
 
-NON_TERMINAL = {"queued", "running", "waiting", "waiting_for_worker", "preparing"}
+# Codemagic reports the build's current PHASE as status while it runs
+# (queued, preparing, fetching, building, publishing, finishing, ...).
+# Only these are final; anything else keeps the poller going.
+TERMINAL = {"succeeded", "success", "failed", "error", "cancelled", "canceled", "skipped"}
 FAILED_STATES = {"failed", "error"}
 CANCELLED_STATES = {"cancelled", "canceled"}
 OK_STATES = {"succeeded", "success"}
@@ -211,7 +214,7 @@ def cmd_wait(args):
             print(f"[{stamp} UTC] {status} "
                   f"({fmt_duration(b.get('startedAt'), b.get('finishedAt'))})")
             last = status
-        if status not in NON_TERMINAL:
+        if status in TERMINAL:
             commit = (b.get("commit") or {}).get("hash") or ""
             print(f"finished: {status} | commit {commit[:8]} | "
                   f"{fmt_duration(b.get('startedAt'), b.get('finishedAt'))}")
