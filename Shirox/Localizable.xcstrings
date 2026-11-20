@@ -50468,6 +50468,95 @@
         }
       }
     },
+    "onboarding.anilist_blurb" : {
+      "comment" : "TrackerSignInView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortschritt, Listen und Aktivität, von Fans gebaut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress, lists and activity from the tracker built by fans."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progreso, listas y actividad del rastreador hecho por aficionados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression, listes et activité, du traqueur conçu par des fans."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kemajuan, daftar, dan aktivitas dari pelacak buatan penggemar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progressi, liste e attività dal tracker costruito dai fan."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファンが作ったトラッカーの、進行状況とリストとアクティビティ。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postępy, listy i aktywność z trackera zbudowanego przez fanów."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progresso, listas e atividade do tracker feito por fãs."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогресс, списки и активность от трекера, сделанного фанатами."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ความคืบหน้า รายการ และกิจกรรมจากแทร็กเกอร์ที่แฟนสร้างขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hayranlar tarafından yapılmış takipçiden ilerleme, listeler ve etkinlik."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiến độ, danh sách và hoạt động từ trình theo dõi do người hâm mộ xây dựng."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自粉丝打造的追踪器的进度、列表和动态。"
+          }
+        }
+      }
+    },
     "onboarding.back" : {
       "localizations" : {
         "de" : {
@@ -50641,6 +50730,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自带\n资料库。"
+          }
+        }
+      }
+    },
+    "onboarding.mal_blurb" : {
+      "comment" : "TrackerSignInView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortschritt, Bewertungen und Zahlen aus der ursprünglichen Anime-Datenbank."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress, scores and stats from the original anime database."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progreso, puntuaciones y estadísticas de la base de datos de anime original."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression, notes et statistiques de la base de données d’anime d’origine."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kemajuan, skor, dan statistik dari basis data anime yang pertama."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progressi, punteggi e statistiche dal database di anime originale."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "草分けのアニメデータベースによる、進行状況と評価と統計。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postępy, oceny i statystyki z pierwotnej bazy anime."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progresso, notas e estatísticas do banco de dados de animes original."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогресс, оценки и статистика из первоисточника — базы данных аниме."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ความคืบหน้า คะแนน และสถิติจากฐานข้อมูลอนิเมะดั้งเดิม"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Köklü anime veritabanından ilerleme, puanlar ve istatistikler."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiến độ, điểm số và thống kê từ cơ sở dữ liệu anime nguyên bản."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "来自最早的动画数据库的进度、评分和统计。"
           }
         }
       }
@@ -50996,6 +51174,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "登录追踪服务"
+          }
+        }
+      }
+    },
+    "onboarding.signed_in_as" : {
+      "comment" : "TrackerSignInView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angemeldet als %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signed in as %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión iniciada como %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecté en tant que %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masuk sebagai %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connesso come %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ としてログイン中"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zalogowano jako %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectado como %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход выполнен как %@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลงชื่อเข้าใช้ในชื่อ %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ olarak giriş yapıldı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã đăng nhập với tên %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已登录为 %@"
           }
         }
       }
@@ -52231,6 +52498,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新集上线即刻知晓"
+          }
+        }
+      }
+    },
+    "onboarding.what_syncing_does" : {
+      "comment" : "TrackerSignInView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Synchronisieren bleiben Fortschritt, Listen und Bewertungen auf deinem Gerät und beim Dienst aktuell."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncing keeps your progress, lists and scores up to date on your device and the service."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronización mantiene tu progreso, listas y puntuaciones al día en tu dispositivo y en el servicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La synchronisation garde votre progression, vos listes et vos notes à jour sur votre appareil et le service."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinkronisasi menjaga kemajuan, daftar, dan skor tetap mutakhir di perangkat maupun di layanan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione tiene aggiornati progressi, liste e punteggi sul tuo dispositivo e sul servizio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同期すると、進行状況、リスト、評価が端末とサービスの両方で最新に保たれます。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronizacja utrzymuje postępy, listy i oceny aktualne na urządzeniu i w serwisie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A sincronização mantém seu progresso, listas e notas atualizados no seu dispositivo e no serviço."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Синхронизация держит прогресс, списки и оценки в актуальном виде на устройстве и в сервисе."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การซิงก์ทำให้ความคืบหน้า รายการ และคะแนนของคุณเป็นปัจจุบันทั้งบนอุปกรณ์และบนบริการ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eşitleme, ilerlemenizi, listelerinizi ve puanlarınızı hem cihazınızda hem hizmette güncel tutar."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đồng bộ giữ cho tiến độ, danh sách và điểm số của bạn được cập nhật trên thiết bị và dịch vụ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同步让您的进度、列表和评分在设备与服务之间保持最新。"
           }
         }
       }

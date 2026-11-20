@@ -1,4 +1,3 @@
-import AuthenticationServices
 import SwiftUI
 
 /// First-run setup.
@@ -24,9 +23,7 @@ struct OnboardingView: View {
     @State private var showSources = false
     /// The step the sources screen grows out of.
     @Namespace private var sourcesZoom
-    #if os(iOS)
-    @State private var presentationWindow: UIWindow?
-    #endif
+    @State private var showTracker = false
     /// The page being shown: a tour of what the app does, then the setup checklist it ends on.
     @State private var page = 0
     private let lastPage = 6
@@ -80,14 +77,15 @@ struct OnboardingView: View {
             .macSheetFrame()
             .zoomingOut(of: "sources", in: sourcesZoom)
         }
-        #if os(iOS)
-        .onAppear {
-            presentationWindow = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .first { $0.isKeyWindow }
+        .sheet(isPresented: $showTracker) {
+            // Both services with their own logos, rather than a button that only ever
+            // offered one of them while the copy promised two.
+            NavigationStack {
+                TrackerSignInView()
+            }
+            .macSheetFrame()
+            .zoomingOut(of: "tracker", in: sourcesZoom)
         }
-        #endif
     }
 
     // MARK: - Chrome
@@ -216,8 +214,9 @@ struct OnboardingView: View {
                         detail: trackerDetail,
                         isDone: hasTracker,
                         isRequired: false,
-                        action: signInToAniList
+                        action: { showTracker = true }
                     )
+                    .zoomSource("tracker", in: sourcesZoom, cornerRadius: 14)
                 }
                 .padding(.top, 24)
 
@@ -347,16 +346,6 @@ struct OnboardingView: View {
     }
 
     // MARK: - Actions
-
-    private func signInToAniList() {
-        #if os(iOS)
-        guard let presentationWindow else { return }
-        aniListAuth.login(presentationAnchor: presentationWindow)
-        #elseif os(macOS)
-        guard let window = keyPresentationAnchor() else { return }
-        aniListAuth.login(presentationAnchor: window)
-        #endif
-    }
 
     private func finish() {
         hasCompletedOnboarding = true
