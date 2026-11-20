@@ -57,15 +57,15 @@ struct Media: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// A Simkl show's or movie's TMDB record, for a logo TVDB doesn't have.
     var tmdbID: Int?
     /// Minutes per episode, when the source publishes one.
-    var duration: Int? = nil
+    var duration: Int?
     /// First broadcast, when known.
-    var startDate: MediaFuzzyDate? = nil
+    var startDate: MediaFuzzyDate?
     /// The main studio behind the title.
-    var mainStudio: String? = nil
+    var mainStudio: String?
     /// Community tag names, ranked, spoiler tags excluded at mapping time.
-    var tagNames: [String]? = nil
+    var tagNames: [String]?
     /// Users' recommendations for this title — the detail page's "More Like This".
-    var recommendations: [Media]? = nil
+    var recommendations: [Media]?
 
     var uniqueId: String {
         // A Simkl show or movie is keyed by Simkl id, and "simkl-52991" is already a Simkl anime
@@ -252,7 +252,7 @@ struct MediaCoverImage: Codable, Equatable, Hashable {
 struct MediaAiringEpisode: Codable, Equatable, Hashable {
     let episode: Int
     /// Unix seconds of the broadcast, when the source sends one.
-    var airingAt: Int? = nil
+    var airingAt: Int?
 }
 
 /// A partial date — a year at least, a month and day when the source knows them.
