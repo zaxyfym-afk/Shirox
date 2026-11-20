@@ -94,63 +94,9 @@ jobs:
          done
          exit 1
 
- build-catalyst:
-   name: Build Mac Catalyst DMG
-   needs: prepare-release
-   runs-on: macos-26
-   permissions:
-     contents: write
-   steps:
-     - name: Checkout repository
-       uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-
-     - name: Make build script executable
-       run: chmod +x ./buildcatalyst.sh
-
-     - name: Build Mac Catalyst DMG
-       run: ./buildcatalyst.sh
-
-     - name: Upload Catalyst DMG
-       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-       with:
-         name: Shirox-Nightly-Catalyst-DMG
-         path: build/Shirox-Catalyst.dmg
-
-     - name: Upload Catalyst DMG to the release
-       env:
-         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       run: gh release upload "$RELEASE_TAG" build/Shirox-Catalyst.dmg --clobber
-
- build-macos:
-   name: Build native macOS DMG
-   needs: prepare-release
-   runs-on: macos-26
-   permissions:
-     contents: write
-   steps:
-     - name: Checkout repository
-       uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
-
-     - name: Make build script executable
-       run: chmod +x ./builddmg.sh
-
-     - name: Build native macOS DMG
-       run: ./builddmg.sh
-
-     - name: Upload macOS DMG
-       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-       with:
-         name: Shirox-Nightly-macOS-DMG
-         path: build/Shirox-macOS.dmg
-
-     - name: Upload macOS DMG to the release
-       env:
-         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-       run: gh release upload "$RELEASE_TAG" build/Shirox-macOS.dmg --clobber
-
  publish-release:
    name: Publish release
-   needs: [build-ios, build-catalyst, build-macos]
+   needs: [build-ios]
    runs-on: ubuntu-latest
    permissions:
      contents: write
@@ -167,7 +113,7 @@ jobs:
          VERSION=$(jq -r '.apps[0].versions[0].version' apps.json)
          BUILD=$(jq -r '.apps[0].versions[0].buildVersion' apps.json)
          jq -r '.apps[0].versions[0].localizedDescription' apps.json > notes.md
-         printf '\n\n**Downloads:** Shirox.ipa (iPhone, iPad), Shirox-macOS.dmg (Mac), Shirox-Catalyst.dmg (Mac, Catalyst build).\n' >> notes.md
+         printf '\n\n**Downloads:** Shirox.ipa (iPhone, iPad).\n' >> notes.md
          gh release edit "$RELEASE_TAG" \
            --title "Shirox $VERSION ($BUILD)" \
            --notes-file notes.md \
