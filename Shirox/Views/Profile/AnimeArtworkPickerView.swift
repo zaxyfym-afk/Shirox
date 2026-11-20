@@ -44,7 +44,7 @@ struct AnimeArtworkPickerView: View {
                     Button("common.cancel") { dismiss() }
                 }
             }
-            .searchable(text: $search, placement: .navigationBar, prompt: Text("common.search"))
+            .searchable(text: $search, prompt: Text("common.search"))
             .onSubmit(of: .search) {
                 Task { await load() }
             }
