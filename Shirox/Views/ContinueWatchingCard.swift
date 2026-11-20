@@ -50,8 +50,9 @@ struct ContinueWatchingSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        homeSectionCard(title: String(localized: "shared.continue_watching")) {
             HomeRowHeader(title: String(localized: "shared.continue_watching"))
+        } content: {
             HomeShelf(items: items) { item in
                 itemView(for: item)
                     .frame(width: cardWidth)

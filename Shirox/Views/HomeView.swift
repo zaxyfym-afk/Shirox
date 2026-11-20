@@ -1316,7 +1316,7 @@ private struct AnimeSection<SeeAll: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        homeSectionCard(title: title) {
             HomeRowHeader(title: title) {
                 NavigationLink {
                     seeAll()
@@ -1338,7 +1338,7 @@ private struct AnimeSection<SeeAll: View>: View {
                 }
                 .buttonStyle(.plain)
             }
-
+        } content: {
             HomeShelf(items: items) { media in
                 NavigationLink {
                     MediaDestination(media: media)

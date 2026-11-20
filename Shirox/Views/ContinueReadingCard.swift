@@ -16,9 +16,9 @@ struct ContinueReadingSection: View {
     @Environment(\.cinematicRows) private var cinematic
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        homeSectionCard(title: String(localized: "shared.continue_reading")) {
             HomeRowHeader(title: String(localized: "shared.continue_reading"))
-
+        } content: {
             HomeShelf(items: items) { item in
                 Button { open(item) } label: {
                     ContinueReadingCardDisplay(
