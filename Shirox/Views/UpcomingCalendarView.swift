@@ -120,6 +120,8 @@ final class UpcomingCalendarViewModel: ObservableObject {
     @Published var libraryOnly = false {
         didSet { rebuild() }
     }
+    /// Customization's choice of what the schedule opens on: everything, or My Library.
+    static let libraryOnlyDefaultKey = "scheduleStartsInLibrary"
     /// Simkl's Anime, Shows or Movies — starting from the one Home shows.
     @Published var simklKind: MediaKind
     let usesSimkl: Bool
@@ -137,6 +139,7 @@ final class UpcomingCalendarViewModel: ObservableObject {
         let discovery = discovery ?? .shared
         usesSimkl = discovery.usesSimkl
         simklKind = discovery.simklKind
+        libraryOnly = (UserDefaults.standard.object(forKey: Self.libraryOnlyDefaultKey) as? Bool) ?? false
     }
 
     var source: Source {
@@ -265,16 +268,19 @@ final class UpcomingCalendarViewModel: ObservableObject {
     }
 }
 
-/// A week of upcoming episodes, grouped by day.
+/// A week of upcoming episodes, browsed one day at a time.
 ///
-/// AniList carries an exact timestamp per episode. MyAnimeList carries a recurring weekly slot
-/// in Japan Standard Time, resolved here into the next actual broadcast — so its rows say "next
-/// episode" rather than a number. While Home is Simkl's, the schedule is Simkl's calendar, for
-/// anime, shows or movies.
+/// The seven days of the window sit in one continuous row of tabs — weekday and date, a dot
+/// on the days with something airing, today outlined — scrollable where they don't fit.
+/// The selected day's episodes list below with artwork, time, and whether each has already
+/// aired or is still counting down. AniList carries an exact timestamp per episode;
+/// MyAnimeList a weekly slot in Japan Standard Time; while Home is Simkl's, the schedule is
+/// Simkl's calendar for anime, shows or movies.
 struct UpcomingCalendarView: View {
     @StateObject private var vm = UpcomingCalendarViewModel()
+    /// The day being browsed; today until the user picks another.
+    @State private var selectedDay: Date?
 
-    /// A page pushed onto Home's navigation, so the back button closes it.
     var body: some View {
         Group {
             if vm.isLoading && vm.days.isEmpty {
@@ -292,7 +298,7 @@ struct UpcomingCalendarView: View {
                     description: Text(vm.emptyDescription)
                 )
             } else {
-                list
+                scheduleContent
             }
         }
         .navigationTitle("shared.upcoming")
@@ -325,11 +331,105 @@ struct UpcomingCalendarView: View {
         .task(id: vm.simklKind) { await vm.load() }
     }
 
-    private var list: some View {
+    // MARK: - Layout
+
+    private var scheduleContent: some View {
+        VStack(spacing: 0) {
+            weekdayBar
+            #if os(iOS)
+            Divider().opacity(0.5)
+            #endif
+            dayList
+        }
+    }
+
+    /// The seven days of the schedule's window, starting today.
+    private var weekDays: [Date] {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: Date())
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
+    }
+
+    private var effectiveDay: Date { selectedDay ?? weekDays.first ?? Date() }
+
+    private var selectedEntries: [AiringEpisode] {
+        vm.days.first { Calendar.current.isDate($0.date, inSameDayAs: effectiveDay) }?.episodes ?? []
+    }
+
+    // MARK: - Weekday bar
+
+    private var weekdayBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(weekDays, id: \.self) { day in
+                    dayChip(day)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+        }
+    }
+
+    private func dayChip(_ day: Date) -> some View {
+        let calendar = Calendar.current
+        let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
+        let isToday = calendar.isDateInToday(day)
+        let count = vm.days.first { calendar.isDate($0.date, inSameDayAs: day) }?.episodes.count ?? 0
+        return Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedDay = day }
+        } label: {
+            VStack(spacing: 3) {
+                Text(day, format: .dateTime.weekday(.abbreviated))
+                    .font(.caption2.weight(.semibold))
+                Text(day, format: .dateTime.day())
+                    .font(.title3.weight(.bold))
+                    .monospacedDigit()
+                Circle()
+                    .fill(isSelected ? Color.white.opacity(0.85) : Color.accentColor)
+                    .frame(width: 4, height: 4)
+                    .opacity(count > 0 ? 1 : 0)
+            }
+            .frame(minWidth: 52)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(isSelected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(Color.secondary.opacity(0.12)))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(isToday && !isSelected ? Color.accentColor.opacity(0.55) : Color.clear, lineWidth: 1)
+            )
+            .foregroundStyle(isSelected ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color.primary))
+            .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Self.dayLabel(for: day))
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+
+    // MARK: - Day list
+
+    private var dayList: some View {
         List {
-            ForEach(vm.days, id: \.date) { day in
+            let entries = selectedEntries
+            if entries.isEmpty {
+                VStack(spacing: 10) {
+                    IconView("calendar")
+                        .font(.system(size: 34, weight: .light))
+                        .foregroundStyle(.secondary)
+                    Text(vm.libraryOnly ? "home.nothing_from_your_library" : "schedule.nothing_this_day")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("schedule.try_another_day")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 48)
+                .listRowBackground(Color.clear)
+            } else {
                 Section {
-                    ForEach(day.episodes) { entry in
+                    ForEach(entries) { entry in
                         NavigationLink {
                             MediaDestination(media: entry.media)
                         } label: {
@@ -337,7 +437,11 @@ struct UpcomingCalendarView: View {
                         }
                     }
                 } header: {
-                    Text(Self.dayLabel(for: day.date))
+                    HStack(spacing: 8) {
+                        Text(Self.dayLabel(for: effectiveDay))
+                        Text(effectiveDay, format: .dateTime.month(.abbreviated).day())
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
@@ -350,28 +454,55 @@ struct UpcomingCalendarView: View {
     private func row(_ entry: AiringEpisode) -> some View {
         HStack(spacing: 12) {
             CachedAsyncImage(urlString: entry.media.coverImage.thumb ?? "")
-                .frame(width: 44, height: 62)
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                .frame(width: 54, height: 76)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 CardTitle(entry.media.title.displayTitle)
-                    .font(.subheadline.weight(.medium))
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(2)
                 Text(entry.caption)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                statusChip(entry)
             }
 
             Spacer(minLength: 0)
 
             if !entry.isRelease {
                 Text(entry.airingAt, style: .time)
-                    .font(.caption.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
         .fullTitleContextMenu(entry.media.title.displayTitle)
+    }
+
+    /// Whether the broadcast has already happened — an episode that aired an hour ago is
+    /// watchable now, one later tonight isn't.
+    @ViewBuilder
+    private func statusChip(_ entry: AiringEpisode) -> some View {
+        if entry.isRelease {
+            Label("home.release", icon: "sparkles")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+        } else if entry.airingAt <= Date() {
+            Label("schedule.aired", icon: "checkmark.circle.fill")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.green)
+                .labelStyle(.titleAndIcon)
+        } else {
+            Label {
+                Text(entry.airingAt, style: .relative)
+            } icon: {
+                IconView("clock")
+                    .font(.system(size: 10, weight: .semibold))
+            }
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(Color.accentColor)
+        }
     }
 
     /// "Today" and "Tomorrow" read faster than a date when they apply; everything else gets its
