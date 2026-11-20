@@ -115,6 +115,8 @@ struct SettingsView: View {
     @State private var totalUsage = 0
     /// The introduction, again, for whoever wants the tour a second time.
     @State private var showOnboardingReplay = false
+    /// Set by the replay row's tour option; Home reads it and runs the tour again.
+    @AppStorage("homeTourPending") private var homeTourPending = false
     #endif
 
     /// The services signed in, short, for the Providers row.
@@ -359,8 +361,12 @@ struct SettingsView: View {
                 NavigationLink { AdvancedNetworkSettingsView() } label: { SettingsNavRow(icon: "network", title: String(localized: "settings.advanced_network")) }
 
                 #if !os(tvOS)
-                Button {
-                    showOnboardingReplay = true
+                Menu {
+                    Button("settings.replay_introduction") { showOnboardingReplay = true }
+                    Button("settings.replay_home_tour") {
+                        homeTourPending = true
+                        TabRequests.shared.requestedTab = .home
+                    }
                 } label: {
                     SettingsNavRow(
                         icon: "graduationcap",

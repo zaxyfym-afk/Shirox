@@ -38,6 +38,14 @@ struct HomeView: View {
     @StateObject private var notificationsVM = ProfileViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(DetailLayoutSetting.cinematicHomeKey) private var cinematicHome = true
+    /// The tour runs once, on the first Home after the onboarding is done — and again
+    /// whenever Settings asks for it.
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("hasSeenHomeTour") private var hasSeenHomeTour = false
+    @AppStorage("homeTourPending") private var homeTourPending = false
+    @State private var showTour = false
+    /// Where the tour's marks are, by stop order — Home's own buttons report in.
+    @State private var tourMarks: [Int: TourHighlight] = [:]
 
     /// The full-window artwork layout, on an iPad or a Mac — while there's a hero to show.
     private var usesCinematicLayout: Bool {
@@ -259,6 +267,8 @@ struct HomeView: View {
                         .font(.system(size: 17, weight: .medium))
                 }
                 .accessibilityLabel("shared.upcoming")
+                .tourHighlight(order: 0, title: "tour.calendar_title",
+                               description: "tour.calendar_description", group: $tourMarks)
             }
             #endif
             // `ProviderStatusBanner` existed but was never placed in any view — a provider
@@ -275,7 +285,8 @@ struct HomeView: View {
             #endif
             .modifier(HomeToolbar(discovery: discovery, kind: $discovery.simklKind,
                                   openCalendar: { showUpcoming = true },
-                                  openNotifications: openNotifications))
+                                  openNotifications: openNotifications,
+                                  tourMarks: $tourMarks))
             // A page, growing out of the calendar button on its way in.
             .navigationDestinationCompat(isPresented: $showUpcoming) {
                 UpcomingCalendarView()
@@ -334,7 +345,24 @@ struct HomeView: View {
             // Reclaim local-file copies left by cancelled picks or finished/removed items.
             ContinueWatchingManager.shared.pruneOrphanedLocalImports()
             #endif
+            maybeStartTour()
         }
+        // The onboarding finished over this very Home: the tour picks up right away.
+        .onChangeOf(hasCompletedOnboarding) { _ in maybeStartTour() }
+        // Asked for from Settings' replay row.
+        .onChangeOf(homeTourPending) { _ in maybeStartTour() }
+        .onChangeOf(showTour) { showing in
+            if !showing { hasSeenHomeTour = true }
+        }
+        .tourOverlay(isPresented: $showTour, group: $tourMarks)
+    }
+
+    /// The tour once, on the first Home after the onboarding is done — and again whenever
+    /// Settings asks for it.
+    private func maybeStartTour() {
+        guard !showTour, hasCompletedOnboarding, !hasSeenHomeTour || homeTourPending else { return }
+        homeTourPending = false
+        showTour = true
     }
 }
 
@@ -350,6 +378,8 @@ private struct HomeToolbar: ViewModifier {
     @Binding var kind: MediaKind
     let openCalendar: () -> Void
     let openNotifications: () -> Void
+    /// The tour's marks, handed in so the bell can say where it is.
+    var tourMarks: Binding<[Int: TourHighlight]> = .constant([:])
     @ObservedObject private var anilistAuth = AniListAuthManager.shared
 
     /// The leading edge of the navigation bar, named differently per platform.
@@ -430,6 +460,8 @@ private struct HomeToolbar: ViewModifier {
                 .notificationBadge(count: anilistAuth.unreadNotificationCount)
         }
         .accessibilityLabel("profile.notifications")
+        .tourHighlight(order: 1, title: "tour.bell_title",
+                       description: "tour.bell_description", group: tourMarks)
     }
 }
 
