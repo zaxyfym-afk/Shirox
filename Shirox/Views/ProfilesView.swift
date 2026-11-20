@@ -17,9 +17,10 @@ extension Color {
 
 // MARK: - Avatar
 
-/// A profile's picture: the one chosen for it, else its anime artwork, else its account's
-/// (AniList, MyAnimeList, Simkl), else its initial on its colour. Only one of them is ever
-/// drawn, so a picture still loading or a button pressed never shows the initial through it.
+/// A profile's picture: the one chosen for it, else its bundled avatar art over its colour,
+/// else its account's (AniList, MyAnimeList, Simkl), else an anime cover it chose, else its
+/// initial on its colour. Only one of them is ever drawn, so a picture still loading or a
+/// button pressed never shows the initial through it.
 ///
 /// `square` draws the Netflix-style rounded tile the picker uses; the default is the circle
 /// the rest of the app shows.
@@ -57,10 +58,15 @@ struct ProfileAvatarView: View {
                 Image(decorative: image, scale: 1)
                     .resizable()
                     .scaledToFill()
-            } else if let artwork = profile.artworkURL, !artwork.isEmpty {
-                CachedAsyncImage(urlString: artwork).scaledToFill()
+            } else if let avatar = profile.avatarID, let art = Self.artImage(avatar) {
+                // Bundled art in white over the colour: the colour is always part of the
+                // picture, whatever else the profile shows.
+                ProfileAvatarArt(name: avatar)
+                    .padding(size * 0.16)
             } else if let url = profile.accountAvatarURL {
                 CachedAsyncImage(urlString: url).scaledToFill()
+            } else if let artwork = profile.artworkURL, !artwork.isEmpty {
+                CachedAsyncImage(urlString: artwork).scaledToFill()
             } else {
                 Text(profile.initial)
                     .font(.system(size: size * 0.42, weight: .semibold, design: .rounded))
@@ -70,6 +76,31 @@ struct ProfileAvatarView: View {
         .frame(width: size, height: size)
         .clipShape(shape)
         .accessibilityHidden(true)
+    }
+
+    /// The bundled art's image, by asset name; nil when the name has no asset (art removed
+    /// by an update, say), so the next tier shows instead.
+    static func artImage(_ name: String) -> Image? {
+        #if canImport(UIKit)
+        guard let image = UIImage(named: name) else { return nil }
+        return Image(decorative: image)
+        #else
+        guard let image = NSImage(named: name) else { return nil }
+        return Image(nsImage: image)
+        #endif
+    }
+}
+
+/// One piece of bundled avatar art, in white, fitted to whatever frame it's given.
+struct ProfileAvatarArt: View {
+    let name: String
+
+    var body: some View {
+        if let art = ProfileAvatarView.artImage(name) {
+            art
+                .resizable()
+                .scaledToFit()
+        }
     }
 }
 
@@ -257,6 +288,11 @@ struct ProfilePickerView: View {
     private var bottomBar: some View {
         VStack(spacing: 14) {
             if managing {
+                // Said out loud, and now in words too: these circles are the picker's own
+                // backdrop, not the profile's colour.
+                Text("profile.background_colour")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.75))
                 HStack(spacing: 12) {
                     ForEach(ProfilePickerTheme.colors, id: \.self) { hex in
                         Button { themeHex = hex } label: {
@@ -421,6 +457,7 @@ struct ProfileEditorView: View {
     @State private var colorHex = ""
     @State private var photo: Data?
     @State private var photoRemoved = false
+    @State private var avatarID: String?
     @State private var artworkURL: String?
     @State private var artworkTitle: String?
     @State private var showArtworkPicker = false
@@ -445,13 +482,14 @@ struct ProfileEditorView: View {
         profile.name = name.isEmpty ? (editing?.name ?? "?") : name
         profile.colorHex = colorHex
         if photoRemoved { profile.hasPhoto = false }
+        profile.avatarID = avatarID
         profile.artworkURL = artworkURL
         profile.artworkTitle = artworkTitle
         return profile
     }
 
     private var hasPicture: Bool {
-        photo != nil || artworkURL != nil || (preview.hasPhoto && !photoRemoved)
+        photo != nil || avatarID != nil || artworkURL != nil || (preview.hasPhoto && !photoRemoved)
     }
 
     var body: some View {
@@ -476,6 +514,20 @@ struct ProfileEditorView: View {
                     #if os(iOS)
                     .textInputAutocapitalization(.words)
                     #endif
+                if name.trimmingCharacters(in: .whitespaces).isEmpty {
+                    // Why Save is doing nothing: it needs a name.
+                    Text("profile.name_needed")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Section {
+                avatarGrid
+            } header: {
+                Text("profile.avatar")
+            } footer: {
+                Text("profile.avatar_footer")
             }
 
             Section {
@@ -532,7 +584,10 @@ struct ProfileEditorView: View {
                 guard let url else { return }
                 artworkURL = url
                 artworkTitle = title
-                photoRemoved = false
+                // A photo outranks artwork, so it has to go for the artwork to show — this
+                // was the bug behind "changes not saving": the pick was stored and never seen.
+                photo = nil
+                photoRemoved = true
             }
         }
         .confirmationDialog(String(localized: "common.delete_name_confirm \(editing?.name ?? String())"), isPresented: $confirmDelete, titleVisibility: .visible) {
@@ -549,7 +604,7 @@ struct ProfileEditorView: View {
     private func deleteFooter(_ profile: AppProfile) -> String {
         let deletes = String(localized: "profile.deletes_s_library_progress_settings \(profile.name)")
         guard isActive, let next = manager.profiles.first(where: { $0.id != profile.id }) else { return deletes }
-        return deletes + " You're using it now, so Shirox switches to \(next.name) first."
+        return deletes + " " + String(localized: "profile.youre_using_it_switches \(next.name)")
     }
 
     // MARK: Parts
@@ -581,6 +636,7 @@ struct ProfileEditorView: View {
                 Button(role: .destructive) {
                     photo = nil
                     photoRemoved = true
+                    avatarID = nil
                     artworkURL = nil
                     artworkTitle = nil
                 } label: { Label("profile.remove_picture", icon: "trash") }
@@ -595,6 +651,19 @@ struct ProfileEditorView: View {
 
     private var colorSwatches: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 34), spacing: 12)], spacing: 12) {
+            // A colour past the palette (the auto hue once all twelve are taken) is still
+            // the chosen one; without a swatch for it, none showed as selected.
+            if !ProfilePalette.colors.contains(colorHex) {
+                Button { } label: {
+                    Circle()
+                        .fill(Color(profileHex: colorHex))
+                        .frame(width: 34, height: 34)
+                        .overlay(Circle().strokeBorder(Color.primary, lineWidth: 3).padding(-4))
+                }
+                .buttonStyle(.plain)
+                .disabled(true)
+                .accessibilityLabel("profile.colour")
+            }
             ForEach(ProfilePalette.colors, id: \.self) { hex in
                 let takenBy = manager.profiles.first { $0.colorHex == hex && $0.id != editing?.id }
                 Button { colorHex = hex } label: {
@@ -610,6 +679,35 @@ struct ProfileEditorView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(takenBy.map { String(localized: "profile.colour_used_by \($0.name)") } ?? String(localized: "profile.colour"))
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    /// The bundled avatar art: white over the colour being edited, so the pairing is visible
+    /// as it's chosen. A tap picks, a second tap on the same one lets it go.
+    private var avatarGrid: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 58), spacing: 12)], spacing: 12) {
+            ForEach(ProfileAvatarCatalog.all, id: \.self) { name in
+                Button {
+                    avatarID = avatarID == name ? nil : name
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color(profileHex: colorHex.isEmpty ? "#5B6B7A" : colorHex))
+                        ProfileAvatarArt(name: name)
+                            .padding(9)
+                    }
+                    .frame(width: 60, height: 60)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15, style: .continuous)
+                            .strokeBorder(Color.accentColor, lineWidth: avatarID == name ? 3 : 0)
+                            .padding(-4)
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("profile.avatar")
+                .accessibilityAddTraits(avatarID == name ? [.isSelected] : [])
             }
         }
         .padding(.vertical, 6)
@@ -654,16 +752,22 @@ struct ProfileEditorView: View {
         if let editing {
             name = editing.name
             colorHex = editing.colorHex
+            avatarID = editing.avatarID
             artworkURL = editing.artworkURL
             artworkTitle = editing.artworkTitle
         } else {
             colorHex = ProfilePalette.pick(avoiding: manager.profiles.map(\.colorHex))
+            avatarID = ProfileAvatarCatalog.default(colorHex: colorHex)
             moduleSource = manager.active?.id
         }
     }
 
     private func usePhoto(_ data: Data) {
-        guard let normalized = ProfileManager.normalizedPhoto(data) else { return }
+        guard let normalized = ProfileManager.normalizedPhoto(data) else {
+            // A pick that can't be read silently did nothing at all before.
+            ToastManager.shared.show(message: String(localized: "profile.couldnt_use_that_picture"), type: .error)
+            return
+        }
         photo = normalized
         photoRemoved = false
     }
@@ -677,6 +781,7 @@ struct ProfileEditorView: View {
             } else if photoRemoved {
                 manager.setPhoto(nil, for: editing.id)
             }
+            manager.setAvatar(avatarID, for: editing.id)
             manager.setArtwork(artworkURL, title: artworkTitle, for: editing.id)
         } else {
             let source = moduleSource ?? manager.active?.id
@@ -687,6 +792,7 @@ struct ProfileEditorView: View {
             default: choice = .own
             }
             let created = manager.create(name: name, photo: photo, colorHex: colorHex, modules: choice)
+            manager.setAvatar(avatarID, for: created.id)
             manager.setArtwork(artworkURL, title: artworkTitle, for: created.id)
         }
         dismiss()

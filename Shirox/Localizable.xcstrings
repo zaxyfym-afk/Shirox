@@ -59087,6 +59087,184 @@
         }
       }
     },
+    "profile.avatar" : {
+      "comment" : "ProfileEditorView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アバター"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Awatar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аватар"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "อวตาร"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avatar"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ảnh đại diện"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "头像"
+          }
+        }
+      }
+    },
+    "profile.avatar_footer" : {
+      "comment" : "ProfileEditorView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Motiv erscheint in Weiß über der Farbe des Profils. Tippe ein gewähltes erneut an, um zum Bild des Kontos zurückzukehren."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The art shows in white over the profile's colour. Tap a chosen one again to put the account's picture back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El arte se muestra en blanco sobre el color del perfil. Toca otra vez uno elegido para volver a la imagen de la cuenta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'art s'affiche en blanc sur la couleur du profil. Touchez de nouveau un avatar choisi pour revenir à l'image du compte."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gambar ditampilkan dalam warna putih di atas warna profil. Ketuk sekali lagi pilihan Anda untuk kembali ke gambar akun."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'immagine appare in bianco sul colore del profilo. Tocca di nuovo quella scelta per tornare alla foto dell'account."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アートはプロフィールの色の上に白で表示されます。選んだものをもう一度タップするとアカウントの画像に戻ります。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grafika pokazuje się na biało na kolorze profilu. Dotknij ponownie wybranej, aby wrócić do zdjęcia konta."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A arte aparece em branco sobre a cor do perfil. Toque de novo em uma escolhida para voltar à imagem da conta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рисунок отображается белым на цвете профиля. Коснитесь выбранного ещё раз, чтобы вернуть картинку аккаунта."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลวดลายแสดงเป็นสีขาวบนสีของโปรไฟล์ แตะที่เลือกไว้อีกครั้งเพื่อกลับไปใช้ภาพของบัญชี"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çizim, profil renginin üzerinde beyaz olarak görünür. Hesap resmine dönmek için seçilmiş olana tekrar dokunun."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hình vẽ hiển thị màu trắng trên màu của hồ sơ. Chạm lần nữa vào hình đã chọn để quay lại ảnh tài khoản."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图案以白色显示在资料的配色上。再次点按已选的图案可改回账号头像。"
+          }
+        }
+      }
+    },
     "profile.background_colour" : {
       "comment" : "ProfilesView",
       "localizations" : {
@@ -60328,6 +60506,184 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "暂时无法载入"
+          }
+        }
+      }
+    },
+    "profile.couldnt_save_changes" : {
+      "comment" : "ProfileManager",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Änderung ließ sich nicht speichern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save the change."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar el cambio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de sauvegarder la modification."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perubahan tidak dapat disimpan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile salvare la modifica."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更を保存できませんでした。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zapisać zmiany."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível salvar a alteração."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось сохранить изменение."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "บันทึกการเปลี่ยนแปลงไม่สำเร็จ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değişiklik kaydedilemedi."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể lưu thay đổi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存更改。"
+          }
+        }
+      }
+    },
+    "profile.couldnt_use_that_picture" : {
+      "comment" : "ProfilesView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Bild ließ sich nicht verwenden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't use that picture."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo usar esa imagen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d'utiliser cette image."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gambar itu tidak dapat digunakan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile usare questa immagine."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "その画像は使用できませんでした。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się użyć tego obrazu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível usar essa imagem."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось использовать это изображение."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ใช้ภาพนั้นไม่ได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu görsel kullanılamadı."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể dùng ảnh đó."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法使用该图片。"
           }
         }
       }
@@ -62553,6 +62909,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "平均评分"
+          }
+        }
+      }
+    },
+    "profile.name_needed" : {
+      "comment" : "ProfileEditorView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Speichern fehlt noch ein Name."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A name is needed before saving."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hace falta un nombre antes de guardar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un nom est nécessaire avant d'enregistrer."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perlu nama sebelum menyimpan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serve un nome prima di salvare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存する前に名前が必要です。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przed zapisaniem potrzebna jest nazwa."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "É preciso um nome antes de salvar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перед сохранением нужно имя."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ต้องมีชื่อก่อนบันทึก"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaydetmeden önce bir ad gerekli."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cần có tên trước khi lưu."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存前需要先填写名称。"
           }
         }
       }
@@ -65143,85 +65588,85 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wird angezeigt, wenn das Profil kein eigenes Bild und keines von seinem Konto hat."
+            "value" : "Immer sichtbar: Darauf sitzen der Avatar und der Anfangsbuchstabe."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Shown when the profile has no picture of its own or from its account."
+            "value" : "Always shown: it's what the avatar and the initial sit on."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se muestra cuando el perfil no tiene imagen propia ni de su cuenta."
+            "value" : "Siempre visible: es donde se apoyan el avatar y la inicial."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Affiché lorsque le profil n’a pas d’image propre ni d’image de son compte."
+            "value" : "Toujours visible : c'est sur elle que l'avatar et l'initiale reposent."
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ditampilkan jika profil tidak memiliki gambar sendiri atau dari akunnya."
+            "value" : "Selalu tampil: di sanalah avatar dan huruf awal bertumpu."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mostrata quando il profilo non ha un'immagine propria né una dal suo account."
+            "value" : "Sempre visibile: è su di essa che si appoggiano avatar e iniziale."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プロフィール自体またはアカウントに写真がない場合に表示されます。"
+            "value" : "常に表示されます。アバターと頭文字はこの色の上に置かれます。"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wyświetlane, gdy profil nie ma własnego zdjęcia ani zdjęcia z konta."
+            "value" : "Zawsze widoczny: na nim spoczywa awatar i inicjał."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exibida quando o perfil não tem imagem própria nem da conta."
+            "value" : "Sempre visível: é sobre ele que o avatar e a inicial ficam."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Показывается, если у профиля нет собственного изображения или изображения из учётной записи."
+            "value" : "Виден всегда: на нём стоят аватар и первая буква."
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "แสดงเมื่อโปรไฟล์ไม่มีรูปภาพของตัวเองหรือจากบัญชี"
+            "value" : "แสดงเสมอ อวตารและอักษรตัวแรกวางอยู่บนสีนี้"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Profilin kendi resmi veya hesabından bir resmi olmadığında gösterilir."
+            "value" : "Her zaman görünür: avatar ve baş harf bunun üzerinde durur."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hiện khi hồ sơ không có ảnh riêng hoặc ảnh từ tài khoản của hồ sơ."
+            "value" : "Luôn hiển thị: ảnh đại diện và chữ cái nằm trên màu này."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "当个人资料没有自己的图片或其账户图片时显示。"
+            "value" : "始终可见：头像和首字母都落在它上面。"
           }
         }
       }
@@ -66655,85 +67100,174 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ohne Bild nutzt das Profil sein AniList-Bild, dann das von MyAnimeList, dann das von Simkl, sonst seinen Anfangsbuchstaben."
+            "value" : "Ohne Foto zeigt das Profil seine Avatar-Grafik, dann das AniList-, MyAnimeList- oder Simkl-Bild, dann seinen Anfangsbuchstaben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Without a picture, the profile uses its AniList picture, then MyAnimeList's, then Simkl's, or else its initial."
+            "value" : "Without a photo, the profile shows its avatar art, then its AniList, MyAnimeList or Simkl picture, then its initial."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin imagen, el perfil usa la de AniList, luego la de MyAnimeList, luego la de Simkl, o si no su inicial."
+            "value" : "Sin foto, el perfil muestra su arte de avatar, luego su imagen de AniList, MyAnimeList o Simkl, y luego su inicial."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sans image, le profil utilise son image AniList, puis celle de MyAnimeList, puis celle de Simkl, ou sinon son initiale."
+            "value" : "Sans photo, le profil montre son art d'avatar, puis son image AniList, MyAnimeList ou Simkl, puis son initiale."
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tanpa gambar, profil menggunakan gambar AniList-nya, lalu MyAnimeList, lalu Simkl, atau inisialnya."
+            "value" : "Tanpa foto, profil menampilkan seni avatarnya, lalu gambar AniList, MyAnimeList, atau Simkl-nya, lalu huruf awalnya."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Senza un'immagine, il profilo usa quella di AniList, poi quella di MyAnimeList, poi quella di Simkl, altrimenti la sua iniziale."
+            "value" : "Senza foto, il profilo mostra la sua grafica avatar, poi l'immagine di AniList, MyAnimeList o Simkl, poi l'iniziale."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写真がない場合、プロフィールにはAniList、MyAnimeList、Simklの順で写真が使われ、どれもなければイニシャルが表示されます。"
+            "value" : "写真がない場合、プロフィールはアバターのアートを、次に AniList・MyAnimeList・Simkl の画像を、最後に頭文字を表示します。"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bez zdjęcia profil używa zdjęcia z AniList, następnie z MyAnimeList, potem z Simkl, a w ostateczności inicjału."
+            "value" : "Bez zdjęcia profil pokazuje swoją grafikę awatara, potem obrazek z AniList, MyAnimeList lub Simkl, a na końcu inicjał."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sem imagem, o perfil usa a imagem do AniList, depois a do MyAnimeList, depois a do Simkl, ou então a inicial."
+            "value" : "Sem foto, o perfil mostra sua arte de avatar, depois sua imagem do AniList, MyAnimeList ou Simkl, e depois a inicial."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Без изображения профиль использует изображение из AniList, затем из MyAnimeList, затем из Simkl, а иначе — свою первую букву."
+            "value" : "Без фото профиль показывает свой аватар-рисунок, затем картинку AniList, MyAnimeList или Simkl, затем первую букву."
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "หากไม่มีรูปภาพ โปรไฟล์จะใช้รูปภาพจาก AniList ตามด้วย MyAnimeList แล้วจึง Simkl หรือไม่เช่นนั้นจะใช้ตัวอักษรแรกของชื่อ"
+            "value" : "เมื่อไม่มีภาพถ่าย โปรไฟล์จะแสดงลวดลายอวตาร ตามด้วยภาพจาก AniList, MyAnimeList หรือ Simkl และอักษรตัวแรก"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resim yoksa profil sırasıyla AniList resmini, sonra MyAnimeList'inkini, sonra Simkl'inkini, o da yoksa baş harfini kullanır."
+            "value" : "Fotosuz, profil önce avatar çizimini, sonra AniList, MyAnimeList veya Simkl resmini, sonra baş harfini gösterir."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nếu không có ảnh, hồ sơ sẽ dùng ảnh AniList, rồi đến ảnh MyAnimeList, rồi ảnh Simkl, hoặc nếu không thì dùng chữ cái đầu."
+            "value" : "Khi không có ảnh, hồ sơ hiển thị hình đại diện của nó, rồi ảnh AniList, MyAnimeList hoặc Simkl, rồi chữ cái."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "没有图片时，个人资料会使用其 AniList 图片，其次是 MyAnimeList 的，再其次是 Simkl 的，否则使用其首字母。"
+            "value" : "没有照片时，资料会显示其头像图案，然后是 AniList、MyAnimeList 或 Simkl 的头像，最后是首字母。"
+          }
+        }
+      }
+    },
+    "profile.youre_using_it_switches" : {
+      "comment" : "ProfilesView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du nutzt es gerade, also wechselt Shirox zuerst zu %@."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're using it now, so Shirox switches to %@ first."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo estás usando ahora, así que Shirox cambia primero a %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous l'utilisez actuellement, donc Shirox bascule d'abord vers %@."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anda sedang memakainya, jadi Shirox beralih dulu ke %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo stai usando ora, quindi Shirox passa prima a %@."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在使用中のため、Shirox はまず %@ に切り替えます。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korzystasz z niego teraz, więc Shirox przełącza najpierw na %@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você está usando agora, então o Shirox muda primeiro para %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас он используется, поэтому Shirox сначала переключится на %@."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คุณกำลังใช้อยู่ Shirox จะสลับไปที่ %@ ก่อน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şu an bunu kullanıyorsunuz, bu yüzden Shirox önce %@ profiline geçer."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bạn đang dùng hồ sơ này, nên Shirox chuyển sang %@ trước."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您正在使用该资料，Shirox 会先切换到 %@。"
           }
         }
       }

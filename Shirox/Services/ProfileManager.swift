@@ -55,7 +55,7 @@ final class ProfileManager: ObservableObject {
     /// and iOS woke the app for a download) leaves the switch for the next one.
     static func applyPendingSwitch(_ env: ProfileSwap.Environment = .live) {
         guard var registry = loadRegistry(env), let pending = registry.pendingID else { return }
-        defer { saveRegistry(registry, env) }
+        defer { try? saveRegistry(registry, env) }
         guard pending != registry.activeID,
               let outgoing = registry.active,
               let incoming = registry.profiles.first(where: { $0.id == pending }) else {
@@ -124,6 +124,11 @@ final class ProfileManager: ObservableObject {
             $0.artworkURL = url
             $0.artworkTitle = url == nil ? nil : title
         }
+    }
+
+    /// Bundled avatar art for the profile, or nil to fall back to its account's picture.
+    func setAvatar(_ assetName: String?, for id: UUID) {
+        update(id) { $0.avatarID = assetName }
     }
 
     /// Bumped when a picture changes, so views showing the file read it again.
@@ -295,7 +300,16 @@ final class ProfileManager: ObservableObject {
         save()
     }
 
-    private func save() { Self.saveRegistry(registry, swap.env) }
+    private func save() {
+        do {
+            try Self.saveRegistry(registry, swap.env)
+        } catch {
+            // A failed write looks exactly like a saved one without this, and the change the
+            // user just made is the one that didn't land.
+            Logger.shared.log("[Profiles] Couldn't save the registry: \(error)", type: "Error")
+            ToastManager.shared.show(message: String(localized: "profile.couldnt_save_changes"), type: .error)
+        }
+    }
 
     nonisolated private static func registryURL(_ env: ProfileSwap.Environment) -> URL {
         env.profilesRoot.appendingPathComponent("registry.json")
@@ -306,10 +320,11 @@ final class ProfileManager: ObservableObject {
         return try? JSONDecoder().decode(ProfileRegistry.self, from: data)
     }
 
-    nonisolated static func saveRegistry(_ registry: ProfileRegistry, _ env: ProfileSwap.Environment) {
+    nonisolated static func saveRegistry(_ registry: ProfileRegistry, _ env: ProfileSwap.Environment) throws {
         let url = registryURL(env)
-        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(registry) { try? data.write(to: url, options: .atomic) }
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let data = try JSONEncoder().encode(registry)
+        try data.write(to: url, options: .atomic)
     }
 
     private static func cleaned(_ name: String) -> String {

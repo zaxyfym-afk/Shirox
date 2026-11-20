@@ -159,7 +159,7 @@ final class ProfileSwapTests: XCTestCase {
     func testAPendingSwitchIsAppliedAtLaunch() throws {
         let alice = profile("Alice"), bob = profile("Bob")
         try fillAsAlice()
-        ProfileManager.saveRegistry(ProfileRegistry(profiles: [alice, bob], activeID: alice.id, pendingID: bob.id), env)
+        try ProfileManager.saveRegistry(ProfileRegistry(profiles: [alice, bob], activeID: alice.id, pendingID: bob.id), env)
 
         ProfileManager.applyPendingSwitch(env)
         let registry = try XCTUnwrap(ProfileManager.loadRegistry(env))

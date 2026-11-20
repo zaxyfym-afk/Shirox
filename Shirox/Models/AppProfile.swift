@@ -12,8 +12,12 @@ struct AppProfile: Codable, Identifiable, Equatable, Hashable {
     var colorHex: String
     /// A picture the user chose for it, kept under `Profiles/photos/`.
     var hasPhoto: Bool = false
-    /// An anime cover chosen as its picture, Netflix-style: shown between a photo the user
-    /// took themselves and the account's avatar.
+    /// Bundled avatar art chosen for it, by its asset name: white art that shows the
+    /// profile's colour behind it, so the colour is always part of the picture. New profiles
+    /// start on the one their colour pairs with.
+    var avatarID: String?
+    /// An anime cover chosen as its picture — an option, not the default, and shown below
+    /// the account's own avatar.
     var artworkURL: String?
     var artworkTitle: String?
     /// The picture of its first signed-in account, AniList, then MyAnimeList, then Simkl,
@@ -25,6 +29,22 @@ struct AppProfile: Codable, Identifiable, Equatable, Hashable {
 
     var initial: String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).first.map { String($0).uppercased() } ?? "?"
+    }
+}
+
+/// The bundled avatar art: white characters that show the profile's colour behind them,
+/// Netflix-style. Order pairs with `ProfilePalette.colors`, so a new profile's colour picks
+/// its starting avatar; any avatar goes with any colour after that.
+enum ProfileAvatarCatalog {
+    static let all = [
+        "AvatarFox", "AvatarTiger", "AvatarOwl", "AvatarTanuki", "AvatarKoi", "AvatarCrane",
+        "AvatarDragon", "AvatarOni", "AvatarRabbit", "AvatarCat", "AvatarShiba", "AvatarWolf"
+    ]
+
+    /// The avatar a new profile of this colour starts on, when there is one.
+    static func `default`(colorHex: String) -> String? {
+        guard let index = ProfilePalette.colors.firstIndex(of: colorHex), index < all.count else { return nil }
+        return all[index]
     }
 }
 
