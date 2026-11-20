@@ -6,6 +6,12 @@ on:
  push:
    branches:
      - main
+ schedule:
+   # The macOS pool starves at European peak: three builds in a row were
+   # cancelled in queue on 2026-11-20 between 14:09 and 15:29 UTC, while every
+   # success this month landed between 23:30 and 02:41 UTC. 03:07 UTC sits in
+   # that quiet window (and off the round-minute load spikes).
+   - cron: '7 3 * * *'
  workflow_dispatch:
 
 # Two merges in a row used to build side by side and race for apps.json and the release.
@@ -46,7 +52,12 @@ jobs:
  build-ios:
    name: Build iOS IPA
    needs: prepare-release
-   runs-on: macos-26
+   # macos-26's pool starves at peak (the cron note above); macos-15's is a
+   # different queue. Its image default Xcode is 16.4, too old for the iOS 26
+   # availability guards, so 26.3 (which ships the iOS 26 SDK) is pinned by hand.
+   runs-on: macos-15
+   env:
+     DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
    permissions:
      contents: write
    steps:
