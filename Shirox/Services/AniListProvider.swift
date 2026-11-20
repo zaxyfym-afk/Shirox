@@ -200,10 +200,15 @@ final class AniListProvider: MediaProvider {
             genres: m.genres,
             season: m.season,
             seasonYear: m.seasonYear,
-            nextAiringEpisode: m.nextAiringEpisode.map { MediaAiringEpisode(episode: $0.episode) },
+            nextAiringEpisode: m.nextAiringEpisode.map { MediaAiringEpisode(episode: $0.episode, airingAt: $0.airingAt) },
             relations: m.relations.map { mapRelations($0) },
             type: m.type,
-            format: m.format
+            format: m.format,
+            duration: m.duration,
+            startDate: m.startDate.map { MediaFuzzyDate(year: $0.year, month: $0.month, day: $0.day) },
+            mainStudio: m.mainStudioName,
+            tagNames: (m.tags ?? []).filter { !$0.isSpoiler }.map(\.name),
+            recommendations: m.recommendationList.map { mapMedia($0) }
         )
     }
 

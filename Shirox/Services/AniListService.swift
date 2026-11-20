@@ -588,6 +588,63 @@ final class AniListService {
         return (byAniList, byMal)
     }
 
+    /// The next broadcast of each of a set of anime — episode number and air time — by
+    /// AniList id and by MyAnimeList id. The release notifier schedules its notifications
+    /// from this. Fifty titles a request; a show between seasons or finished isn't in the
+    /// answer, so its follows keep what they already knew.
+    func nextAiring(aniListIDs: [Int], malIDs: [Int]) async -> (byAniList: [Int: AniListNextAiring], byMal: [Int: AniListNextAiring]) {
+        struct Airing: Decodable {
+            let episode: Int
+            let airingAt: Int
+        }
+        struct Node: Decodable {
+            let id: Int
+            let idMal: Int?
+            let nextAiringEpisode: Airing?
+        }
+        struct Results: Decodable { let media: [Node] }
+        struct Payload: Decodable { let Page: Results? }
+
+        func run(_ field: String, _ ids: [Int]) async -> [Node] {
+            let query = """
+            query ($ids: [Int]) {
+              Page(perPage: 50) {
+                media(\(field): $ids, type: ANIME, status: RELEASING) {
+                  id
+                  idMal
+                  nextAiringEpisode { episode airingAt }
+                }
+              }
+            }
+            """
+            guard let data = try? await post(query: query, variables: ["ids": ids]),
+                  let page = (try? JSONDecoder().decode(GraphQLResponse<Payload>.self, from: data))?.data?.Page
+            else { return [] }
+            return page.media
+        }
+
+        var byAniList: [Int: AniListNextAiring] = [:]
+        var byMal: [Int: AniListNextAiring] = [:]
+        for chunk in stride(from: 0, to: aniListIDs.count, by: 50).map({ Array(aniListIDs[$0..<min($0 + 50, aniListIDs.count)]) }) {
+            for node in await run("id_in", chunk) {
+                if let next = node.nextAiringEpisode {
+                    byAniList[node.id] = AniListNextAiring(
+                        episode: next.episode,
+                        airingAt: Date(timeIntervalSince1970: TimeInterval(next.airingAt)))
+                }
+            }
+        }
+        for chunk in stride(from: 0, to: malIDs.count, by: 50).map({ Array(malIDs[$0..<min($0 + 50, malIDs.count)]) }) {
+            for node in await run("idMal_in", chunk) {
+                guard let mal = node.idMal, let next = node.nextAiringEpisode else { continue }
+                byMal[mal] = AniListNextAiring(
+                    episode: next.episode,
+                    airingAt: Date(timeIntervalSince1970: TimeInterval(next.airingAt)))
+            }
+        }
+        return (byAniList, byMal)
+    }
+
     func detail(id: Int) async throws -> AniListMedia {
         let query = """
         query ($id: Int) {
@@ -599,14 +656,27 @@ final class AniListService {
             bannerImage
             description(asHtml: false)
             episodes
+            duration
             status
+            startDate { year month day }
+            endDate { year month day }
             nextAiringEpisode {
               episode
+              airingAt
+              timeUntilAiring
             }
             averageScore
             genres
             season
             seasonYear
+            studios(isMain: true) {
+              nodes { name }
+            }
+            tags(sort: RANK) {
+              name
+              rank
+              isGeneralSpoiler
+            }
             relations {
               edges {
                 relationType
@@ -617,6 +687,24 @@ final class AniListService {
                   status
                   type
                   format
+                }
+              }
+            }
+            recommendations(sort: RATING_DESC, perPage: 14) {
+              nodes {
+                mediaRecommendation {
+                  id
+                  title { romaji english native }
+                  coverImage { large extraLarge }
+                  bannerImage
+                  status
+                  type
+                  format
+                  averageScore
+                  episodes
+                  genres
+                  season
+                  seasonYear
                 }
               }
             }
@@ -633,6 +721,25 @@ final class AniListService {
             throw AniListError.noData
         }
         return media
+    }
+
+    /// Cover art for a profile picture: what's trending, or a search when the user is after a
+    /// specific title. The picture itself is just a cover URL; this only lists candidates.
+    func profileArtwork(search: String? = nil) async throws -> [AniListMedia] {
+        let query = """
+        query ($search: String) {
+          Page(perPage: 40) {
+            media(search: $search, type: ANIME, isAdult: false, sort: TRENDING_DESC) {
+              id
+              title { romaji english native }
+              coverImage { large extraLarge }
+              bannerImage
+              format
+            }
+          }
+        }
+        """
+        return try await fetchPage(query: query, variables: ["search": search ?? NSNull()])
     }
 
     /// AniList detail for a MANGA id. Mirrors `detail(id:)` but queries the manga
