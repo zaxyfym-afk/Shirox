@@ -130,14 +130,14 @@ struct GeneralSettingsView: View {
                 Toggle("settings.hide_titles_on_cards", isOn: $hideCardTitles)
                     .switchTint()
                 note(String(localized: "settings.posters_from_tvdb_carry_the"))
-                Picker("settings.home_and_search_buttons", selection: $providerMenuStyle) {
+                Picker("settings.search_button", selection: $providerMenuStyle) {
                     ForEach(ProviderMenuStyle.allCases, id: \.self) { style in
                         Text(style.title).tag(style)
                     }
                 }
                 .pickerStyle(.menu)
                 .retinted(tint)
-                note(String(localized: "settings.the_buttons_at_the_top"))
+                note(String(localized: "settings.search_button_note"))
             } header: {
                 Text("settings.cards_and_buttons")
             }

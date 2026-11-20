@@ -85928,95 +85928,6 @@
         }
       }
     },
-    "settings.home_and_search_buttons" : {
-      "comment" : "GeneralSettingsView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start- & Suchtasten"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Home & Search Buttons"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Botones de Inicio y Búsqueda"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Boutons Accueil et Recherche"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tombol Beranda & Cari"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pulsanti Home e Cerca"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホームと検索のボタン"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przyciski ekranu głównego i wyszukiwania"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Botões de Início e Buscar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Кнопки «Главная» и «Поиск»"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ปุ่มหน้าหลักและค้นหา"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ana Sayfa ve Ara Düğmeleri"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nút Trang chủ & Tìm kiếm"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主页和搜索按钮"
-          }
-        }
-      }
-    },
     "settings.host" : {
       "comment" : "AdvancedNetworkSettingsView",
       "localizations" : {
@@ -101125,6 +101036,184 @@
         }
       }
     },
+    "settings.search_button" : {
+      "comment" : "GeneralSettingsView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchen-Button"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Button"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botón de búsqueda"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bouton de recherche"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tombol Pencarian"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulsante di ricerca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索ボタン"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przycisk wyszukiwania"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Botão de busca"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кнопка поиска"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ปุ่มค้นหา"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arama Düğmesi"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nút tìm kiếm"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索按钮"
+          }
+        }
+      }
+    },
+    "settings.search_button_note" : {
+      "comment" : "GeneralSettingsView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Schaltfläche oben in der Suche wählt das Modul. Ausgeblendet behält die letzte Wahl; Module gibt es auch unter Einstellungen › Module."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The button at the top of Search picks the module. Hidden keeps the last choice; modules are also in Settings › Modules."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El botón de la parte superior de Buscar elige el módulo. Si lo ocultas, se mantiene la última elección; los módulos también están en Ajustes › Módulos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le bouton en haut de Rechercher choisit le module. Masqué, il garde le dernier choix ; les modules sont aussi dans Réglages › Modules."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tombol di bagian atas Cari memilih modul. Saat disembunyikan, pilihan terakhir tetap dipakai; modul juga ada di Pengaturan › Modul."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il pulsante in cima a Cerca sceglie il modulo. Quando è nascosto, resta l'ultima scelta; i moduli sono anche in Impostazioni › Moduli."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索画面上部のボタンでモジュールを選択します。非表示にしても最後の選択は保持されます。モジュールは 設定 › モジュール にもあります。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przycisk u góry Wyszukiwania wybiera moduł. Po ukryciu zachowuje ostatni wybór; moduły są też w Ustawieniach › Moduły."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O botão no topo da Busca escolhe o módulo. Quando oculto, mantém a última escolha; os módulos também estão em Ajustes › Módulos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кнопка вверху Поиска выбирает модуль. В скрытом виде остаётся последний выбор; модули также есть в Настройках › Модули."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ปุ่มด้านบนของหน้าค้นหาใช้เลือกโมดูล เมื่อซ่อนจะคงตัวเลือกล่าสุดไว้ และดูโมดูลได้ที่ การตั้งค่า › โมดูล"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arama'nın üstündeki düğme modülü seçer. Gizliyken son seçim korunur; modüllere Ayarlar › Modüller kısmından da ulaşılabilir."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nút ở đầu trang Tìm kiếm chọn mô-đun. Khi ẩn, lựa chọn gần nhất được giữ lại; mô-đun cũng có trong Cài đặt › Mô-đun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索页顶部的按钮用于选择模块。选择隐藏时会保留上次的选择;模块也可以在 设置 › 模块 中管理。"
+          }
+        }
+      }
+    },
     "settings.search_fonts" : {
       "localizations" : {
         "de" : {
@@ -106541,95 +106630,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Shirox 向模块、图片和网页视图表明的浏览器身份。自带浏览器身份的模块以及已完成的 Cloudflare 验证会保留各自的身份。"
-          }
-        }
-      }
-    },
-    "settings.the_buttons_at_the_top" : {
-      "comment" : "GeneralSettingsView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Buttons oben auf Start und Suche: Der auf Start wählt den Anbieter, der auf Suche das Modul. Ausgeblendet behalten beide die letzte Auswahl; Module findest du auch unter Einstellungen › Module."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The buttons at the top of Home and Search: Home's picks the provider, Search's the module. Hidden, both keep the last choice; modules are also in Settings › Modules."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los botones de la parte superior de Inicio y Búsqueda: el de Inicio elige el proveedor y el de Búsqueda, el módulo. Si se ocultan, ambos conservan la última elección; los módulos también están en Ajustes › Módulos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les boutons en haut de l’accueil et de la recherche : celui de l’accueil choisit le fournisseur, celui de la recherche le module. Masqués, les deux gardent le dernier choix ; les modules se trouvent aussi dans Réglages › Modules."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tombol di bagian atas Beranda dan Cari: tombol Beranda memilih penyedia, tombol Cari memilih modul. Jika disembunyikan, keduanya mempertahankan pilihan terakhir; modul juga ada di Pengaturan › Modul."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I pulsanti in alto in Home e Cerca: quello di Home sceglie il provider, quello di Cerca il modulo. Se nascosti, entrambi mantengono l'ultima scelta; i moduli sono anche in Impostazioni › Moduli."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホームと検索の上部にあるボタンです。ホームではプロバイダ、検索ではモジュールを選択します。非表示にしても、どちらも最後の選択を保持します。モジュールは「設定」›「モジュール」にもあります。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przyciski u góry ekranu głównego i wyszukiwania: ekranu głównego wybiera dostawcę, wyszukiwania — moduł. Gdy są ukryte, oba zachowują ostatni wybór; moduły są też w Ustawienia › Moduły."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os botões no topo de Início e Buscar: o de Início escolhe o provedor; o de Buscar, o módulo. Ocultos, ambos mantêm a última escolha; os módulos também estão em Ajustes › Módulos."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Кнопки вверху «Главной» и «Поиска»: на «Главной» они выбирают провайдера, в «Поиске» — модуль. Если скрыть, обе сохраняют последний выбор; модули также есть в «Настройки» › «Модули»."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ปุ่มที่ด้านบนของหน้าหลักและค้นหา: ปุ่มของหน้าหลักใช้เลือกผู้ให้บริการ ปุ่มของค้นหาใช้เลือกโมดูล เมื่อซ่อน ทั้งสองจะคงตัวเลือกล่าสุดไว้ โมดูลยังอยู่ในการตั้งค่า › โมดูล"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ana Sayfa ve Ara'nın üstündeki düğmeler: Ana Sayfa'nınki sağlayıcıyı, Ara'nınki modülü seçer. Gizlendiğinde ikisi de son seçimi korur; modüller ayrıca Ayarlar › Modüller'de."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Các nút ở đầu Trang chủ và Tìm kiếm: nút của Trang chủ chọn nhà cung cấp, nút của Tìm kiếm chọn mô-đun. Khi ẩn, cả hai giữ lựa chọn gần nhất; mô-đun cũng có trong Cài đặt › Mô-đun."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主页和搜索顶部的按钮：主页的按钮用于选择提供者，搜索的按钮用于选择模块。隐藏后，两者都会保留上次的选择；模块也可在“设置”›“模块”中管理。"
           }
         }
       }
@@ -132340,95 +132340,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "观看中"
-          }
-        }
-      }
-    },
-    "shared.where_home_and_search_come" : {
-      "comment" : "ProviderStatusBanner",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Woher Start und Suche ihre Inhalte beziehen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Where Home and Search come from"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De dónde vienen Inicio y Búsqueda"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "D’où viennent l’accueil et la recherche"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Asal Beranda dan Cari"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Da dove arrivano Home e Cerca"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホームと検索の取得元"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skąd pochodzą Początek i Wyszukiwanie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De onde vêm o Início e a Busca"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Откуда берутся «Главная» и «Поиск»"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "แหล่งที่มาของหน้าหลักและการค้นหา"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ana Sayfa ve Ara'nın kaynağı"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nguồn của Trang chủ và Tìm kiếm"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主页和搜索的来源"
           }
         }
       }

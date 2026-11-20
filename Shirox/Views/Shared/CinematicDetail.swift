@@ -198,7 +198,7 @@ extension EnvironmentValues {
     }
 }
 
-/// A row's title on Home: heavy and underlined, or the cinematic page's plainer one.
+/// A row's title on Home, or the cinematic page's plainer one.
 struct HomeRowHeader<Trailing: View>: View {
     let title: String
     @ViewBuilder var trailing: () -> Trailing
@@ -209,14 +209,9 @@ struct HomeRowHeader<Trailing: View>: View {
             CinematicSectionHeader(title: title, trailing: trailing)
         } else {
             HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(title)
-                        .font(.title2.weight(.heavy))
-                        .tracking(0.3)
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.primary)
-                        .frame(width: 36, height: 3)
-                }
+                Text(title)
+                    .font(.title2.weight(.heavy))
+                    .tracking(0.3)
                 Spacer()
                 trailing()
             }

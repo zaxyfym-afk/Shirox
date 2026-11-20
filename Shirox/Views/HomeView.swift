@@ -10,6 +10,7 @@ struct HomeView: View {
     @State private var readingDetail: MangaReadingItem?
     @State private var readerContext: ReaderContext?
     @State private var showUpcoming = false
+    @State private var showNotifications = false
     /// The calendar button the Upcoming page grows out of.
     @Namespace private var calendarZoom
     /// Where the page before this one sat in `pagePosition`'s order.
@@ -32,6 +33,9 @@ struct HomeView: View {
     @AppStorage(PullToRefreshStyle.key) private var refreshStyle = PullToRefreshStyle.defaultStyle
     @ObservedObject private var discovery = DiscoverySource.shared
     @StateObject private var simkl = SimklHomeViewModel()
+    /// The notifications page the bell opens, with its own view model so it doesn't lean on
+    /// the Library's.
+    @StateObject private var notificationsVM = ProfileViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(DetailLayoutSetting.cinematicHomeKey) private var cinematicHome = true
 
@@ -237,12 +241,15 @@ struct HomeView: View {
             }
             .animation(.easeInOut(duration: 0.25), value: isLoadingEmpty)
             #if os(iOS)
-            .overlay(alignment: .bottomTrailing) {
-                CalendarButton { showUpcoming = true }
-                    .zoomSource(HomeToolbar.calendarID, in: calendarZoom, cornerRadius: 26)
-                    // Centred over the tab bar's search button, which sits 21pt in and is 62 across.
-                    .padding(.trailing, 26)
-                    .padding(.bottom, 12)
+            // The calendar, up in the bar instead of the bottom corner. A toolbar item can be a
+            // zoom source only from iOS 26, which is why it carries a toolbar of its own (see
+            // `toolbarZoomSource`); before that the page simply pushes.
+            .toolbarZoomSource(HomeToolbar.calendarID, in: calendarZoom) {
+                Button { showUpcoming = true } label: {
+                    IconView("calendar")
+                        .font(.system(size: 17, weight: .medium))
+                }
+                .accessibilityLabel("shared.upcoming")
             }
             #endif
             // `ProviderStatusBanner` existed but was never placed in any view — a provider
@@ -257,11 +264,17 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackgroundHidden()
             #endif
-            .modifier(HomeToolbar(discovery: discovery, kind: $discovery.simklKind) { showUpcoming = true })
+            .modifier(HomeToolbar(discovery: discovery, kind: $discovery.simklKind,
+                                  openCalendar: { showUpcoming = true },
+                                  openNotifications: { showNotifications = true }))
             // A page, growing out of the calendar button on its way in.
             .navigationDestinationCompat(isPresented: $showUpcoming) {
                 UpcomingCalendarView()
-                    .zoomingOut(of: HomeToolbar.calendarID, in: calendarZoom)
+                    .zoomingOut(of: HomeToolbar.calendarID, in: calendarZoom, fromToolbar: true)
+            }
+            // The bell's page; loading it resets the unread count server-side.
+            .navigationDestinationCompat(isPresented: $showNotifications) {
+                NotificationsView(vm: notificationsVM)
             }
             // Asked for from the tab bar's menu.
             .onChangeOf(tabRequests.showsCalendar) { requested in
@@ -317,17 +330,17 @@ struct HomeView: View {
 
 // MARK: - Toolbar
 
-/// Home's navigation bar: Simkl's kind menu while Home is Simkl's, and the provider menu. The
-/// calendar floats in the bottom corner on iOS; elsewhere it stays up here.
+/// Home's navigation bar: the notifications bell, plus Simkl's kind menu while Home is Simkl's.
+/// On iOS the calendar rides in a toolbar of its own (`toolbarZoomSource`) so it can be the
+/// zoom source of the page it opens; elsewhere it stays in here.
 private struct HomeToolbar: ViewModifier {
     static let calendarID = "upcomingCalendar"
 
     @ObservedObject var discovery: DiscoverySource
     @Binding var kind: MediaKind
     let openCalendar: () -> Void
-
-    @AppStorage(ProviderMenuStyle.key) private var providerMenuStyle = ProviderMenuStyle.iconAndName
-    private var showsProviderMenu: Bool { providerMenuStyle != .hidden }
+    let openNotifications: () -> Void
+    @ObservedObject private var anilistAuth = AniListAuthManager.shared
 
     /// The leading edge of the navigation bar, named differently per platform.
     private static var leadingPlacement: ToolbarItemPlacement {
@@ -351,9 +364,7 @@ private struct HomeToolbar: ViewModifier {
             if discovery.usesSimkl {
                 ToolbarItem(placement: .navigation) { SimklKindMenu(kind: $kind) }
             }
-            if showsProviderMenu {
-                ToolbarItem(placement: .primaryAction) { ProviderMenuButton() }
-            }
+            ToolbarItem(placement: .primaryAction) { notificationsButton }
         }
         #elseif os(tvOS)
         currentToolbar(content)
@@ -364,15 +375,10 @@ private struct HomeToolbar: ViewModifier {
             // A bare `if` in a toolbar builder needs iOS 16; before it, the condition lives
             // inside the item.
             content.toolbar {
-                #if !os(iOS)
-                calendarItem
-                #endif
                 ToolbarItem(placement: Self.leadingPlacement) {
                     if discovery.usesSimkl { kindMenu }
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    if showsProviderMenu { ProviderMenuButton().toolbarItemBackdrop() }
-                }
+                ToolbarItem(placement: .primaryAction) { notificationsButton }
             }
         }
         #endif
@@ -383,15 +389,13 @@ private struct HomeToolbar: ViewModifier {
     private func currentToolbar(_ content: Content) -> some View {
         // Left out, not left empty: from iOS 26 an empty item still draws its glass.
         content.toolbar {
-            #if !os(iOS)
+            #if os(tvOS)
             calendarItem
             #endif
             if discovery.usesSimkl {
                 ToolbarItem(placement: Self.leadingPlacement) { kindMenu }
             }
-            if showsProviderMenu {
-                providerItem
-            }
+            ToolbarItem(placement: .primaryAction) { notificationsButton }
         }
     }
 
@@ -405,30 +409,19 @@ private struct HomeToolbar: ViewModifier {
         SimklKindMenu(kind: $kind).toolbarItemBackdrop()
     }
 
-    private var providerItem: some ToolbarContent {
-        ToolbarItem(placement: .primaryAction) { ProviderMenuButton().toolbarItemBackdrop() }
-    }
-}
-
-#if os(iOS)
-/// The Upcoming calendar, floating in Home's bottom corner above the tab bar.
-private struct CalendarButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            IconView("calendar")
-                .font(.system(size: 19, weight: .semibold))
-                .foregroundStyle(.primary)
-                .frame(width: 52, height: 52)
-                .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
-                .shadow(color: .black.opacity(0.18), radius: 10, y: 4)
+    /// The bell, as the Library has it: the badge is AniList's unread count, cleared on open.
+    private var notificationsButton: some View {
+        Button {
+            anilistAuth.unreadNotificationCount = 0
+            openNotifications()
+        } label: {
+            IconView("bell")
+                .font(.system(size: 17, weight: .medium))
+                .notificationBadge(count: anilistAuth.unreadNotificationCount)
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("shared.upcoming")
+        .accessibilityLabel("profile.notifications")
     }
 }
-#endif
 
 /// Home turning to another provider's page, or another Simkl kind's: the arriving page slides in
 /// from the side it sits on in the menus' order while the leaving one sinks back where it is, both
