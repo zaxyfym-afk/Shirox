@@ -1,11 +1,12 @@
 # Todo
 
-## 1. Sync and first build (blocked on a PAT from the user)
+## 1. First green build (automated now, watch it)
 
-- Push local main (seventeen redesign commits + merge + docs) to origin main;
-  verify with `git ls-remote`.
-- The push triggers the nightly; if it does not run, dispatch it (command in
-  BUILD_STATUS.md). Poll the run, read the failing step's logs on failure.
+- Pushes to main and the daily 03:07 UTC cron both build the nightly on
+  macos-15 with Xcode 26.3 (691b25d). Watch run 5 (44763289051) or the next
+  cron run; on failure, read the failing step's logs, fix, push, rebuild.
+- Pushing while a nightly run is PENDING supersedes (cancels) it; pushing
+  while one is RUNNING does not. Use `[skip ci]` on docs-only pushes.
 - Fix compile errors, push, rebuild, until green. Risk areas: the four
   availability-heavy ports (launch screen, toasts, sticky sections, tour) and
   the `animation(_:body:)` calls in LaunchScreen.swift (iOS 17 API, target is
@@ -16,7 +17,8 @@
 ## 2. Verification after the first green build
 
 - The four xcodebuild scheme builds (iOS, macOS, tvOS, Catalyst), zero
-  errors and zero warnings.
+  errors and zero warnings. The nightly only builds iOS; the others need the
+  user's Mac or their own workflow.
 - The ShiroxTests suite, including MorphingRefreshTests, ProfileAvatarTests
   and ModuleStoreTests.
 - On device: profile edits persist across relaunch; avatar colour on every
@@ -28,19 +30,22 @@
 
 ## 3. Module Store completion
 
-Sources: library.cufiy.net (library listing, newest first) and
-sora-modules.xdfke.me (library section).
+The research is done: 287 modules with real versions and sources from
+library.cufiy.net (api/modules.json) and sora-modules.xdfke.me (the
+xdfkenny modules.json index plus 176 per-module manifests), classified:
+147 anime, 45 multi (anime among general catalogs), 34 manga, 61 excluded
+(K-drama, live-action, unrelated; novels listed separately). Data in
+.scratch/module-research/ and download/module-research/.
 
-- Add all compatible anime modules from both libraries to the catalog.
-  Exclude K-drama, live-action and unrelated content; exclude manga for now.
+- Wire the catalog into the store: add the anime and multi modules, exclude
+  K-drama, live-action, unrelated; manga stays out for now.
 - Modules stay optional and installable through the store; never hardcode
   every module into the app.
 - Searching, filtering, installing, removing, enabling, disabling and
   updating; show name, icon, description, version and source; no duplicate
   listings; compatibility, permission and dependency validation; automatic
-  catalog updates where technically possible.
-- Inspect the real libraries, APIs, manifests or source repositories; do not
-  invent module data.
+  catalog updates where technically possible (Cufiy: one-shot re-fetch with
+  a browser UA; xdfkenny: index then manifest hydration, ETag support).
 - Verify install and uninstall end to end.
 
 ## Declined (do not pick up again)

@@ -1,21 +1,34 @@
 # Build status
 
-## Current state (2026-11-20)
+## Current state (2026-11-20, late afternoon UTC)
 
-- Last successful build: the nightly ran on bfeb07a, before the redesign.
-  "Shirox 1.1.0 (127)" on the `latest` release, updated 2026-11-20 02:51 UTC,
-  asset present (HTTP 200). It does NOT contain the redesign.
-- Remote main: e7a92a9 (the bot's apps.json stamp). Local main: the redesign
-  tip plus merge and docs commits; never built anywhere yet.
-- The sandbox cannot build (no Swift toolchain on Linux). Builds run on
-  GitHub Actions via .github/workflows/nightly.yaml: push to main or
-  workflow_dispatch, concurrency group `nightly`, macos-26 runner, unsigned
-  IPA (CODE_SIGNING_ALLOWED=NO), artifact `Shirox-Nightly-IPA`, release tag
-  `latest`, release renamed from apps.json.
+- Remote main: 691b25d. Everything is pushed and verified. The tree is green
+  on every check that can run without a Mac: SwiftLint, Semgrep, Strings and
+  icons all pass (the lint took two rounds: the fixer's own diffs at 0d88a56,
+  then three hand fixes at 1a4ebbf).
+- The redesign has still NEVER been compiled. The first runner that picks the
+  build up renders that verdict; the risk areas are unchanged, below.
+- Runner starvation, root-caused: the macos-26 free pool never allocated a
+  runner at European peak. Three nightly runs (db1f1c9 at 14:09, 0d88a56 at
+  14:44, 1a4ebbf at 15:03 UTC) each waited in queue for 15 to 25 minutes and
+  were then cancelled with no runner ever assigned, while every successful
+  build this month landed between 23:30 and 02:41 UTC. GitHub's own status
+  was fully operational and the billing shows net zero (public repo), so it
+  is pool capacity at peak, not us.
+- The fix, 691b25d: the build job moved to the macos-15 pool (a different
+  queue) with Xcode 26.3 pinned via DEVELOPER_DIR (the macos-15 image default
+  is 16.4, too old for the iOS 26 availability guards), plus a daily cron at
+  03:07 UTC, inside the quiet window that has always landed. The workflow is
+  active; the cron builds even if a peak attempt starves.
+- Run 5 (44763289051, on 691b25d) was still queued on macos-15 when this was
+  written. Whatever happens to it, the next guaranteed build is the 03:07 UTC
+  cron; any push to main also triggers one.
 
 ## Next build procedure
 
 1. Push local main and verify the remote SHA (`git ls-remote origin main`).
+   Note: a push while a nightly run is still PENDING supersedes (cancels) it;
+   a push while one is RUNNING does not. Use `[skip ci]` on docs-only pushes.
 2. The push triggers the nightly. If a dispatch is needed:
    `curl -X POST -H "Authorization: Bearer $PAT" -H "Accept: application/vnd.github+json" https://api.github.com/repos/zaxyfym-afk/Shirox/actions/workflows/nightly.yaml/dispatches -d '{"ref":"main"}'`
 3. Poll the run (authenticated; respect rate limits).
@@ -34,7 +47,12 @@
 
 ## History
 
-| Date | Commit | Result | Notes |
+| Date (UTC) | Commit | Result | Notes |
 |---|---|---|---|
-| 2026-11-20 02:51 UTC | bfeb07a | success | pre-redesign; Shirox 1.1.0 (127) on the `latest` release |
-| 2026-11-20 | local redesign tip | not started | push blocked on a PAT; everything staged |
+| 2026-11-19 23:30 | 21a185a | success | pre-redesign |
+| 2026-11-20 01:45 to 02:41 | 5a80473, 95e4262, bfeb07a | success | pre-redesign; the IPA on the `latest` release is from bfeb07a |
+| 2026-11-20 14:09 | db1f1c9 | cancelled in queue | macos-26: no runner at European peak |
+| 2026-11-20 14:44 | 0d88a56 | cancelled in queue | same |
+| 2026-11-20 15:03 | 1a4ebbf | cancelled in queue | same; survived 25 min, so not a fixed timer |
+| 2026-11-20 15:40 | 691b25d | run 5, queued at press time | first macos-15 attempt, Xcode 26.3 |
+| 2026-11-21 03:07 | cron | scheduled | the daily build lands in the quiet window |

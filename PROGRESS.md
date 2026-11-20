@@ -1,21 +1,23 @@
 # Progress
 
-Updated: 2026-11-20, fourth session (recovery and sync audit).
+Updated: 2026-11-20, fourth session (recovery, sync, lint, CI).
 
 ## Where things stand
 
-- Remote `origin/main`: e7a92a9, the nightly bot's apps.json stamp on top of
-  bfeb07a (verified 2026-11-20 by `git ls-remote` and `git fetch`).
-- Local `main`: bfeb07a + the seventeen redesign commits + merge 045a789
-  (folding in e7a92a9) + the docs commit that added these files. Clean tree.
-  The redesign is NOT on GitHub yet.
-- The `latest` release IPA ("Shirox 1.1.0 (127)", updated 2026-11-20 02:51
-  UTC) was built from bfeb07a, before the redesign. It must not be mistaken
-  for current work.
-- Full backup: `shirox-local-backup-2026-11-20.bundle` in the workspace root
-  (taken before the merge; re-taken after the docs commit).
+- Remote `origin/main`: 691b25d, verified with `git ls-remote` after every
+  push. Pushed this session: db1f1c9 (the 17 redesign commits + merge + the
+  five memory files), 0d88a56 (swiftlint's own fixes, extracted from CI's
+  diff), 1a4ebbf (three hand lint fixes), 691b25d (macos-15 + Xcode 26.3 +
+  the 03:07 UTC cron).
+- The redesign is fully on GitHub. SwiftLint, Semgrep, Strings and icons are
+  green. The code has never been compiled (no Swift toolchain in the sandbox,
+  and the macOS pool starved at European peak all afternoon; the full story
+  and the automation that replaces the waiting are in BUILD_STATUS.md).
+- The `latest` release IPA ("Shirox 1.1.0 (127)", 2026-11-20 02:51 UTC) was
+  built from bfeb07a, before the redesign. It does not contain the new work.
+- Full backup: `shirox-local-backup-2026-11-20.bundle` in the workspace root.
 
-## Completed (local main, on top of bfeb07a)
+## Completed (local and remote are the same history now)
 
 | Commit | Work |
 |---|---|
@@ -37,31 +39,25 @@ Updated: 2026-11-20, fourth session (recovery and sync audit).
 | 280bb1e | The last 33 bare settings headers become SettingsSectionHeader |
 | 4585a2a | Tour platform guards (no tour on Mac and tvOS) |
 
-All seventeen passed the sandbox checks (i18n, icons, icon packs, pbxproj
-structure). None has ever been compiled (no Swift toolchain in the sandbox).
-
-## In progress
-
-Nothing. The redesign arc's sandbox work is complete; no half-written files.
+Session four on top: 045a789 (merge of the bot's apps.json stamp), db1f1c9
+(docs), 0d88a56 and 1a4ebbf (lint green), 691b25d (build CI).
 
 ## Pending, in order
 
-1. Push local main to origin (blocked, see below) and verify the remote SHA.
-2. First Actions build of the redesign: watch the nightly run, fix compile
-   errors (risk areas in BUILD_STATUS.md), push, rebuild, until green.
-3. The full verification list: four scheme builds, the ShiroxTests suite,
-   the on-device checks (details in TODO.md).
-4. Module Store completion (details in TODO.md).
+1. First green build of the redesign: run 5 (44763289051) or the 03:07 UTC
+   cron. On compile errors: read the logs, fix, push, repeat.
+2. After green: verify the built SHA, deliver the IPA, then the verification
+   list in TODO.md.
+3. Module Store completion (TODO.md). The catalog research is done: 287 real
+   modules from both libraries, 147 anime plus 45 multi, in
+   .scratch/module-research/ (copy under download/) waiting to be wired in.
 
 ## Blocked
 
-- Push and build: this session has no GitHub credentials. No PAT is stored on
-  disk by policy, so the user has to paste one (contents: write, actions:
-  write). Everything is staged: local main is a fast-forward for origin/main,
-  the tree is clean, a bundle backup exists.
+Nothing in code. The only wall was macOS runner capacity at European peak,
+now handled by the macos-15 pool and the 03:07 UTC cron.
 
 ## Latest verified GitHub commit
 
-e7a92a9 (chore: update apps.json [skip ci], on top of bfeb07a), verified
-2026-11-20. No redesign commit is on GitHub yet; the next verified SHA gets
-recorded here after the push.
+691b25d (ci: macos-15 with Xcode 26.3 for the IPA, and a 03:07 UTC cron),
+verified 2026-11-20 by `git ls-remote`.
