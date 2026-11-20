@@ -83,13 +83,10 @@ struct ProfileAvatarView: View {
     static func artImage(_ name: String) -> Image? {
         #if canImport(UIKit)
         guard let image = UIImage(named: name) else { return nil }
-        // The decorative UIImage initializer is 17's; below, the plain one renders the
-        // same art, just without the decorative marking.
-        if #available(iOS 17.0, *) {
-            return Image(decorative: image)
-        } else {
-            return Image(uiImage: image)
-        }
+        // There is no decorative initializer for a UIImage (the decorative one takes
+        // an asset name, a String); the plain one renders the same art, and the
+        // avatar is hidden from accessibility anyway.
+        return Image(uiImage: image)
         #else
         guard let image = NSImage(named: name) else { return nil }
         return Image(nsImage: image)

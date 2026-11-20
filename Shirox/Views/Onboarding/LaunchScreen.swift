@@ -92,17 +92,22 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
     @State private var animateIcon = false
 
     var body: some View {
-        if #available(iOS 16.0, *) {
-            let layout = animateIcon
-                ? AnyLayout(VStackLayout(spacing: 0))
-                : AnyLayout(ZStackLayout(alignment: .bottom))
-            layout { stage }
-        } else if animateIcon {
-            // Below 16 there is no animated layout switch: the two layouts trade places
-            // inside the same crossfade.
-            VStack(spacing: 0) { stage }
-        } else {
-            ZStack(alignment: .bottom) { stage }
+        // The task has to hang from one expression, and an if/else block is none:
+        // wrapped in a Group the whole layout switch becomes one (build 4 found
+        // `.task` on the bare branches).
+        Group {
+            if #available(iOS 16.0, *) {
+                let layout = animateIcon
+                    ? AnyLayout(VStackLayout(spacing: 0))
+                    : AnyLayout(ZStackLayout(alignment: .bottom))
+                layout { stage }
+            } else if animateIcon {
+                // Below 16 there is no animated layout switch: the two layouts trade places
+                // inside the same crossfade.
+                VStack(spacing: 0) { stage }
+            } else {
+                ZStack(alignment: .bottom) { stage }
+            }
         }
         .task {
             guard !animateIcon else { return }

@@ -126,7 +126,18 @@ struct StickySection<Content: View, Header: View, MinimisedHeader: View>: View {
 struct StickySectionConfig {
     var sectionPadding: CGFloat = 15
     var cornerRadius: CGFloat = 20
-    var background = AnyShapeStyle(.fill.tertiary)
+    var background: AnyShapeStyle = {
+        // The 17 hierarchical fill is the look the cards were designed with; below
+        // that, UIKit's tertiary fill is the closest of the older styles.
+        if #available(iOS 17.0, tvOS 17.0, macOS 14.0, *) {
+            return AnyShapeStyle(.fill.tertiary)
+        }
+        #if canImport(UIKit)
+        return AnyShapeStyle(Color(uiColor: .tertiarySystemFill))
+        #else
+        return AnyShapeStyle(Color(nsColor: .controlBackgroundColor))
+        #endif
+    }()
     /// Glass where the platform has the effect; set it with `StickySectionConfig.glass`,
     /// which resolves that itself.
     var isGlassBackground: Bool = false

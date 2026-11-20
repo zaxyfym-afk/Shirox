@@ -618,12 +618,20 @@ private struct RootTabView: View {
 
     /// One tab of the bar. Kept to itself: the whole TabView, its ForEach and these
     /// branches in one expression were more than the type checker could weigh in
-    /// reasonable time.
-    @ViewBuilder
-    private func tabCell(_ tab: AppTab) -> some View {
-        let badge = tab == .notifications ? notificationsBadge : nil
+    /// reasonable time. The bar's content closure builds TabContent, not Views (a
+    /// `Tab` is no `View`), and `TabContent.badge` takes a count, so the badge is
+    /// applied only where there is one.
+    @available(iOS 18.0, tvOS 18.0, *)
+    @TabContentBuilder
+    private func tabCell(_ tab: AppTab) -> some TabContent<Int> {
         if tab == .search {
             Tab(value: tab.rawValue, role: .search) {
+                page(tab)
+            } label: {
+                tabLabel(tab)
+            }
+        } else if tab == .notifications, let badge = notificationsBadge {
+            Tab(value: tab.rawValue) {
                 page(tab)
             } label: {
                 tabLabel(tab)
@@ -635,7 +643,21 @@ private struct RootTabView: View {
             } label: {
                 tabLabel(tab)
             }
-            .badge(badge)
+        }
+    }
+
+    /// The pre-18 bar's one tab, extracted for the same reason as `tabCell`: page,
+    /// tabItem, badge and tag in one ForEach expression was more than the type
+    /// checker could weigh in reasonable time.
+    @ViewBuilder
+    private func legacyTabCell(_ tab: AppTab) -> some View {
+        let cell = page(tab)
+            .tabItem { tabLabel(tab) }
+            .tag(tab.rawValue)
+        if tab == .notifications {
+            cell.badge(notificationsBadge)
+        } else {
+            cell
         }
     }
     #endif
@@ -740,10 +762,7 @@ private struct RootTabView: View {
                 #else
                 TabView(selection: $selectedTab) {
                     ForEach(visibleTabs) { tab in
-                        page(tab)
-                            .tabItem { tabLabel(tab) }
-                            .badge(tab == .notifications ? notificationsBadge : nil)
-                            .tag(tab.rawValue)
+                        legacyTabCell(tab)
                     }
                 }
                 .id(hidesTabLabels)
