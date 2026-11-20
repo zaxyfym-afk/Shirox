@@ -1,5 +1,20 @@
 # Build status
 
+## Current state (2026-11-21, restoration arc)
+
+- The restoration arc's code is PUSHED but NOT YET BUILT at the time of this
+  note: the Codemagic build starts right after the push, via the API, on the
+  user's standing authorization. Every mechanism from the sixth session is
+  unchanged: codemagic.yaml (Metal toolchain first, then buildipa.sh, then
+  the IPA verification), builds only by API, scripts/codemagic.py, token via
+  CODEMAGIC_API_TOKEN.
+- What the build will see for the first time: the five-tab enum, the
+  toolbar's sharedBackgroundVisibility branches (iOS 26-gated), the
+  window-anchored blob, the detail pages' first refreshable, the new
+  ToggleFavourite mutation, the redesigned onboarding and the settings
+  header system. Known risk areas: the ToolbarContentBuilder's
+  availability branches and the CinematicPage init gaining a parameter.
+
 ## Current state (2026-11-20, evening UTC)
 
 - Codemagic is the PRIMARY builder now. The repo is connected to a Codemagic

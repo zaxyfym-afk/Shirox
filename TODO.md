@@ -1,5 +1,22 @@
 # Todo
 
+## 0. Restoration arc (2026-11-21): what is done and what is next
+
+- DONE: original five-tab bar restored; notifications/store removed from
+  every navigation surface; schedule + notifications as separate buttons;
+  schedule's zoom transition and drag dismissal gone; Home sections out of
+  their cards; gooey blob window-anchored and on both detail pages; detail
+  refresh wired; intro splash sized; onboarding redesigned; long-press
+  menus expanded (AniList/MAL/watchlist/favourites/share); store's doors in
+  Settings only; settings design system rebuilt.
+- NEXT ON DEVICE: pull to refresh on an anime detail page (gooey style,
+  iOS 18+); the two top-right buttons on iOS 26 (separate circles, not one
+  capsule); schedule scroll vs dismissal; first-run splash size on a
+  notched phone and a Dynamic Island phone; onboarding's page turns with
+  Reduce Motion on; a long-press on a Home card with AniList signed in.
+- NEXT IN PIPELINE: Codemagic build over the arc's commits; the GitHub
+  backup nightly's three Xcode-26.3 type-check failures (below) still open.
+
 ## 1. Build pipeline (Codemagic primary GREEN, Actions backup needs a pass)
 
 - THE REDESIGN IS GREEN: Codemagic build 6 (6b00aad5c1876cf706761326, on

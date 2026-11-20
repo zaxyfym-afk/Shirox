@@ -1,5 +1,40 @@
 # Changelog
 
+## Unreleased: the restoration arc (2026-11-21)
+
+### Fixed
+
+- Navigation: the tab bar is the original five tabs (Home, Library,
+  Downloads, Settings, Search) again; notifications and store are out of the
+  bar, the hold menu, the sidebar, the launch picker and quick actions.
+- Intro splash: the 1024pt mark no longer renders at natural size; the
+  carry-on holds it at 90pt and the mask expansion is constrained too.
+- Gooey refresh: the blob now anchors to the window's hardware top inset
+  instead of the scroll view's local safe area, so it shows on every page
+  that pulls - Home (both layouts), Browse, Library, Schedule, Store, and
+  the anime detail pages, which had no pull to refresh at all before.
+- Schedule: no zoom transition in, no interactive drag dismissal, so a
+  downward drag always scrolls the list instead of closing the page.
+- Home: the sections are out of their sticky cards, back to the original
+  header-over-shelf layout (AnimeSection, Continue Watching, Continue
+  Reading).
+
+### Added
+
+- Schedule and Notifications as two separate round buttons at Home's top
+  right (the iOS 26 shared glass capsule is hidden behind them).
+- Anime long-press menus: AniList and MAL links from their own ids, share,
+  copy link, watchlist/watching/completed through the title's own provider,
+  and AniList favourites (new ToggleFavourite mutation).
+- Onboarding, redesigned: floating mark over an accent wash, directional
+  page turns, a stretching progress capsule, spring-press controls; the
+  functional checklist and both sign-in sheets unchanged underneath.
+- Settings, redesigned: tiled section headers, tinted squircle row icons,
+  chevrons, a restyled profile card, and thirteen bare headers swapped to
+  the shared header component. No binding or option was removed.
+- KAVSOFT_AUDIT.md: the whole `everything` folder audited, example by
+  example.
+
 ## Unreleased: the redesign arc
 
 Local main, commits 40b2d46..4585a2a on top of bfeb07a. Not yet built or

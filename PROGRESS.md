@@ -1,5 +1,60 @@
 # Progress
 
+Updated: 2026-11-21, seventh session (navigation restoration + the repair arc).
+
+## This session, in short
+
+The user handed the project over fresh, listed the regressions the redesign
+had left behind, and asked for the original navigation back plus the
+Kavsoft work finished properly. Done, in the order requested:
+
+- The tab bar is the original five tabs again: Home, Library, Downloads,
+  Settings, Search. Notifications is NOT a tab anywhere (bell page from
+  Home's toolbar); Store is NOT a tab (its doors are Settings and the
+  Modules page); the launch-tab picker, the sidebar, the tab bar's hold
+  menu, the pre-18 bar, the Mac toolbar and the Catalyst sidebar all follow.
+  Quick actions lost the store shortcut.
+- Schedule and Notifications are two separate round buttons at Home's top
+  right, each with its own icon, hit area and action; iOS 26's shared glass
+  capsule is hidden behind them (sharedBackgroundVisibility) and each button
+  wears its own circle chrome.
+- Schedule pushes plainly: the iOS 26 zoom transition is gone (it let a
+  downward drag dismiss the page mid-scroll), so it opens straight away and
+  scrolling never closes it. The Monday-Sunday strip is untouched.
+- Home's categories are out of the cards: AnimeSection, Continue Watching
+  and Continue Reading are the plain header-over-shelf layout again
+  (homeSectionCard is no longer called from Home).
+- Gooey refresh fixed everywhere and ADDED to the anime detail pages. The
+  blob had been positioning itself from the scroll view's local safe area,
+  which full-bleed pages read as zero: it drew off screen. It now anchors to
+  the window's hardware top inset, shifted by the scroll view's own offset,
+  so it grows out of the island on Home (both layouts), Browse, Library,
+  Schedule, Store and BOTH detail pages. DetailView (module items) and
+  AniListDetailView (phone and cinematic) got real refresh actions that
+  reload the page's own data.
+- The intro splash fixed: the mark was drawn with no size constraint, so the
+  1024pt asset filled the screen (the "extremely zoomed in" report). It now
+  holds at 90pt, cross-fades into the 150pt icon, and the mask expansion
+  later launches use is constrained the same way. Timing and transitions are
+  the reference's.
+- Onboarding redesigned: floating mark over a soft accent wash, pages that
+  carry themselves in from the turn's direction, a stretching progress
+  capsule, a spring press style on every control, and the same functional
+  checklist (source + tracker with real state) with its sheets intact.
+- Long-press menus expanded: AnimeContextMenuItems on the Home/search/browse
+  cards, library rows, schedule entries and relations rows - full title,
+  open in AniList, open in MAL (each built from its own id, omitted when the
+  title has none), share, copy link, watchlist/watching/completed through
+  the provider the title belongs to (progress and score preserved), and
+  AniList favourites via a new ToggleFavourite mutation.
+- Settings redesigned: the section header is a tiled, tracked caption; rows
+  lead with a tinted squircle tile and carry a chevron; thirteen bare
+  section headers across the pages swapped to the shared header component;
+  the profile card and toggle rows restyled. Every toggle, picker and
+  binding is untouched.
+- KAVSOFT_AUDIT.md is new: every example in `everything`, what it does,
+  where it lives and whether it works.
+
 Updated: 2026-11-20, sixth session (the first green build: Codemagic build 6).
 
 ## Where things stand

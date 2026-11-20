@@ -64,6 +64,19 @@ not allocate at European peak: runs queued then are cancelled after about
 landed between 23:30 and 02:41 UTC, which is where the crons sit. Other
 workflows: i18n, commit-messages, semgrep, swiftlint.
 
+## The restoration arc (2026-11-21)
+
+The seventh session restored the original five-tab navigation (notifications
+and store are no longer tabs anywhere; their doors are Home's bell and
+Settings), separated the schedule and notifications buttons, un-zoomed and
+un-carded Home, re-anchored the gooey blob to the window's hardware insets
+(and gave both detail pages pull to refresh), fixed the splash's natural-size
+logo, redesigned onboarding and the settings design system, and expanded the
+long-press menus (AnimeContextMenuItems in CopyTitle.swift, ToggleFavourite
+in AniListSocialService). KAVSOFT_AUDIT.md records the `everything` folder
+example by example. AppTab's raw values 0-4 are the tab selection contract:
+do not renumber them.
+
 ## The redesign arc (November 2026)
 
 Seventeen commits on top of bfeb07a (SHAs and details in PROGRESS.md): the
