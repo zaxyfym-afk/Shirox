@@ -363,10 +363,12 @@ struct SettingsView: View {
                 #if !os(tvOS)
                 Menu {
                     Button("settings.replay_introduction") { showOnboardingReplay = true }
+                    #if os(iOS)
                     Button("settings.replay_home_tour") {
                         homeTourPending = true
                         TabRequests.shared.requestedTab = .home
                     }
+                    #endif
                 } label: {
                     SettingsNavRow(
                         icon: "graduationcap",

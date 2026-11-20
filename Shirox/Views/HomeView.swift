@@ -358,11 +358,13 @@ struct HomeView: View {
     }
 
     /// The tour once, on the first Home after the onboarding is done — and again whenever
-    /// Settings asks for it.
+    /// Settings asks for it. A Mac and Apple TV have no tour; their flags never leave zero.
     private func maybeStartTour() {
+        #if os(iOS)
         guard !showTour, hasCompletedOnboarding, !hasSeenHomeTour || homeTourPending else { return }
         homeTourPending = false
         showTour = true
+        #endif
     }
 }
 
