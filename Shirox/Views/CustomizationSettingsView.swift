@@ -21,7 +21,6 @@ struct CustomizationSettingsView: View {
 
     var body: some View {
         SettingsList {
-
             Section {
                 #if os(iOS) && !targetEnvironment(macCatalyst)
                 if #available(iOS 26, *) {

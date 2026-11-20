@@ -385,15 +385,13 @@ struct AppIconPickerSheet: View {
             switch option.name {
             case nil:
                 Image("ShiroMark")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .resizable().scaledToFit()
                     .padding(10)
                     .frame(width: size, height: size)
                     .background(Color.accentColor, in: RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
             case "realistic":
                 Image("AppIconRealistic")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .resizable().scaledToFit()
                     .frame(width: size, height: size)
                     .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
             case let name?:

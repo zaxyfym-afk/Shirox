@@ -6,11 +6,11 @@ import SwiftUI
 /// so the two read as one. The launch screen is the generated, contentless one — a plain
 /// system background — so the tint is exactly that, and the mark arrives as the app's own.
 struct LaunchConfig {
-    var logo: Image = Image("ShiroMark")
-    var tint: Color = Color(uiColor: .systemBackground)
+    var logo = Image("ShiroMark")
+    var tint = Color(uiColor: .systemBackground)
     var initialDelay: CGFloat = 0.45
     var iconPadding: CGFloat = 30
-    var iconSize: CGSize = CGSize(width: 150, height: 150)
+    var iconSize = CGSize(width: 150, height: 150)
     var iconRadius: CGFloat = 45
 }
 
@@ -111,8 +111,7 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
                     }
                     .overlay {
                         config.logo
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
+                            .resizable().scaledToFit()
                             .animation(.none) {
                                 $0.opacity(animateIcon ? 1 : 0)
                             }

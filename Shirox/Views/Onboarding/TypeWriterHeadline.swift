@@ -5,7 +5,7 @@ import SwiftUI
 /// What the typewriter does: how fast it types, how long it lingers, how it wipes away.
 struct TypeWriterConfig {
     var font: Font = .system(size: 17, weight: .semibold)
-    var caretSize: CGSize = CGSize(width: 14, height: 2.5)
+    var caretSize = CGSize(width: 14, height: 2.5)
 
     var typingDuration: Double = 0.8
     var typingPauseIntensity: PauseIntensity = .full

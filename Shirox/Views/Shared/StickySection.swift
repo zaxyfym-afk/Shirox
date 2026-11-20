@@ -121,7 +121,7 @@ struct StickySection<Content: View, Header: View, MinimisedHeader: View>: View {
     struct Config {
         var sectionPadding: CGFloat = 15
         var cornerRadius: CGFloat = 20
-        var background: AnyShapeStyle = AnyShapeStyle(.fill.tertiary)
+        var background = AnyShapeStyle(.fill.tertiary)
         /// Glass where the platform has the effect; set it with `Config.glass`, which
         /// resolves that itself.
         var isGlassBackground: Bool = false
@@ -182,4 +182,3 @@ func homeSectionCard<Content: View, Header: View>(
     }
     #endif
 }
-
