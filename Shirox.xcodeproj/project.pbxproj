@@ -325,9 +325,12 @@
 		1279E56F2FCA397700C9BA56 /* EpisodeSortManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4852FCA397700C9BA56 /* EpisodeSortManager.swift */; };
 		1279E5702FCA397700C9BA56 /* MacPlayerWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E48E2FCA397700C9BA56 /* MacPlayerWindowManager.swift */; };
 		1279E5712FCA397700C9BA56 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4CA2FCA397700C9BA56 /* ProfileView.swift */; };
+		16E12DB43024E88D8206B889 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
 		2D4D4294BFB7E33499398ABA /* MorphingRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0EFB781FAEED53C0F88FC0 /* MorphingRefreshTests.swift */; };
 		4FF36D72CA4B5976DBC1F7EA /* AlphaThreshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */; };
 		51EB973596412444E96398D2 /* AlphaThreshold.metal in Sources */ = {isa = PBXBuildFile; fileRef = 19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */; };
+		5682A80B18AFFB067FC8FF95 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
+		6645D7A40C2A37578CDAEF69 /* HorizontalCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */; };
 		ACF086B37E5EA819C11A1230 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
 		B14ED57FC01F5BEACE383E30 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
 		C351915CF8807B3EC162F979 /* MorphingRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */; };
@@ -1819,6 +1822,7 @@
 		FE1AC518A4DC04950FDBEA96 /* DiscordSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiscordSettingsView.swift; sourceTree = "<group>"; };
 		FF0EFB781FAEED53C0F88FC0 /* MorphingRefreshTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MorphingRefreshTests.swift; sourceTree = "<group>"; };
 		FF4C00BAA407FF400B069044 /* JellyfinEntryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JellyfinEntryView.swift; sourceTree = "<group>"; };
+		FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HorizontalCalendar.swift; sourceTree = "<group>"; };
 		FFFC46805FE79CD18D6269BA /* SimklOAuthTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SimklOAuthTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2226,7 +2230,10 @@
 				1E38625953CEB8CB390672D8 /* Toast.swift */,
 				ED868467208862F86E43436C /* CardTitle.swift */,
 				728B11086BBC1DC32FD7F97C /* CinematicDetail.swift */,
-				E002A0AEC65F31E70E5ECE75 /* AnchoredShareButton.swift */,				19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */,				F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */,
+				E002A0AEC65F31E70E5ECE75 /* AnchoredShareButton.swift */,
+				19A869BFDFB86FD6C481EC4A /* AlphaThreshold.metal */,
+				FF958C1619350C8295ECAE7B /* HorizontalCalendar.swift */,
+				F46193F3E21CC04D58B762E8 /* MorphingRefresh.swift */,
 				402B9AA0A66B49E9D259C62F /* JavaScriptHighlighter.swift */,
 			);
 			path = Shared;
@@ -2509,7 +2516,8 @@
 				016158C71FDB7F0BD8B4E019 /* DownloadFileNamingTests.swift */,
 				5E034A9B5A4CBAC077CC40ED /* ModuleFileImportTests.swift */,
 				643DBB9D7DB4BC8F7CE4D5A8 /* HostRequestGateTests.swift */,
-				5C5A82D33A7B5B8372491194 /* AACAudioConfigTests.swift */,				FF0EFB781FAEED53C0F88FC0 /* MorphingRefreshTests.swift */,
+				5C5A82D33A7B5B8372491194 /* AACAudioConfigTests.swift */,
+				FF0EFB781FAEED53C0F88FC0 /* MorphingRefreshTests.swift */,
 				0A054FA711235A20E524B26C /* he-aac-v2-tone.aac */,
 				A147BDA8A42A2CE5936DC40D /* ProfileSwapTests.swift */,
 				6EE59B6D5791C1B41ED20F6B /* ExtensionJSHarness.swift */,
@@ -3366,6 +3374,7 @@
 				61A0A2ED3B350B59C7998849 /* ModuleImportView.swift in Sources */,
 				DE9F456F41FDB0D6A154E688 /* AnchoredShareButton.swift in Sources */,
 				4FF36D72CA4B5976DBC1F7EA /* AlphaThreshold.metal in Sources */,
+				16E12DB43024E88D8206B889 /* HorizontalCalendar.swift in Sources */,
 				B14ED57FC01F5BEACE383E30 /* MorphingRefresh.swift in Sources */,
 				4C1AD97A92334CDC1398B62D /* JavaScriptHighlighter.swift in Sources */,
 				3FA555FB4A08D225BBE3C044 /* ExtensionInfo.swift in Sources */,
@@ -3709,6 +3718,7 @@
 				D06B4860BFEAA67E5E209C55 /* ModuleImportView.swift in Sources */,
 				647CFD07AAD61421EA20395A /* AnchoredShareButton.swift in Sources */,
 				51EB973596412444E96398D2 /* AlphaThreshold.metal in Sources */,
+				5682A80B18AFFB067FC8FF95 /* HorizontalCalendar.swift in Sources */,
 				C351915CF8807B3EC162F979 /* MorphingRefresh.swift in Sources */,
 				2464790BF31FE8A206B07965 /* JavaScriptHighlighter.swift in Sources */,
 				AD2F33EC428D7F95DA17C0EC /* ExtensionInfo.swift in Sources */,
@@ -4053,6 +4063,7 @@
 				CCD0F391BB4E52A644FCDCB4 /* ModuleImportView.swift in Sources */,
 				0463683298F6BE8C5CCE60A2 /* AnchoredShareButton.swift in Sources */,
 				07ECB99FAF089281F368234E /* AlphaThreshold.metal in Sources */,
+				6645D7A40C2A37578CDAEF69 /* HorizontalCalendar.swift in Sources */,
 				ACF086B37E5EA819C11A1230 /* MorphingRefresh.swift in Sources */,
 				A47C396C29DE63A0C946FF13 /* JavaScriptHighlighter.swift in Sources */,
 				3B4465EB44C6066DCE1A807D /* ExtensionInfo.swift in Sources */,

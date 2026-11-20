@@ -296,11 +296,24 @@ final class AniListService {
     /// Episodes airing between two instants, earliest first.
     ///
     /// AniList publishes an exact airing timestamp per episode, which is what makes a real
-    /// calendar possible rather than a list of weekdays.
+    /// calendar possible rather than a list of weekdays. A page holds 50 episodes and a busy
+    /// week runs past that, so pages are followed until one comes back short; the cap keeps a
+    /// misbehaving window from paging forever.
     func airingSchedule(from start: Date, to end: Date) async throws -> [AniListAiringEntry] {
+        let perPage = 50
+        var entries: [AniListAiringEntry] = []
+        for page in 1...10 {
+            let pageEntries = try await schedulePage(from: start, to: end, page: page, perPage: perPage)
+            entries += pageEntries
+            if pageEntries.count < perPage { break }
+        }
+        return entries
+    }
+
+    private func schedulePage(from start: Date, to end: Date, page: Int, perPage: Int) async throws -> [AniListAiringEntry] {
         let query = """
-        query ($start: Int, $end: Int) {
-          Page(page: 1, perPage: 50) {
+        query ($start: Int, $end: Int, $page: Int) {
+          Page(page: $page, perPage: \(perPage)) {
             airingSchedules(airingAt_greater: $start, airingAt_lesser: $end, sort: TIME) {
               episode
               airingAt
@@ -322,7 +335,8 @@ final class AniListService {
         """
         let variables: [String: Any] = [
             "start": Int(start.timeIntervalSince1970),
-            "end": Int(end.timeIntervalSince1970)
+            "end": Int(end.timeIntervalSince1970),
+            "page": page
         ]
         let data = try await post(query: query, variables: variables)
 

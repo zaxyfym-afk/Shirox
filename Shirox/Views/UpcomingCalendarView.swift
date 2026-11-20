@@ -113,7 +113,11 @@ final class UpcomingCalendarViewModel: ObservableObject {
         }
     }
 
-    @Published private(set) var days: [(date: Date, episodes: [AiringEpisode])] = []
+    /// Each day's rows, keyed by the day's start, the library filter applied. A day nothing
+    /// airs on is absent, so the dots say "nothing" and the list says it in words.
+    @Published private(set) var days: [Date: [AiringEpisode]] = [:]
+    /// The calendar weeks already asked of the source, so paging back and forth costs nothing.
+    @Published private(set) var loadedWeeks: Set<Date> = []
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
     /// Restrict to shows already in the user's library — the reason most people open a schedule.
@@ -126,14 +130,12 @@ final class UpcomingCalendarViewModel: ObservableObject {
     @Published var simklKind: MediaKind
     let usesSimkl: Bool
 
-    private var all: [AiringEpisode] = []
+    private var allByDay: [Date: [AiringEpisode]] = [:]
     private var libraryIDs: Set<Int> = []
     /// The source asked for last; a load for any other has been overtaken.
     private var wanted: Source?
-
-    /// How far ahead to look. A week is what people plan around, and it keeps the request to a
-    /// single page.
-    private static let window = 7
+    /// Weeks a fetch is in flight for.
+    private var pendingWeeks: Set<Date> = []
 
     init(discovery: DiscoverySource? = nil) {
         let discovery = discovery ?? .shared
@@ -147,12 +149,15 @@ final class UpcomingCalendarViewModel: ObservableObject {
         return ProviderManager.shared.primary?.providerType == .mal ? .mal : .anilist
     }
 
+    /// The day the schedule opens on: the week it sits in is the one asked for first.
     func load() async {
         let source = source
         if wanted != source {
             // Another kind's schedule never stands in for this one's.
-            all = []
+            allByDay = [:]
             libraryIDs = []
+            loadedWeeks = []
+            pendingWeeks = []
             rebuild()
         }
         wanted = source
@@ -161,11 +166,10 @@ final class UpcomingCalendarViewModel: ObservableObject {
         defer { if wanted == source { isLoading = false } }
 
         do {
-            let schedule = try await fetchSchedule(source)
+            try await loadWeek(containing: Date(), source: source)
             // Best effort: the schedule is still useful signed out, the filter just isn't.
             let library = await fetchLibraryIDs(source)
             guard wanted == source else { return }
-            all = schedule
             libraryIDs = library
             rebuild()
         } catch {
@@ -174,21 +178,87 @@ final class UpcomingCalendarViewModel: ObservableObject {
         }
     }
 
-    /// Whichever schedule the source can give.
-    ///
-    /// AniList publishes an exact timestamp per episode. MyAnimeList publishes a recurring
-    /// weekly slot in Japan Standard Time instead, so its entries are the *next* broadcast of
-    /// each airing show rather than a numbered episode — less precise, but the same question
-    /// answered, and far better than the feature being invisible on half the accounts. Simkl's
-    /// calendar has each airing's time and episode, for shows and movies as well as anime.
-    private func fetchSchedule(_ source: Source) async throws -> [AiringEpisode] {
-        let start = Date()
-        guard let end = Calendar.current.date(byAdding: .day, value: Self.window, to: start) else { return [] }
+    /// Pull to refresh: the weeks asked for go back to none and today's comes again, the rows
+    /// on screen staying until each week's replacement lands.
+    func refresh() async {
+        loadedWeeks = []
+        await load()
+    }
 
+    /// Loads the calendar week holding `date` if it hasn't been already. The fetch is
+    /// unstructured on purpose: a fast swipe through weeks shouldn't cancel the one behind it.
+    func ensureWeekLoaded(containing date: Date) {
+        // Simkl's calendar is one rationed feed that came with the first load; weeks beyond
+        // what it holds are empty, not worth asking again.
+        guard !usesSimkl else { return }
+        let weekStart = Self.weekStart(containing: date)
+        guard !loadedWeeks.contains(weekStart), !pendingWeeks.contains(weekStart) else { return }
+        pendingWeeks.insert(weekStart)
+        let source = source
+        Task { [weak self] in
+            await self?.fetchWeek(weekStart, source: source)
+        }
+    }
+
+    /// The rows of one day, as filtered.
+    func episodes(on date: Date) -> [AiringEpisode] {
+        days[Calendar.current.startOfDay(for: date)] ?? []
+    }
+
+    /// Whether the calendar week holding `date` has been asked of the source — a day in a
+    /// week not yet asked says "not loaded", not "nothing".
+    func isWeekLoaded(containing date: Date) -> Bool {
+        loadedWeeks.contains(Self.weekStart(containing: date))
+    }
+
+    var canFilterByLibrary: Bool { !libraryIDs.isEmpty }
+
+    static func weekStart(containing date: Date, calendar: Calendar = .current) -> Date {
+        calendar.dateInterval(of: .weekOfMonth, for: date)?.start ?? calendar.startOfDay(for: date)
+    }
+
+    private func fetchWeek(_ weekStart: Date, source: Source) async {
+        guard let interval = Calendar.current.dateInterval(of: .weekOfMonth, for: weekStart) else { return }
+        do {
+            let rows = try await fetchSchedule(source, from: interval.start, to: interval.end)
+            guard wanted == source else { return }
+            merge(rows)
+            loadedWeeks.insert(weekStart)
+        } catch {
+            // A week that failed counts as asked: an error per swipe would nag, and the pull
+            // to refresh is the way back.
+            loadedWeeks.insert(weekStart)
+        }
+        pendingWeeks.remove(weekStart)
+    }
+
+    private func loadWeek(containing date: Date, source: Source) async throws {
+        let weekStart = Self.weekStart(containing: date)
+        guard let interval = Calendar.current.dateInterval(of: .weekOfMonth, for: date) else { return }
+        pendingWeeks.insert(weekStart)
+        defer { pendingWeeks.remove(weekStart) }
+        let rows = try await fetchSchedule(source, from: interval.start, to: interval.end)
+        guard wanted == source else { return }
+        merge(rows)
+        loadedWeeks.insert(weekStart)
+    }
+
+    /// Whichever schedule the source can give for a window.
+    ///
+    /// AniList publishes an exact timestamp per episode, so any window can be asked for, past
+    /// weeks included. MyAnimeList publishes a recurring weekly slot in Japan Standard Time
+    /// instead, so its entries are the *next* broadcast of each airing show from now — a
+    /// window is one ranking ask reaching to its end, and before now there is nothing to ask
+    /// for. Simkl's calendar has each airing's time and episode, for shows and movies as well
+    /// as anime.
+    private func fetchSchedule(_ source: Source, from start: Date, to end: Date) async throws -> [AiringEpisode] {
         switch source {
         case .mal:
+            guard end > Date() else { return [] }
+            let days = max(1, Int(end.timeIntervalSinceNow / 86_400) + 2)
             return try await MALOfficialDiscoveryService.shared
-                .airingSchedule(within: Self.window)
+                .airingSchedule(within: days)
+                .filter { $0.airsAt >= start && $0.airsAt < end }
                 .map { entry in
                     AiringEpisode(
                         media: MALOfficialDiscoveryService.shared.mapToMedia(entry.node),
@@ -231,71 +301,58 @@ final class UpcomingCalendarViewModel: ObservableObject {
         }
     }
 
-    var canFilterByLibrary: Bool { !libraryIDs.isEmpty }
-
     private func inLibrary(_ entry: AiringEpisode) -> Bool {
         libraryIDs.contains(entry.libraryID ?? entry.media.id)
     }
 
-    private func rebuild() {
-        let visible = libraryOnly ? all.filter(inLibrary) : all
-        let grouped = Dictionary(grouping: visible) {
-            Calendar.current.startOfDay(for: $0.airingAt)
-        }
+    /// Files the rows under their days, Simkl's busy days cut to their most watched.
+    private func merge(_ rows: [AiringEpisode]) {
         let isSimkl = source.isSimkl
-        days = grouped
-            .map { day in
-                // Simkl's days run to hundreds of airings; the trackers' are anime only.
-                let rows = isSimkl ? SimklUpcoming.busiest(day.value, library: libraryIDs) : day.value
-                return (date: day.key, episodes: rows.sorted(by: AiringEpisode.soonestFirst))
-            }
-            .sorted { $0.date < $1.date }
-    }
-
-    /// What's empty, by what the schedule lists.
-    var emptyTitle: String {
-        if libraryOnly { return String(localized: "home.nothing_from_your_library") }
-        return source == .simkl(.movie) ? String(localized: "home.no_releases") : String(localized: "home.nothing_scheduled")
-    }
-
-    var emptyDescription: String {
-        let movies = source == .simkl(.movie)
-        if libraryOnly {
-            return movies ? String(localized: "home.no_movie_youre_following_comes")
-                          : String(localized: "home.no_show_youre_following_airs")
+        let grouped = Dictionary(grouping: rows) { Calendar.current.startOfDay(for: $0.airingAt) }
+        for (day, dayRows) in grouped {
+            let cut = isSimkl ? SimklUpcoming.busiest(dayRows, library: libraryIDs) : dayRows
+            allByDay[day] = cut.sorted(by: AiringEpisode.soonestFirst)
         }
-        return movies ? String(localized: "home.no_movies_come_out_in") : String(localized: "home.no_episodes_are_scheduled_in")
+        rebuild()
+    }
+
+    private func rebuild() {
+        days = allByDay.mapValues { rows in
+            libraryOnly ? rows.filter(inLibrary) : rows
+        }
     }
 }
 
-/// A week of upcoming episodes, browsed one day at a time.
+/// The upcoming schedule, browsed a week at a time on a paged calendar (the system's own
+/// calendars' way, from iOS 18) or, before that and on the Mac and Apple TV, one row of tabs
+/// for the week ahead.
 ///
-/// The seven days of the window sit in one continuous row of tabs — weekday and date, a dot
-/// on the days with something airing, today outlined — scrollable where they don't fit.
-/// The selected day's episodes list below with artwork, time, and whether each has already
-/// aired or is still counting down. AniList carries an exact timestamp per episode;
-/// MyAnimeList a weekly slot in Japan Standard Time; while Home is Simkl's, the schedule is
-/// Simkl's calendar for anime, shows or movies.
+/// Each calendar week is asked of the source as the browsing reaches it, so the schedule runs
+/// without end in either direction; the selected day's episodes list below with artwork,
+/// time, and whether each has already aired or is still counting down. AniList carries an
+/// exact timestamp per episode; MyAnimeList a weekly slot in Japan Standard Time; while Home
+/// is Simkl's, the schedule is Simkl's calendar for anime, shows or movies.
 struct UpcomingCalendarView: View {
     @StateObject private var vm = UpcomingCalendarViewModel()
-    /// The day being browsed; today until the user picks another.
-    @State private var selectedDay: Date?
+    /// The day being browsed; today until the user picks another, and it survives the page
+    /// being pushed again.
+    @SceneStorage("scheduleSelectedDay") private var storedDay: Double?
+
+    private var effectiveDay: Date {
+        let calendar = Calendar.current
+        return storedDay.map { calendar.startOfDay(for: Date(timeIntervalSince1970: $0)) }
+            ?? calendar.startOfDay(for: Date())
+    }
 
     var body: some View {
         Group {
-            if vm.isLoading && vm.days.isEmpty {
+            if vm.isLoading && vm.days.isEmpty && vm.loadedWeeks.isEmpty {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = vm.errorMessage, vm.days.isEmpty {
+            } else if let errorMessage = vm.errorMessage, vm.days.isEmpty, vm.loadedWeeks.isEmpty {
                 ContentUnavailableView(
                     "common.couldnt_load",
                     systemImage: "exclamationmark.triangle",
                     description: Text(errorMessage)
-                )
-            } else if vm.days.isEmpty {
-                ContentUnavailableView(
-                    LocalizedStringKey(vm.emptyTitle),
-                    systemImage: "calendar",
-                    description: Text(vm.emptyDescription)
                 )
             } else {
                 scheduleContent
@@ -314,7 +371,14 @@ struct UpcomingCalendarView: View {
                 } else {
                     // A Mac shows the navigation title already, at the toolbar's leading edge.
                     #if !os(macOS)
-                    Text("shared.upcoming").font(.headline)
+                    // From iOS 18 the paged calendar names the month, as the system's own
+                    // calendars do; before it the bar keeps the page's name.
+                    if #available(iOS 18, *) {
+                        Text(effectiveDay, format: .dateTime.month(.wide).year())
+                            .font(.headline)
+                    } else {
+                        Text("shared.upcoming").font(.headline)
+                    }
                     #endif
                 }
             }
@@ -329,31 +393,118 @@ struct UpcomingCalendarView: View {
             }
         }
         .task(id: vm.simklKind) { await vm.load() }
+        // Reaching a week the source hasn't been asked for loads it.
+        .task(id: effectiveDay) { vm.ensureWeekLoaded(containing: effectiveDay) }
     }
 
     // MARK: - Layout
 
     private var scheduleContent: some View {
         VStack(spacing: 0) {
-            weekdayBar
             #if os(iOS)
-            Divider().opacity(0.5)
+            if #available(iOS 18, *) {
+                HorizontalCalendar(date: selection) { day in
+                    dayCell(day.date)
+                }
+                .padding(.top, 6)
+                .padding(.bottom, 8)
+                todayButton
+                Divider().opacity(0.5)
+            } else {
+                weekdayBar
+                Divider().opacity(0.5)
+            }
+            #else
+            weekdayBar
             #endif
             dayList
         }
     }
 
-    /// The seven days of the schedule's window, starting today.
+    /// The selection the calendar pages and the cells write to.
+    private var selection: Binding<Date> {
+        Binding {
+            effectiveDay
+        } set: { day in
+            storedDay = day.timeIntervalSince1970
+        }
+    }
+
+    /// Back to today from wherever the browsing has gone; hidden while it's already here.
+    @ViewBuilder
+    private var todayButton: some View {
+        if !Calendar.current.isDateInToday(effectiveDay) {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    storedDay = Date().timeIntervalSince1970
+                }
+            } label: {
+                Label("shared.today", icon: "calendar")
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Capsule().fill(Color.secondary.opacity(0.12)))
+                    .overlay(Capsule().strokeBorder(Color.primary.opacity(0.08), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .padding(.bottom, 10)
+            .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+    }
+
+    /// One day of the paged calendar: weekday and date, a dot when something airs, today
+    /// ringed, the selection filled.
+    @available(iOS 18.0, *)
+    private func dayCell(_ day: Date) -> some View {
+        let calendar = Calendar.current
+        let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
+        let isToday = calendar.isDateInToday(day)
+        let count = vm.episodes(on: day).count
+        return Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                storedDay = day.timeIntervalSince1970
+            }
+        } label: {
+            VStack(spacing: 6) {
+                Text(day, format: .dateTime.weekday(.abbreviated))
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Text(day, format: .dateTime.day())
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(isSelected ? Color.white : .primary)
+                    .frame(width: 34, height: 34)
+                    .background {
+                        if isSelected {
+                            Circle().fill(Color.accentColor)
+                                .transition(.scale(scale: 0.5).combined(with: .opacity))
+                        }
+                    }
+                    .overlay {
+                        if isToday && !isSelected {
+                            Circle().strokeBorder(Color.accentColor.opacity(0.55), lineWidth: 1)
+                        }
+                    }
+                Circle()
+                    .fill(isSelected ? Color.white.opacity(0.85) : Color.accentColor)
+                    .frame(width: 4, height: 4)
+                    .opacity(count > 0 ? 1 : 0)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .animation(.smooth(duration: 0.3), value: effectiveDay)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Self.dayLabel(for: day))
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+
+    /// The seven days ahead, for the layouts without the paged calendar.
     private var weekDays: [Date] {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: Date())
         return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
-    }
-
-    private var effectiveDay: Date { selectedDay ?? weekDays.first ?? Date() }
-
-    private var selectedEntries: [AiringEpisode] {
-        vm.days.first { Calendar.current.isDate($0.date, inSameDayAs: effectiveDay) }?.episodes ?? []
     }
 
     // MARK: - Weekday bar
@@ -374,9 +525,11 @@ struct UpcomingCalendarView: View {
         let calendar = Calendar.current
         let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
         let isToday = calendar.isDateInToday(day)
-        let count = vm.days.first { calendar.isDate($0.date, inSameDayAs: day) }?.episodes.count ?? 0
+        let count = vm.episodes(on: day).count
         return Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedDay = day }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                storedDay = day.timeIntervalSince1970
+            }
         } label: {
             VStack(spacing: 3) {
                 Text(day, format: .dateTime.weekday(.abbreviated))
@@ -411,8 +564,17 @@ struct UpcomingCalendarView: View {
 
     private var dayList: some View {
         List {
-            let entries = selectedEntries
-            if entries.isEmpty {
+            let entries = vm.episodes(on: effectiveDay)
+            if !vm.isWeekLoaded(containing: effectiveDay), entries.isEmpty {
+                // A week the browsing has reached but the source hasn't answered yet.
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .padding(.vertical, 48)
+                .listRowBackground(Color.clear)
+            } else if entries.isEmpty {
                 VStack(spacing: 10) {
                     IconView("calendar")
                         .font(.system(size: 34, weight: .light))
@@ -446,6 +608,7 @@ struct UpcomingCalendarView: View {
             }
         }
         .softScrollEdges()
+        .morphingRefreshable { await vm.refresh() }
         #if os(iOS)
         .listStyle(.insetGrouped)
         #endif
