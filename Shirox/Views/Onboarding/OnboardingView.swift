@@ -165,6 +165,21 @@ struct OnboardingView: View {
                     .tracking(2.2)
                     .foregroundStyle(.secondary)
 
+                #if os(iOS)
+                // The promise, typed out one phrase at a time above the headline that says
+                // it in full. Below iOS 18, and on a Mac and Apple TV, the headline carries
+                // the page alone.
+                if #available(iOS 18.0, *) {
+                    TypeWriterHeadline(phrases: [
+                        String(localized: "onboarding.type_watch"),
+                        String(localized: "onboarding.type_read"),
+                        String(localized: "onboarding.type_track")
+                    ])
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 6)
+                }
+                #endif
+
                 Text("onboarding.bring_your_own_nlibrary")
                     .font(.system(size: 36, weight: .heavy))
                     .lineSpacing(-2)
