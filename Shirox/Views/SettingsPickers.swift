@@ -234,18 +234,18 @@ struct ThemePickerSheet: View {
 }
 
 /// The scene's own colours, apart from the app's.
-private extension Color {
-    static let skyTopDark = Color(red: 0.09, green: 0.11, blue: 0.24)
-    static let skyBottomDark = Color(red: 0.25, green: 0.22, blue: 0.45)
-    static let skyTopLight = Color(red: 0.55, green: 0.78, blue: 0.97)
-    static let skyBottomLight = Color(red: 0.85, green: 0.93, blue: 0.99)
-    static let moonlight = Color(red: 0.98, green: 0.96, blue: 0.88)
-    static let hillTopDark = Color(red: 0.13, green: 0.15, blue: 0.28)
-    static let hillCenterDark = Color(red: 0.19, green: 0.20, blue: 0.35)
-    static let hillBottomDark = Color(red: 0.25, green: 0.25, blue: 0.42)
-    static let hillTopLight = Color(red: 0.42, green: 0.70, blue: 0.42)
-    static let hillCenterLight = Color(red: 0.53, green: 0.78, blue: 0.51)
-    static let hillBottomLight = Color(red: 0.65, green: 0.85, blue: 0.60)
+extension Color {
+    private static let skyTopDark = Color(red: 0.09, green: 0.11, blue: 0.24)
+    private static let skyBottomDark = Color(red: 0.25, green: 0.22, blue: 0.45)
+    private static let skyTopLight = Color(red: 0.55, green: 0.78, blue: 0.97)
+    private static let skyBottomLight = Color(red: 0.85, green: 0.93, blue: 0.99)
+    private static let moonlight = Color(red: 0.98, green: 0.96, blue: 0.88)
+    private static let hillTopDark = Color(red: 0.13, green: 0.15, blue: 0.28)
+    private static let hillCenterDark = Color(red: 0.19, green: 0.20, blue: 0.35)
+    private static let hillBottomDark = Color(red: 0.25, green: 0.25, blue: 0.42)
+    private static let hillTopLight = Color(red: 0.42, green: 0.70, blue: 0.42)
+    private static let hillCenterLight = Color(red: 0.53, green: 0.78, blue: 0.51)
+    private static let hillBottomLight = Color(red: 0.65, green: 0.85, blue: 0.60)
 }
 
 /// The night's stars, each in a deterministic place: the same sky every time.

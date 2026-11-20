@@ -211,11 +211,12 @@ struct ShiroxApp: App {
                     showOnBoarding: !hasCompletedOnboarding,
                     onFinished: {
                         if hasCompletedOnboarding { ProfileManager.shared.presentAtLaunchIfNeeded() }
+                    },
+                    onBoarding: {
+                        OnboardingView()
+                            .environmentObject(moduleManager)
                     }
-                ) {
-                    OnboardingView()
-                        .environmentObject(moduleManager)
-                }
+                )
                 #else
                 .fullScreenCoverCompat(isPresented: $showOnboarding) {
                     OnboardingView()

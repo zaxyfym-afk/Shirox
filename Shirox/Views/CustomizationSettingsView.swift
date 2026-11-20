@@ -112,11 +112,11 @@ struct CustomizationSettingsView: View {
                 ThemePickerSheet(colorScheme: $colorScheme, initialDark: systemScheme == .dark)
             }
         }
-        .sheet(isPresented: $showIconPicker, onDismiss: { appIcon = UIApplication.shared.alternateIconName }) {
+        .sheet(isPresented: $showIconPicker, onDismiss: { appIcon = UIApplication.shared.alternateIconName }, content: {
             if #available(iOS 26, *) {
                 AppIconPickerSheet()
             }
-        }
+        })
         .alert("settings.couldnt_change_icon",
                isPresented: Binding(get: { appIconError != nil }, set: { if !$0 { appIconError = nil } })) {
             Button("common.ok", role: .cancel) {}
