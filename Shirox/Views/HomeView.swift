@@ -275,8 +275,8 @@ struct HomeView: View {
             .navigationDestinationCompat(isPresented: $showUpcoming) {
                 UpcomingCalendarView()
             }
-            // The page the bell falls back to when the Notifications tab is hidden; loading
-            // it resets the unread count server-side.
+            // The bell's page, pushed right here: notifications are not a tab of the bar.
+            // Loading it resets the unread count server-side.
             .navigationDestinationCompat(isPresented: $showNotifications) {
                 NotificationsView(vm: notificationsVM)
             }
