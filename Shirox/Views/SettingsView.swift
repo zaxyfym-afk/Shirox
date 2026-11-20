@@ -666,7 +666,7 @@ struct AccountsSettingsView: View {
                             .switchTint()
                     }
                 } header: {
-                    Text("settings.mirror_edits")
+                    SettingsSectionHeader(icon: "arrow.left.arrow.right", title: "settings.mirror_edits")
                 } footer: {
                     Text("settings.an_edit_you_make_to")
                 }
@@ -1009,7 +1009,7 @@ struct SubtitleSettingsPage: View {
                           text: String(format: "%.1f", settings.shadowRadius))
                 #endif
             } header: {
-                Text("settings.appearance")
+                SettingsSectionHeader(icon: "circle.lefthalf.filled", title: "settings.appearance")
             } footer: {
                 #if !os(tvOS)
                 Text("settings.shadow_is_a_soft_dark")
@@ -1035,7 +1035,7 @@ struct SubtitleSettingsPage: View {
                 sliderRow(String(localized: "settings.bottom_padding"), value: $settings.bottomPadding, in: SubtitleSettingsManager.bottomPaddingRange, step: 5,
                           text: String(localized: "settings.points \(Int(settings.bottomPadding))"))
             } header: {
-                Text("settings.position")
+                SettingsSectionHeader(icon: "slider.horizontal.3", title: "settings.position")
             }
 
             Section {
@@ -1049,7 +1049,7 @@ struct SubtitleSettingsPage: View {
                 Button("settings.reset_delay") { settings.delaySeconds = 0 }
                     .disabled(settings.delaySeconds == 0)
             } header: {
-                Text("shared.sync")
+                SettingsSectionHeader(icon: "arrow.triangle.2.circlepath", title: "shared.sync")
             } footer: {
                 Text("settings.set_while_watching_from_the")
             }
@@ -1144,7 +1144,7 @@ struct ReaderSettingsView: View {
                 Toggle("settings.tap_sides_to_scroll_or", isOn: $tapZones)
                     .switchTint()
             } header: {
-                Text("settings.tap_zones")
+                SettingsSectionHeader(icon: "hand.tap", title: "settings.tap_zones")
             } footer: {
                 Text(tapZones ? Self.tapZonesOn : Self.tapZonesOff)
             }
@@ -1152,7 +1152,7 @@ struct ReaderSettingsView: View {
                 Toggle("reader.reverse_direction", isOn: $tapZonesReversed)
                     .switchTint()
             } header: {
-                Text("reader.vertical_scroll")
+                SettingsSectionHeader(icon: "arrow.up.arrow.down", title: "reader.vertical_scroll")
             } footer: {
                 Text(Self.reverseFooter)
             }
@@ -1162,7 +1162,7 @@ struct ReaderSettingsView: View {
                 Toggle("reader.page_curl", isOn: $readerPageCurl)
                     .switchTint()
             } header: {
-                Text("settings.turning_pages")
+                SettingsSectionHeader(icon: "book.pages", title: "settings.turning_pages")
             } footer: {
                 Text("settings.turn_pages_with_a_curl")
             }
@@ -1172,7 +1172,7 @@ struct ReaderSettingsView: View {
                     Toggle("settings.portrait_only", isOn: $readerPortraitOnly)
                         .switchTint()
                 } header: {
-                    Text("settings.orientation")
+                    SettingsSectionHeader(icon: "iphone", title: "settings.orientation")
                 } footer: {
                     Text("settings.keep_the_reader_upright_turn")
                 }
@@ -1183,7 +1183,7 @@ struct ReaderSettingsView: View {
                     Toggle("settings.liquid_glass_controls", isOn: $readerLiquidGlass)
                         .switchTint()
                 } header: {
-                    Text("settings.style")
+                    SettingsSectionHeader(icon: "text.alignleft", title: "settings.style")
                 } footer: {
                     Text("settings.reader_glass_note")
                 }
@@ -1316,7 +1316,7 @@ struct ModulesSettingsView: View {
                 Toggle("settings.auto_pick_last_stream", isOn: $autoPickLastStream)
                     .switchTint()
             } header: {
-                Text("settings.automation")
+                SettingsSectionHeader(icon: "gearshape.fill", title: "settings.automation")
             } footer: {
                 Text("settings.auto_pick_choices_reuse_your")
             }
@@ -1359,7 +1359,7 @@ struct LibrarySettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("settings.cards")
+                SettingsSectionHeader(icon: "photo.on.rectangle", title: "settings.cards")
             }
 
             Section("settings.matching") {
@@ -1400,7 +1400,7 @@ struct LibrarySettingsView: View {
                     Label("settings.clear_local_library", icon: "trash")
                 }
             } header: {
-                Text("settings.local_library")
+                SettingsSectionHeader(icon: "folder", title: "settings.local_library")
             } footer: {
                 Text("settings.your_on_device_library_works")
             }
@@ -1446,7 +1446,7 @@ struct LibraryListOrderView: View {
                     statusOrderRaw = list.map(\.rawValue).joined(separator: ",")
                 }
             } header: {
-                Text("settings.drag_to_reorder_status_tabs")
+                SettingsSectionHeader(icon: "line.3.horizontal", title: "settings.drag_to_reorder_status_tabs")
             }
 
             if !customListNames.isEmpty {
@@ -1455,7 +1455,7 @@ struct LibraryListOrderView: View {
                         Label(name, icon: "list.star")
                     }
                 } header: {
-                    Text("library.custom_lists")
+                    SettingsSectionHeader(icon: "list.bullet", title: "library.custom_lists")
                 } footer: {
                     Text("settings.custom_lists_are_managed_on")
                 }
@@ -1744,7 +1744,7 @@ struct StorageSettingsView: View {
                 // The download settings themselves are the root's Downloads row: one door,
                 // and this page stays about what the downloads take.
             } header: {
-                Text("common.downloads")
+                SettingsSectionHeader(icon: "arrow.down.circle", title: "common.downloads")
             } footer: {
                 Text("settings.downloaded_episodes_and_chapters_arent")
             }
@@ -2405,7 +2405,7 @@ private struct ProvidersSettingsSection: View {
                 manager.moveProvider(from: from, to: to)
             }
         } header: {
-            Text("settings.providers")
+            SettingsSectionHeader(icon: "person.2", title: "settings.providers")
         } footer: {
             Text("settings.drag_to_reorder_the_first")
         }

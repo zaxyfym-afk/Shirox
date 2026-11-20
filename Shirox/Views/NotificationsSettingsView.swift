@@ -20,7 +20,7 @@ struct NotificationsSettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("notifications.new_episodes")
+                SettingsSectionHeader(icon: "play.rectangle.on.rectangle", title: "notifications.new_episodes")
             }
 
             permissionSection
@@ -78,7 +78,7 @@ struct NotificationsSettingsView: View {
                     .foregroundStyle(.secondary)
             }
         } header: {
-            Text("notifications.permission")
+            SettingsSectionHeader(icon: "bell.fill", title: "notifications.permission")
         }
     }
 
@@ -154,7 +154,7 @@ struct NotificationsSettingsView: View {
                 }
             }
         } header: {
-            Text("notifications.followed_series")
+            SettingsSectionHeader(icon: "heart.text.square", title: "notifications.followed_series")
         } footer: {
             if !store.series.isEmpty {
                 Text("notifications.followed_footer")

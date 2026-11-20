@@ -69,7 +69,8 @@ struct GeneralSettingsView: View {
                     #endif
                 }
             } header: {
-                Text(Self.hasTabBar ? String(localized: "settings.tab_bar") : String(localized: "settings.tabs"))
+                SettingsSectionHeader(icon: "square.stack.3d.up",
+                                      title: Self.hasTabBar ? "settings.tab_bar" : "settings.tabs")
             }
 
             Section {
@@ -85,7 +86,7 @@ struct GeneralSettingsView: View {
                 .retinted(tint)
                 note(String(localized: "settings.search_button_note"))
             } header: {
-                Text("settings.cards_and_buttons")
+                SettingsSectionHeader(icon: "hand.tap", title: "settings.cards_and_buttons")
             }
 
             #if os(iOS)
@@ -98,7 +99,7 @@ struct GeneralSettingsView: View {
                 .pickerStyle(.menu)
                 .retinted(tint)
             } header: {
-                Text("settings.refreshing")
+                SettingsSectionHeader(icon: "arrow.clockwise", title: "settings.refreshing")
             } footer: {
                 Text(refreshNote)
             }
@@ -114,7 +115,7 @@ struct GeneralSettingsView: View {
                     }
                 }
             } header: {
-                Text("settings.language")
+                SettingsSectionHeader(icon: "globe", title: "settings.language")
             } footer: {
                 Text("settings.the_language_shirox_shows_itself")
             }
@@ -177,7 +178,7 @@ struct IconPacksSettingsView: View {
                     offsets.map { store.installed[$0] }.forEach(store.remove)
                 }
             } header: {
-                Text("settings.icon_packs")
+                SettingsSectionHeader(icon: "square.grid.3x2", title: "settings.icon_packs")
             } footer: {
                 Text("settings.icon_packs_note")
             }
@@ -198,7 +199,7 @@ struct IconPacksSettingsView: View {
                         .disabled(busy != nil)
                     }
                 } header: {
-                    Text("settings.suggested_icon_packs")
+                    SettingsSectionHeader(icon: "sparkles", title: "settings.suggested_icon_packs")
                 }
             }
 
@@ -219,7 +220,7 @@ struct IconPacksSettingsView: View {
                 }
                 .disabled(URL(string: link)?.host == nil || busy != nil)
             } header: {
-                Text("settings.add_icon_pack")
+                SettingsSectionHeader(icon: "plus", title: "settings.add_icon_pack")
             } footer: {
                 Text("settings.icon_pack_link_note")
             }

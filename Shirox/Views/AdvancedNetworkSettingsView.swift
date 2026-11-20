@@ -66,7 +66,7 @@ private struct TMDBProxySections: View {
                 addressField(String(localized: "settings.custom_image_base_url"), text: $imageBase, prompt: TMDBHostSettings.defaultImageBase)
             }
         } header: {
-            Text("TMDB")
+            SettingsSectionHeader(icon: "server.rack", title: "TMDB")
         } footer: {
             Text(useProxies ? footer : Self.note)
         }
@@ -109,7 +109,7 @@ private struct SecureDNSSections: View {
                 addressField(String(localized: "settings.server_ip_addresses"), text: $serverAddresses, prompt: SecureDNSSettings.defaultServerAddresses)
             }
         } header: {
-            Text("settings.dns_over_https")
+            SettingsSectionHeader(icon: "shield", title: "settings.dns_over_https")
         } footer: {
             Text(secureDNS ? footer : Self.note)
         }
@@ -165,7 +165,7 @@ private struct ProxySections: View {
                     .onChangeOf(password) { ProxyKeychain.save($0, account: NetworkProxySettings.passwordAccount) }
             }
         } header: {
-            Text("settings.proxy")
+            SettingsSectionHeader(icon: "network", title: "settings.proxy")
         } footer: {
             Text(enabled ? footer : Self.note)
         }
@@ -207,7 +207,7 @@ private struct UserAgentSections: View {
                     .disabled(userAgent == NetworkUserAgent.standard)
             }
         } header: {
-            Text("settings.user_agent")
+            SettingsSectionHeader(icon: "safari", title: "settings.user_agent")
         } footer: {
             Text(enabled ? String(localized: "settings.shiroxs_own \(NetworkUserAgent.standard)") : Self.note)
         }

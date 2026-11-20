@@ -51,7 +51,7 @@ struct DiscordSettingsView: View {
                             .foregroundStyle(.red)
                     }
                 } header: {
-                    Text("settings.discord_account")
+                    SettingsSectionHeader(icon: "person.circle", title: "settings.discord_account")
                 } footer: {
                     Text("settings.discord_sign_in_note")
                 }
@@ -62,7 +62,7 @@ struct DiscordSettingsView: View {
                     Toggle("settings.discord_show_details", isOn: $showsDetails)
                         .switchTint()
                 } header: {
-                    Text("settings.discord_shown")
+                    SettingsSectionHeader(icon: "eye", title: "settings.discord_shown")
                 } footer: {
                     Text("settings.discord_shown_note")
                 }
@@ -74,7 +74,7 @@ struct DiscordSettingsView: View {
                         #endif
                         .autocorrectionDisabled()
                 } header: {
-                    Text("settings.discord_application_id")
+                    SettingsSectionHeader(icon: "tag", title: "settings.discord_application_id")
                 } footer: {
                     Text("settings.discord_application_id_note")
                 }
