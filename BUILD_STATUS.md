@@ -2,18 +2,23 @@
 
 ## Current state (2026-11-21, restoration arc)
 
-- The restoration arc's code is PUSHED but NOT YET BUILT at the time of this
-  note: the Codemagic build starts right after the push, via the API, on the
-  user's standing authorization. Every mechanism from the sixth session is
-  unchanged: codemagic.yaml (Metal toolchain first, then buildipa.sh, then
-  the IPA verification), builds only by API, scripts/codemagic.py, token via
-  CODEMAGIC_API_TOKEN.
-- What the build will see for the first time: the five-tab enum, the
+- GREEN. Codemagic build 8 (6b00df36af3f9fe6fe8e9fa2, on 0eb80a65, 4m52s,
+  every step green, Verify IPA passed, built SHA = pushed SHA) built and
+  verified the unsigned Shirox.ipa, 27.1 MB, 1.1.0 (127), iPhoneOS, min iOS
+  15.0. The loop: build 7 (6b00de653e434f182c6a85b3, on 2549fd83, failed
+  2m29s) caught ONE real error the sandbox's brace scan missed - a stray
+  #endif the calendar toolbar's removal had left behind in HomeView.swift -
+  fixed in 0eb80a6; build 8, on the fix, finished green. The .ipa is also
+  delivered as a FILE (download/Shirox.ipa, sha256 ec78a4af...e51d,
+  Payload/Shirox.app, unsigned: no embedded.mobileprovision, no
+  _CodeSignature - ready for the external signer). Fresh artifact links on
+  demand: `python3 scripts/codemagic.py artifacts 6b00df36af3f9fe6fe8e9fa2`.
+- What the arc's build saw for the first time: the five-tab enum, the
   toolbar's sharedBackgroundVisibility branches (iOS 26-gated), the
   window-anchored blob, the detail pages' first refreshable, the new
   ToggleFavourite mutation, the redesigned onboarding and the settings
-  header system. Known risk areas: the ToolbarContentBuilder's
-  availability branches and the CinematicPage init gaining a parameter.
+  header system. The ToolbarContentBuilder's availability branches and the
+  CinematicPage init's new parameter both compiled clean.
 
 ## Current state (2026-11-20, evening UTC)
 

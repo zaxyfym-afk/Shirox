@@ -14,8 +14,9 @@
   capsule); schedule scroll vs dismissal; first-run splash size on a
   notched phone and a Dynamic Island phone; onboarding's page turns with
   Reduce Motion on; a long-press on a Home card with AniList signed in.
-- NEXT IN PIPELINE: Codemagic build over the arc's commits; the GitHub
-  backup nightly's three Xcode-26.3 type-check failures (below) still open.
+- NEXT IN PIPELINE: DONE for the arc - Codemagic build 8 finished green on
+  0eb80a65 (4m52s) and the unsigned IPA is delivered. The GitHub backup
+  nightly's three Xcode-26.3 type-check failures (below) remain open.
 
 ## 1. Build pipeline (Codemagic primary GREEN, Actions backup needs a pass)
 
