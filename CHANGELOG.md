@@ -1,5 +1,60 @@
 # Changelog
 
+## Unreleased: the tenth session (2026-11-21)
+
+### Fixed
+
+- Seven subscript brackets the ninth session's write lost — `checkResults[module.id]` in
+  the module manager, the module list and the detail sheet, `viewModels[module.id]` in both
+  stream pickers — real compile errors sitting in the tree the last "green" build claimed
+  to pass. The tree compiles again before anything else was laid on it.
+- The Module Store is findable again. It was never deleted — it lived behind a 14 pt bag
+  glyph among five toolbar items, which read as missing. Settings › Modules now opens with
+  a full "Get more sources" row: icon, title, subtitle, chevron — the store's door is the
+  first thing on the page, and the empty state carries a Store button too. Both catalogs
+  verified live (86 Cufiy anime entries, 114 xdfkenny), and the placeholder state gained a
+  Retry button for the times Cloudflare swallows both.
+- Home Tour removed completely: the highlight overlay, the spotlight mask, the popover
+  cards, the launch logic, the Settings replay row, the `HighlightTour.swift` file, its
+  project references, and the 21 localization keys it carried. Nothing intercepts Home's
+  touches any more — there is no overlay left to be invisible.
+- The schedule and notifications icons grew to 22 pt in their 44 pt targets — the tab
+  bar's visual size, still two separate round buttons, still not oversized.
+- The onboarding's five "what the app does" pages are gone. The flow is three screens,
+  each one a thing to do: welcome, appearance, setup. No tour, no information screens, no
+  popups.
+
+### Settings subpages, improved again
+
+Every page inside Settings got another pass at its actual layout, not a recolor:
+
+- Player: the engine choice is two big cards (Native / MPV) with the checkmark on the
+  picked one and the mpv note only when it's picked; quality and hold tolerance are
+  full-width segmented rows; the hold gesture's two meanings are two cards; the short skip
+  is four segments; the watched threshold reads as a large percentage over its slider.
+- Downloads: the concurrent count is five segments, not a menu of numbers.
+- Sources & Integrations: the sign-in / sign-out and make-primary buttons are larger
+  capsule buttons with proper tap targets.
+- Modules: the store's door first, the installed modules second, the two recommended
+  installs and the paste-a-link doors under them; toolbar icons grew to 17 pt.
+- Subtitles (pinned live preview), Reader (tap-zone diagram), Library (drag-to-reorder
+  title languages), Storage (usage meter over per-kind resets), Backup (two big actions),
+  Advanced network (test first), Discord, General and Customization keep their own
+  already-designed structures — each was reviewed; none is a generic card list.
+
+### New
+
+- Appearance selection in the onboarding: Light, Dark and System as three big cards that
+  preview themselves, applying the moment one is tapped and persisting through the same
+  `appColorScheme` store Customization writes — changeable later in Settings, as before.
+- Six new localization keys (the appearance page's, the store row's subtitle) translated
+  into all fourteen languages; 21 dead keys pruned (the tour's, the unused common skip
+  trio, the empty-state line the Store button replaced).
+
+### Housekeeping
+
+- Version 1.4.0 (130).
+
 ## Unreleased: the ninth session (2026-11-21)
 
 ### Settings, rebuilt one page at a time

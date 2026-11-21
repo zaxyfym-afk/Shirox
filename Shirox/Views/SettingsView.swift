@@ -30,12 +30,10 @@ struct SettingsView: View {
     @EnvironmentObject private var moduleManager: ModuleManager
     @AppStorage("preferredQuality") private var preferredQuality: String = "auto"
     @State private var totalUsage = 0
-    #if !os(tvOS)
-    /// The introduction, again, for whoever wants the tour a second time.
+#if !os(tvOS)
+    /// The introduction, again, for whoever wants a replay.
     @State private var showOnboardingReplay = false
-    /// Set by the replay row's tour option; Home reads it and runs the tour again.
-    @AppStorage("homeTourPending") private var homeTourPending = false
-    #endif
+#endif
     /// The services signed in, short, for the Sources & Integrations row.
     private var providersSubtitle: String {
         let services = [
@@ -247,14 +245,8 @@ struct SettingsView: View {
                 NavigationLink { AdvancedNetworkSettingsView() } label: { SettingsNavRow(icon: "network", title: String(localized: "settings.advanced_network")) }
 
                 #if !os(tvOS)
-                Menu {
-                    Button("settings.replay_introduction") { showOnboardingReplay = true }
-                    #if os(iOS)
-                    Button("settings.replay_home_tour") {
-                        homeTourPending = true
-                        TabRequests.shared.requestedTab = .home
-                    }
-                    #endif
+                Button {
+                    showOnboardingReplay = true
                 } label: {
                     SettingsNavRow(
                         icon: "graduationcap",
@@ -778,24 +770,24 @@ private struct SourceAccountCard: View {
 
             Spacer(minLength: 8)
 
-            VStack(alignment: .trailing, spacing: 6) {
+            VStack(alignment: .trailing, spacing: 8) {
                 Button(isSignedIn ? String(localized: "settings.sign_out") : String(localized: "library.sign_in"),
                        action: onAuth)
-                    .font(.caption.weight(.semibold))
+                    .font(.subheadline.weight(.semibold))
                     .lineLimit(1)
                     .fixedSize()
                     .foregroundStyle(isSignedIn ? Color.red : Color.accentColor)
-                    .padding(.horizontal, 9).padding(.vertical, 4)
-                    .background((isSignedIn ? Color.red : Color.accentColor).opacity(0.1), in: Capsule())
+                    .padding(.horizontal, 14).padding(.vertical, 7)
+                    .background((isSignedIn ? Color.red : Color.accentColor).opacity(0.12), in: Capsule())
                     .buttonStyle(.plain)
 
                 if !isPrimary, let onPrimary {
                     Button(String(localized: "settings.make_primary"), action: onPrimary)
-                        .font(.caption.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .lineLimit(1)
                         .fixedSize()
                         .foregroundStyle(Color.accentColor)
-                        .padding(.horizontal, 9).padding(.vertical, 4)
+                        .padding(.horizontal, 14).padding(.vertical, 7)
                         .background(Color.primary.opacity(0.08), in: Capsule())
                         .buttonStyle(.plain)
                 }
@@ -886,35 +878,89 @@ struct PlayerSettingsView: View {
         }
     }
 
+    /// One of the page's big choices, drawn as a card: the name, a checkmark when it's the
+    /// picked one, and a tap target wide enough for a thumb. The player's engine and the
+    /// hold gesture both pick this way — two options, one decision, no tiny menus.
+    private func choiceCard(_ isSelected: Bool, title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Text(title)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer(minLength: 0)
+                IconView("checkmark")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .opacity(isSelected ? 1 : 0)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 13)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.primary.opacity(isSelected ? 0.09 : 0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(isSelected ? 0.35 : 0.08), lineWidth: isSelected ? 1.5 : 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.15), value: isSelected)
+    }
+
     // MARK: Playback
 
-    /// The engine and the picture: what renders the video and at what quality, plus the
-    /// audio-and-surroundings settings.
+    /// The engine and the picture: what renders the video, at what quality, plus the
+    /// audio-and-surroundings settings. The engine is the page's headline decision, so it
+    /// gets the two big cards rather than a row with a menu in it.
     private var playbackPane: some View {
         SettingsSection(titleKey: "settings.pane_playback") {
             #if !os(tvOS)
-            Picker("settings.player_engine", selection: $playerEngine) {
-                Text("settings.native").tag(PlaybackEngineKind.native.rawValue)
-                Text("MPV").tag(PlaybackEngineKind.mpv.rawValue)
-            }
-            #if os(iOS)
-            .pickerStyle(.menu)
-            #endif
-            if playerEngine == PlaybackEngineKind.mpv.rawValue {
-                Text("settings.mpv_plays_more_formats_like")
-                    .font(.caption)
+            VStack(alignment: .leading, spacing: 10) {
+                Text("settings.player_engine")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
+                HStack(spacing: 10) {
+                    choiceCard(playerEngine == PlaybackEngineKind.native.rawValue, title: "settings.native") {
+                        playerEngine = PlaybackEngineKind.native.rawValue
+                    }
+                    choiceCard(playerEngine == PlaybackEngineKind.mpv.rawValue, title: "MPV") {
+                        playerEngine = PlaybackEngineKind.mpv.rawValue
+                    }
+                }
+                if playerEngine == PlaybackEngineKind.mpv.rawValue {
+                    Text("settings.mpv_plays_more_formats_like")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .transition(.opacity)
+                }
             }
+            .padding(.vertical, 2)
             #endif
 
-            Picker("settings.preferred_quality", selection: $preferredQuality) {
-                Text("player.auto").tag("auto")
-                Text("settings.highest").tag("highest")
-                Text("1080p").tag("1080")
-                Text("720p").tag("720")
-                Text("480p").tag("480")
-                Text("settings.lowest").tag("lowest")
+            #if !os(tvOS)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("settings.preferred_quality")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Picker("settings.preferred_quality", selection: $preferredQuality) {
+                    Text("player.auto").tag("auto")
+                    Text("settings.highest").tag("highest")
+                    Text("1080p").tag("1080")
+                    Text("720p").tag("720")
+                    Text("480p").tag("480")
+                    Text("settings.lowest").tag("lowest")
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             }
+            .padding(.vertical, 2)
+            #endif
 
             Toggle("settings.ambient_mode", isOn: $ambientMode)
                 .switchTint()
@@ -934,7 +980,8 @@ struct PlayerSettingsView: View {
     // MARK: Controls
 
     /// The gestures and the chrome: what a hold does, how the page orients, the look of the
-    /// controls themselves.
+    /// controls themselves. The hold is a physical gesture, so its two meanings sit as two
+    /// cards; the tolerance reads as the three plain steps it is.
     private var controlsPane: some View {
         SettingsSection(titleKey: "settings.pane_controls") {
             // A phone's player rotates with the page; a Mac's is a window.
@@ -960,15 +1007,34 @@ struct PlayerSettingsView: View {
 
             // Holding a finger on the video; there's no such gesture with a pointer.
             #if !os(macOS)
-            Picker("settings.hold_action", selection: $playerHoldAction) {
-                Text("player.2_speed").tag("speed")
-                Text("settings.save_frame_to_photos").tag("saveFrame")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("settings.hold_action")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 10) {
+                    choiceCard(playerHoldAction == "speed", title: "player.2_speed") {
+                        playerHoldAction = "speed"
+                    }
+                    choiceCard(playerHoldAction == "saveFrame", title: "settings.save_frame_to_photos") {
+                        playerHoldAction = "saveFrame"
+                    }
+                }
             }
-            Picker("settings.hold_tolerance", selection: $speedBoostTolerance) {
-                Text("settings.strict").tag(10)
-                Text("settings.relaxed").tag(30)
-                Text("settings.very_relaxed").tag(60)
+            .padding(.vertical, 2)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("settings.hold_tolerance")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Picker("settings.hold_tolerance", selection: $speedBoostTolerance) {
+                    Text("settings.strict").tag(10)
+                    Text("settings.relaxed").tag(30)
+                    Text("settings.very_relaxed").tag(60)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             }
+            .padding(.vertical, 2)
             #endif
 
             #if os(iOS)
@@ -981,19 +1047,31 @@ struct PlayerSettingsView: View {
     // MARK: Episodes
 
     /// Getting through episodes: the skip buttons' lengths, the segments skipped by
-    /// themselves, what happens at the end, and when an episode counts as watched.
+    /// themselves, what happens at the end, and when an episode counts as watched. The
+    /// short skip is four plain steps; the long one is a menu, seven steps being too many
+    /// segments for a thumb's row.
     private var episodesPane: some View {
         SettingsSection(titleKey: "settings.pane_episodes") {
-            Picker("settings.skip_duration", selection: $skipShort) {
-                ForEach(shortOptions, id: \.self) { s in
-                    Text("common.seconds_short \(s)").tag(s)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("settings.skip_duration")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Picker("settings.skip_duration", selection: $skipShort) {
+                    ForEach(shortOptions, id: \.self) { s in
+                        Text("common.seconds_short \(s)").tag(s)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
             }
+            .padding(.vertical, 2)
+
             Picker("settings.long_skip_duration", selection: $skipLong) {
                 ForEach(longOptions, id: \.self) { s in
                     Text("common.seconds_short \(s)").tag(s)
                 }
             }
+
             Toggle("settings.auto_skip_segments", isOn: $autoSkipSegments)
                 .switchTint()
 
@@ -1004,18 +1082,19 @@ struct PlayerSettingsView: View {
                 .switchTint()
 
             VStack(alignment: .leading, spacing: 10) {
-                HStack {
+                HStack(alignment: .firstTextBaseline) {
                     Text("settings.episode_progress_threshold")
                     Spacer()
                     Text("common.percent \(Int(watchedPercentage))")
-                        .font(.headline)
+                        .font(.title3.weight(.semibold))
                         .monospacedDigit()
+                        .foregroundStyle(.primary)
                 }
                 #if !os(tvOS)
                 Slider(value: $watchedPercentage, in: 50...100, step: 1)
                 #endif
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, 4)
         }
     }
 }
@@ -1556,14 +1635,31 @@ struct DownloadsSettingsView: View {
     }
 
     /// What the downloader does by itself: how many at once, whether background ones keep
-    /// going, whether an interrupted one resumes, whether a watched one clears out.
+    /// going, whether an interrupted one resumes, whether a watched one clears out. The
+    /// concurrent count is five plain steps — segments, not a menu of numbers.
     private var automationSection: some View {
         Section {
+            #if !os(tvOS)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("settings.concurrent_downloads")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Picker("settings.concurrent_downloads", selection: $maxConcurrentDownloads) {
+                    ForEach(1...5, id: \.self) { count in
+                        Text("\(count)").tag(count)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            }
+            .padding(.vertical, 2)
+            #else
             Picker("settings.concurrent_downloads", selection: $maxConcurrentDownloads) {
                 ForEach(1...5, id: \.self) { count in
                     Text("\(count)").tag(count)
                 }
             }
+            #endif
             // A Mac app keeps running in the background; only iOS has to ask to.
             #if os(iOS)
             Toggle("settings.background_downloads", isOn: $backgroundDownloadsEnabled)

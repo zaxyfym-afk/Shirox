@@ -5,13 +5,14 @@ import SwiftUI
 /// promise, the AMSheets zoom transitions open the two setup sheets out of their rows, and
 /// the glass chrome the toasts use dresses the cards on iOS 26.
 ///
-/// The look is new: every page is its own lit scene — a slowly drifting aurora wash in the
-/// page's colour over the system background, a hero tile that arrives with an overshoot and
-/// floats while the page shows, and copy that carries itself in from the turn's direction.
-/// The checklist still ticks from real state, so the last page always describes the app as
-/// it currently is.
+/// The flow is three screens, each one a thing to do: the welcome, the appearance pick, and
+/// the setup checklist. No tour pages between them — the app itself is the explanation, and
+/// the checklist ticks from real state, so the last page always describes the app as it
+/// currently is. The appearance pick applies the moment a card is tapped and persists like
+/// any other setting.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage(AppColorScheme.key) private var colorScheme = AppColorScheme.system.rawValue
 
     @EnvironmentObject private var moduleManager: ModuleManager
     @ObservedObject private var aniListAuth = AniListAuthManager.shared
@@ -23,9 +24,9 @@ struct OnboardingView: View {
     /// The step the sources screen grows out of.
     @Namespace private var sourcesZoom
     @State private var showTracker = false
-    /// The page being shown: a tour of what the app does, then the setup checklist it ends on.
+    /// The page being shown: welcome, appearance, then the setup checklist.
     @State private var page = 0
-    private let lastPage = 6
+    private let lastPage = 2
     /// Which way the last page turn went, so the arriving page enters from that side.
     @State private var turnDirection: Edge = .trailing
     /// The hero's slow float, running only where motion is allowed.
@@ -38,15 +39,11 @@ struct OnboardingView: View {
     /// The project's own red, from its release badge — the welcome and setup pages' colour.
     private var accent: Color { Color(red: 0.937, green: 0.267, blue: 0.267) }
 
-    /// Each page its own colour, so the tour reads as six rooms rather than one white wall.
+    /// Each page its own colour, so the flow reads as rooms rather than one white wall.
     private var pageAccent: Color {
         switch page {
         case 0: return accent
-        case 1: return .purple
-        case 2: return .green
-        case 3: return .orange
-        case 4: return .blue
-        case 5: return .pink
+        case 1: return .indigo
         default: return accent
         }
     }
@@ -65,11 +62,7 @@ struct OnboardingView: View {
                 Group {
                     switch page {
                     case 0: welcomePage
-                    case 1: TourPage(icon: "books.vertical", title: "onboarding.tour_library_title", text: "onboarding.tour_library_body", accent: pageAccent)
-                    case 2: TourPage(icon: "puzzlepiece.extension", title: "onboarding.tour_modules_title", text: "onboarding.tour_modules_body", accent: pageAccent)
-                    case 3: TourPage(icon: "arrow.down.circle", title: "onboarding.tour_downloads_title", text: "onboarding.tour_downloads_body", accent: pageAccent)
-                    case 4: TourPage(icon: "bell", title: "onboarding.tour_notifications_title", text: "onboarding.tour_notifications_body", accent: pageAccent)
-                    case 5: TourPage(icon: "paintpalette", title: "onboarding.tour_customize_title", text: "onboarding.tour_customize_body", accent: pageAccent)
+                    case 1: appearancePage
                     default: setupPage
                     }
                 }
@@ -199,7 +192,7 @@ struct OnboardingView: View {
                     goForward()
                 } label: {
                     HStack(spacing: 7) {
-                        Text(LocalizedStringKey(page == 0 ? "onboarding.tour" : "onboarding.next"))
+                        Text("onboarding.next")
                         IconView("chevron.right")
                             .font(.caption.weight(.bold))
                     }
@@ -287,7 +280,107 @@ struct OnboardingView: View {
         }
     }
 
-    /// The checklist the tour ends on: the two things that make the app work, and the start
+    // MARK: Appearance
+
+    /// Light, Dark or System, as three big cards that preview themselves: each one drawn
+    /// the way its scheme looks. The pick applies the moment it's tapped and lands in the
+    /// same store every other appearance control writes, so Settings can change it later.
+    private var appearancePage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("onboarding.set_up_shirox")
+                    .font(.caption.weight(.semibold))
+                    .tracking(2.2)
+                    .foregroundStyle(accent)
+
+                Text("onboarding.appearance_title")
+                    .font(.system(size: 30, weight: .heavy))
+                    .lineSpacing(-2)
+                    .padding(.top, 8)
+
+                Text("onboarding.appearance_body")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 10)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                VStack(spacing: 12) {
+                    appearanceCard(.light)
+                    appearanceCard(.dark)
+                    appearanceCard(.system)
+                }
+                .padding(.top, 24)
+                .padding(.bottom, 24)
+            }
+            .padding(.horizontal, 24)
+            .frame(maxWidth: 560, alignment: .leading)
+        }
+    }
+
+    /// One appearance card: the scheme's own symbol on a tile, its name, and — behind it —
+    /// a miniature of how the app draws in that scheme. Selected carries the accent ring
+    /// and checkmark; tapping applies the scheme at once.
+    private func appearanceCard(_ scheme: AppColorScheme) -> some View {
+        let isSelected = colorScheme == scheme.rawValue
+        return Button {
+            guard colorScheme != scheme.rawValue else { return }
+            colorScheme = scheme.rawValue
+            AppColorScheme.apply()
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+        } label: {
+            HStack(spacing: 14) {
+                IconView(scheme.symbol)
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundStyle(.primary)
+                    .frame(width: 48, height: 48)
+                    .background(scheme == .dark ? Color.black : Color.primary.opacity(0.06),
+                                in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                    )
+                    .environment(\.colorScheme, scheme == .system ? .light : scheme.environmentScheme)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(scheme.title)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(scheme.blurb)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 0)
+
+                if isSelected {
+                    IconView("checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(accent)
+                        .transition(reduceMotion ? .opacity : .scale(scale: 0.5).combined(with: .opacity))
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(isSelected ? accent.opacity(0.5) : Color.primary.opacity(0.08), lineWidth: isSelected ? 1.5 : 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 10, y: 4)
+        }
+        .buttonStyle(OnboardingPressStyle())
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    // MARK: Setup
+
+    /// The checklist the flow ends on: the two things that make the app work, and the start
     /// button. Rows tick themselves from real state, so this page always describes the app
     /// as it currently is.
     private var setupPage: some View {
@@ -491,6 +584,26 @@ struct OnboardingView: View {
     }
 }
 
+extension AppColorScheme {
+    /// How a card previews the scheme behind its own content: System previews as light here,
+    /// where the card itself already sits on either side of the system.
+    var environmentScheme: ColorScheme {
+        switch self {
+        case .light, .system: return .light
+        case .dark: return .dark
+        }
+    }
+
+    /// One line under the scheme's name, saying what it does.
+    var blurb: String {
+        switch self {
+        case .light:  return String(localized: "onboarding.appearance_light_blurb")
+        case .dark:   return String(localized: "onboarding.appearance_dark_blurb")
+        case .system: return String(localized: "onboarding.appearance_system_blurb")
+        }
+    }
+}
+
 /// A button that leans into the touch: a small spring press, the app's standard onboarding
 /// feedback, on every control this screen has.
 private struct OnboardingPressStyle: ButtonStyle {
@@ -523,67 +636,5 @@ private struct OnboardingProgress: View {
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: page)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("onboarding.page_of \(page + 1) \(lastPage + 1)"))
-    }
-}
-
-/// One page of the tour: a glass tile in the page's colour that arrives with an overshoot
-/// and floats while the page shows, a headline, and a paragraph. All words, no fake
-/// screenshots — the app's real screens are a page-turn away.
-private struct TourPage: View {
-    let icon: String
-    let title: LocalizedStringKey
-    let text: LocalizedStringKey
-    let accent: Color
-
-    @State private var shown = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                Spacer(minLength: 40)
-                IconView(icon)
-                    .font(.system(size: 46, weight: .medium))
-                    .foregroundStyle(accent)
-                    .frame(width: 112, height: 112)
-                    .background(
-                        RoundedRectangle(cornerRadius: 30, style: .continuous)
-                            .fill(accent.opacity(0.14))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 30, style: .continuous)
-                            .strokeBorder(accent.opacity(0.25), lineWidth: 1)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 30, style: .continuous)
-                            .fill(
-                                LinearGradient(colors: [.white.opacity(0.14), .clear],
-                                               startPoint: .topLeading, endPoint: .center)
-                            )
-                            .allowsHitTesting(false)
-                    )
-                    .shadow(color: accent.opacity(0.30), radius: 18, y: 8)
-                    .scaleEffect(shown ? 1 : 0.7)
-                    .opacity(shown ? 1 : 0)
-                    .offset(y: shown ? -6 : 0)
-                Text(title)
-                    .font(.system(size: 27, weight: .heavy))
-                    .multilineTextAlignment(.center)
-                Text(text)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 6)
-                Spacer(minLength: 40)
-            }
-            .padding(.horizontal, 28)
-            .frame(maxWidth: 560)
-        }
-        .onAppear {
-            guard !reduceMotion, !shown else { return }
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.65)) { shown = true }
-        }
-        .onDisappear { shown = false }
     }
 }

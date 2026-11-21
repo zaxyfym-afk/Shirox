@@ -123,6 +123,17 @@ struct ModuleStoreView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+                    Button {
+                        Task { await store.load() }
+                    } label: {
+                        Label("common.retry", icon: "arrow.clockwise")
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.primary.opacity(0.08), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 26)

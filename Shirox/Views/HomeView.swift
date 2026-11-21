@@ -36,14 +36,6 @@ struct HomeView: View {
     @StateObject private var notificationsVM = ProfileViewModel()
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage(DetailLayoutSetting.cinematicHomeKey) private var cinematicHome = true
-    /// The tour runs once, on the first Home after the onboarding is done — and again
-    /// whenever Settings asks for it.
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @AppStorage("hasSeenHomeTour") private var hasSeenHomeTour = false
-    @AppStorage("homeTourPending") private var homeTourPending = false
-    @State private var showTour = false
-    /// Where the tour's marks are, by stop order — Home's own buttons report in.
-    @State private var tourMarks: [Int: TourHighlight] = [:]
 
     /// The full-window artwork layout, on an iPad or a Mac — while there's a hero to show.
     private var usesCinematicLayout: Bool {
@@ -265,8 +257,7 @@ struct HomeView: View {
             #endif
             .modifier(HomeToolbar(discovery: discovery, kind: $discovery.simklKind,
                                   openCalendar: { showUpcoming = true },
-                                  openNotifications: openNotifications,
-                                  tourMarks: $tourMarks))
+                                  openNotifications: openNotifications))
             // Schedule pushes plainly: it opens straight away, with no zoom transition to
             // grow out of the calendar button and no interactive drag to dismiss it — on a
             // zoomed page a downward drag is dismissal, and here that drag is the list
@@ -327,26 +318,7 @@ struct HomeView: View {
             // Reclaim local-file copies left by cancelled picks or finished/removed items.
             ContinueWatchingManager.shared.pruneOrphanedLocalImports()
             #endif
-            maybeStartTour()
         }
-        // The onboarding finished over this very Home: the tour picks up right away.
-        .onChangeOf(hasCompletedOnboarding) { _ in maybeStartTour() }
-        // Asked for from Settings' replay row.
-        .onChangeOf(homeTourPending) { _ in maybeStartTour() }
-        .onChangeOf(showTour) { showing in
-            if !showing { hasSeenHomeTour = true }
-        }
-        .tourOverlay(isPresented: $showTour, group: $tourMarks)
-    }
-
-    /// The tour once, on the first Home after the onboarding is done — and again whenever
-    /// Settings asks for it. A Mac and Apple TV have no tour; their flags never leave zero.
-    private func maybeStartTour() {
-        #if os(iOS)
-        guard !showTour, hasCompletedOnboarding, !hasSeenHomeTour || homeTourPending else { return }
-        homeTourPending = false
-        showTour = true
-        #endif
     }
 }
 
@@ -362,8 +334,6 @@ private struct HomeToolbar: ViewModifier {
     @Binding var kind: MediaKind
     let openCalendar: () -> Void
     let openNotifications: () -> Void
-    /// The tour's marks, handed in so the bell can say where it is.
-    var tourMarks: Binding<[Int: TourHighlight]> = .constant([:])
     @ObservedObject private var anilistAuth = AniListAuthManager.shared
 
     /// The leading edge of the navigation bar, named differently per platform.
@@ -450,31 +420,29 @@ private struct HomeToolbar: ViewModifier {
     }
 
     /// The schedule button: its own icon, hit area and action, in its own round chrome —
-    /// sized like any other toolbar button, not like a bottom-bar tab.
+    /// the icon at the tab bar's visual size (22 pt), the tap target the 44 pt standard.
     private var calendarButton: some View {
         Button(action: openCalendar) {
             IconView("calendar")
-                .font(.system(size: 19, weight: .medium))
+                .font(.system(size: 22, weight: .medium))
                 .foregroundStyle(.primary)
                 .frame(width: 44, height: 44)
                 .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
         }
         .buttonStyle(.plain)
         .accessibilityLabel("shared.upcoming")
-        .tourHighlight(order: 0, title: "tour.calendar_title",
-                       description: "tour.calendar_description", group: tourMarks)
     }
 
     /// The bell, as the Library has it: the badge is AniList's unread count, cleared on open.
     /// Its own round chrome, never one capsule shared with the schedule button beside it —
-    /// and toolbar-sized, matching the schedule button next to it.
+    /// and the same 22 pt icon as the calendar next to it.
     private var notificationsButton: some View {
         Button {
             anilistAuth.unreadNotificationCount = 0
             openNotifications()
         } label: {
             IconView("bell")
-                .font(.system(size: 19, weight: .medium))
+                .font(.system(size: 22, weight: .medium))
                 .foregroundStyle(.primary)
                 .frame(width: 44, height: 44)
                 .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
@@ -482,8 +450,6 @@ private struct HomeToolbar: ViewModifier {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("profile.notifications")
-        .tourHighlight(order: 1, title: "tour.bell_title",
-                       description: "tour.bell_description", group: tourMarks)
     }
 }
 

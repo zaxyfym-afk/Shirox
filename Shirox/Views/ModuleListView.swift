@@ -42,29 +42,13 @@ struct ModuleListView: View {
 
     var body: some View {
         List {
-                addModuleSection
-
-                if !isLocalModuleInstalled {
-                    Section {
-                        localFilesPromoCard
-                    }
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                #if !os(tvOS)
-                .listRowSeparator(.hidden)
-                #endif
+                // The Store's door, up where a door can't be missed: a full row, not a toolbar
+                // glyph among four others. Settings › Modules opens this page directly, and
+                // this row opens the store over it.
+                Section {
+                    storeRow
                 }
-
-                if !isJellyfinModuleInstalled {
-                    Section {
-                        jellyfinPromoCard
-                    }
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                #if !os(tvOS)
-                .listRowSeparator(.hidden)
-                #endif
-                }
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
 
                 if let error = addModuleError {
                     Section {
@@ -143,6 +127,33 @@ struct ModuleListView: View {
                         .foregroundStyle(.secondary)
                         .textCase(.uppercase)
                 }
+
+                // Ways to bring more in, under the modules they arrive for: the two
+                // recommended installs while they're missing, then the paste-a-link and
+                // import-file doors.
+                if !isLocalModuleInstalled {
+                    Section {
+                        localFilesPromoCard
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                #if !os(tvOS)
+                .listRowSeparator(.hidden)
+                #endif
+                }
+
+                if !isJellyfinModuleInstalled {
+                    Section {
+                        jellyfinPromoCard
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                #if !os(tvOS)
+                .listRowSeparator(.hidden)
+                #endif
+                }
+
+                addModuleSection
             }
             .softScrollEdges()
             #if os(iOS)
@@ -178,7 +189,7 @@ struct ModuleListView: View {
                             ProgressView().scaleEffect(0.8)
                         } else {
                             IconView("arrow.clockwise")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 17, weight: .medium))
                         }
                     }
                     .disabled(moduleManager.modules.isEmpty || isRefreshing)
@@ -197,7 +208,7 @@ struct ModuleListView: View {
                             ProgressView().scaleEffect(0.8)
                         } else {
                             IconView("checkmark.shield")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.system(size: 17, weight: .medium))
                         }
                     }
                     .accessibilityLabel("modules.check_all_modules")
@@ -208,17 +219,6 @@ struct ModuleListView: View {
                     EditButton()
                 }
                 #endif
-                ToolbarItem(placement: .automatic) {
-                    // The store's door from the module list, over this screen as a sheet:
-                    // the store is not a tab of the bar.
-                    Button {
-                        showStore = true
-                    } label: {
-                        IconView("bag")
-                            .font(.system(size: 14, weight: .medium))
-                    }
-                    .accessibilityLabel("store.get_more")
-                }
                 ToolbarItem(placement: .automatic) {
                     automationMenu
                 }
@@ -536,6 +536,43 @@ struct ModuleListView: View {
         .padding(.vertical, 8)
     }
 
+    // MARK: - Store Door
+
+    /// The Module Store, as a full row at the top of the page — the store's entry point is
+    /// a tap on something labelled, not a toolbar glyph. Opens over this screen as a sheet.
+    private var storeRow: some View {
+        Button {
+            showStore = true
+        } label: {
+            HStack(spacing: 12) {
+                IconView("bag.fill")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(.primary)
+                    .frame(width: 42, height: 42)
+                    .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("store.get_more")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("store.browse_and_install")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer(minLength: 0)
+
+                IconView("chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(SettingsRowPressStyle())
+        .accessibilityLabel("store.get_more")
+    }
+
     // MARK: - Error Banner
     private func errorBanner(_ error: String) -> some View {
         HStack(spacing: 8) {
@@ -639,10 +676,17 @@ struct ModuleListView: View {
             Text("modules.no_modules_installed")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text("modules.paste_a_module_json_url")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .multilineTextAlignment(.center)
+            Button {
+                showStore = true
+            } label: {
+                Label("store.get_more", icon: "bag")
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 9)
+                    .background(Color.primary.opacity(0.08), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 2)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)

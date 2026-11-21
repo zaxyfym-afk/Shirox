@@ -1,5 +1,19 @@
 # Build status
 
+## 2026-11-21, tenth session: pending build
+
+- The tenth session found and fixed seven real compile errors in the tree: the subscript
+  brackets of `checkResults[module.id]` (module manager, module list, detail sheet) and
+  `viewModels[module.id]` (both stream pickers), lost in the ninth session's write. The
+  ninth session's "build 12 green on 2889baf" claim was wrong: the brackets were missing
+  in 2889baf's blobs themselves, so no build of that tree could have passed.
+- On top of the fix: Store door as a full row in Settings › Modules, Home Tour deleted
+  end to end (file, project refs, launch logic, Settings option, 21 keys), onboarding
+  refocused to welcome / appearance / setup with the appearance pick live-applied,
+  schedule + bell icons at 22 pt, Player/Downloads/Sources/Modules layouts improved.
+- Version 1.4.0 (130). Build verdict comes from Codemagic only (sandbox has no Swift
+  toolchain); the static checks (i18n, icons, brace balance) are green here.
+
 ## 2026-11-21, build 12: GREEN on the ninth session's work
 
 - Build 11 (6b0106c4720f310e9ad6ce19, on 6bc51d94, 2m07s) FAILED with three

@@ -1,10 +1,42 @@
 # Progress
 
-Updated: 2026-11-21, ninth session (settings subpages rebuilt, profile removed, sources
-split from modules, store and module detail pages, search source picker, gooey state
-machine, toolbar buttons).
+Updated: 2026-11-21, tenth session (seven lost subscript brackets fixed, the Store's door
+made findable, the Home Tour removed, the onboarding refocused to three screens, the
+Player's controls resized and restructured, appearance selection in onboarding).
 
 ## This session, in short
+
+The user reported the latest build still had problems: Settings pages looked poorly
+designed with small controls, the Module Store appeared to be missing, and the Home Tour
+was broken. Done, in the brief's order:
+
+- Found the real cause first: seven subscript brackets lost in the ninth session's write —
+  `checkResults[module.id]` three times and `viewModels[module.id]` twice — compile errors
+  sitting in the tree the last "green" claim passed over. Fixed before anything else.
+- The Module Store: never deleted, only hidden — a 14 pt bag glyph among five toolbar
+  items. It now opens from a full "Get more sources" row at the top of Settings › Modules
+  (icon, title, subtitle, chevron), and the empty state carries a Store button too. Both
+  community catalogs verified live (86 + 114 anime entries); the catalog-failure state
+  gained a Retry button.
+- The Home Tour is gone completely: HighlightTour.swift, its project references, the
+  launch logic on Home, the Settings replay option, the tour keys — 21 dead localization
+  keys pruned with it. No overlay remains that could intercept touches.
+- The onboarding is three screens now — welcome, appearance, setup — the five "what the
+  app does" pages deleted. Appearance: Light / Dark / System as three big cards that
+  preview themselves, applied on tap through the same store Customization writes.
+- Schedule and notifications icons grew to 22 pt (tab-bar size) in their 44 pt targets,
+  still two separate round glass buttons.
+- Settings subpages improved again where structure was thin: Player (engine as two cards,
+  quality/tolerance/short-skip as segmented rows, hold action as two cards, threshold with
+  a large percentage), Downloads (concurrent as five segments), Sources & Integrations
+  (bigger sign-in capsules), Modules (store door first, toolbar icons 17 pt). Subtitles,
+  Reader, Library, Storage, Backup, Advanced network, Discord, General and Customization
+  were reviewed and keep their already-designed structures (pinned preview, tap-zone
+  diagram, drag-to-reorder, usage meter, big actions, test-first).
+- Version 1.4.0 (130); changelog written.
+
+
+## Ninth session, in short
 
 The user re-issued the overhaul brief: the main Settings page is fine now, but every page
 INSIDE it must be rebuilt, and a long list of removals, splits and fixes must land with it.
@@ -43,7 +75,7 @@ Done, in the brief's order:
   1.3.0 (129).
 
 
-## This session, in short
+## Eighth session, in short
 
 The user listed twelve problems, most of them regressions the seventh session's work had
 left behind or half-finished. Done, in the order requested:

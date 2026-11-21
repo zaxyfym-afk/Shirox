@@ -1,5 +1,23 @@
 # Todo
 
+## 0. Tenth session (2026-11-21): what is done and what is next
+
+- DONE: seven lost subscript brackets fixed (module manager, module list, module detail
+  sheet, both stream pickers) — the compile errors the ninth session left in the tree;
+  Module Store given a findable door (full "Get more sources" row atop Settings › Modules,
+  Store button in the empty state, Retry on catalog failure); Home Tour removed end to end
+  (HighlightTour.swift, project refs, Home launch logic, Settings replay option, 21 keys);
+  onboarding rebuilt as three screens (welcome / appearance / setup) with Light/Dark/System
+  cards applied on tap and persisted; schedule + notifications icons at 22 pt in 44 pt
+  targets; Player engine/hold as choice cards, quality/tolerance/short-skip segmented,
+  threshold percentage enlarged; Downloads concurrent as five segments; Sources &
+  Integrations sign-in capsules enlarged; Modules toolbar icons 17 pt; 21 dead keys pruned,
+  6 new keys in 14 languages; version 1.4.0 (130).
+- NEXT ON DEVICE: the three-screen onboarding in light and dark (appearance cards apply at
+  once); Settings › Modules first paint (store row opens the store; catalogs live); Home
+  without the tour (no overlays, nothing intercepting touches); the Player panes on a small
+  phone; the schedule/bell icon size in the hand.
+
 ## 0. Ninth session (2026-11-21): what is done and what is next
 
 - DONE: profile system removed end to end (Settings card, picker, ProfileManager/Swap/

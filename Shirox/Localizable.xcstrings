@@ -2493,95 +2493,6 @@
         }
       }
     },
-    "common.finish" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fertig"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Finish"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terminar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terminer"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selesai"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fine"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完了"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zakończ"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Concluir"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Готово"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "เสร็จ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bitir"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xong"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
-          }
-        }
-      }
-    },
     "common.following" : {
       "comment" : "MediaDetailsSheet, MediaProvider, ProfileSocialView",
       "localizations" : {
@@ -3379,95 +3290,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "名称"
-          }
-        }
-      }
-    },
-    "common.next" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weiter"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Next"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siguiente"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suivant"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lanjut"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Avanti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "次へ"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dalej"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Próximo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Далее"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ถัดไป"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İleri"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tiếp"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下一步"
           }
         }
       }
@@ -4800,95 +4622,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld 秒"
-          }
-        }
-      }
-    },
-    "common.skip" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Überspringen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Omitir"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passer"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lewati"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スキップ"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pomiń"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pular"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пропустить"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ข้าม"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Atla"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ qua"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "跳过"
           }
         }
       }
@@ -42803,95 +42536,6 @@
         }
       }
     },
-    "modules.paste_a_module_json_url" : {
-      "comment" : "ModuleListView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Füge oben eine Modul-JSON-URL ein, um loszulegen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paste a module JSON URL above to get started."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pega arriba la URL del JSON de un módulo para empezar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Collez une URL JSON de module ci-dessus pour commencer."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tempel URL JSON modul di atas untuk memulai."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Incolla sopra un URL JSON di un modulo per iniziare."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上にモジュールのJSON URLをペーストして開始してください。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wklej powyżej URL JSON modułu, aby zacząć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cole acima a URL JSON de um módulo para começar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вставьте URL JSON модуля выше, чтобы начать."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "วาง URL JSON ของโมดูลด้านบนเพื่อเริ่มต้น"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Başlamak için yukarıya bir modül JSON URL'si yapıştırın."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dán URL JSON của mô-đun ở trên để bắt đầu."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请在上方粘贴模块 JSON URL 以开始。"
-          }
-        }
-      }
-    },
     "modules.paste_a_modules_json_link" : {
       "comment" : "ModuleListView",
       "localizations" : {
@@ -51661,6 +51305,451 @@
         }
       }
     },
+    "onboarding.appearance_body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hell oder dunkel, oder wie das System. Du kannst das jederzeit in den Einstellungen ändern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light or dark, or follow the system. You can change this anytime in Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claro u oscuro, o seguir el sistema. Puedes cambiarlo en Ajustes cuando quieras."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clair ou sombre, ou selon le système. Vous pouvez changer à tout moment dans Réglages."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terang atau gelap, atau ikuti sistem. Bisa diubah kapan saja di Pengaturan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiaro o scuro, o segui il sistema. Puoi cambiarlo in qualsiasi momento nelle Impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ライト・ダーク、またはシステムに従う。設定でいつでも変更できます。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jasny lub ciemny, albo zgodny z systemem. Możesz to zmienić w Ustawieniach w każdej chwili."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claro ou escuro, ou seguir o sistema. Você pode mudar isso quando quiser nos Ajustes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Светлое или тёмное, или как в системе. Можно изменить в любой момент в настройках."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สว่างหรือมืด หรือตามระบบ เปลี่ยนได้ทุกเมื่อในการตั้งค่า"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Açık veya koyu, ya da sistemi takip et. Ayarlar’dan istediğin zaman değiştirebilirsin."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sáng hoặc tối, hoặc theo hệ thống. Bạn có thể thay đổi bất cứ lúc nào trong Cài đặt."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浅色、深色或跟随系统。你可以随时在设置中更改。"
+          }
+        }
+      }
+    },
+    "onboarding.appearance_dark_blurb" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schont die Augen bei Nacht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easy on the eyes at night."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descansa la vista de noche."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus doux pour les yeux la nuit."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lebih nyaman untuk mata di malam hari."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meno faticoso per gli occhi di notte."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "夜に目にやさしい表示です。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Łagodniejszy dla oczu w nocy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais suave para os olhos à noite."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бережёт глаза ночью."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สบายตายามค่ำคืน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geceleri göze yumuşak gelir."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dịu mắt vào ban đêm."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "夜间更护眼。"
+          }
+        }
+      }
+    },
+    "onboarding.appearance_light_blurb" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hell und bei Tageslicht gut lesbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bright and easy to read in daylight."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brillante y fácil de leer a la luz del día."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lumineux et facile à lire en plein jour."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terang dan mudah dibaca di siang hari."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luminoso e facile da leggere alla luce del giorno."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "明るく、日中でも読みやすい表示です。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jasny i czytelny w świetle dnia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claro e fácil de ler à luz do dia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Яркое и легко читаемое при дневном свете."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "สว่างและอ่านง่ายกลางวัน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parlak ve gündüz okuması kolay."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sáng và dễ đọc dưới ánh sáng ban ngày."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "明亮，白天也清晰易读。"
+          }
+        }
+      }
+    },
+    "onboarding.appearance_system_blurb" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folgt Hell und Dunkel des Systems."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follows the system’s light and dark."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sigue el modo claro y oscuro del sistema."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suit le mode clair et sombre du système."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengikuti mode terang dan gelap sistem."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segue il sistema tra chiaro e scuro."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システムのライト／ダークに従います。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zgodny z jasnym i ciemnym trybem systemu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segue o modo claro e escuro do sistema."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следует за светлым и тёмным режимом системы."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ตามโหมดสว่างและมืดของระบบ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistemin açık ve koyu modunu izler."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theo chế độ sáng và tối của hệ thống."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统的浅色与深色模式。"
+          }
+        }
+      }
+    },
+    "onboarding.appearance_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle deinen Look"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick your look"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige tu aspecto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez votre apparence"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pilih tampilanmu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli il tuo aspetto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外観を選択"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz wygląd"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha sua aparência"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите оформление"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เลือกธีมที่คุณต้องการ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Görünümünü seç"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn giao diện của bạn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择外观"
+          }
+        }
+      }
+    },
     "onboarding.back" : {
       "localizations" : {
         "de" : {
@@ -52733,897 +52822,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将你的进度同步到 AniList 或 MyAnimeList"
-          }
-        }
-      }
-    },
-    "onboarding.tour" : {
-      "comment" : "OnboardingView",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Take a look around"
-          }
-        }
-      }
-    },
-    "onboarding.tour_customize_body" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile mit Anime-Artwork, Akzentfarben, Layouts und ein Zeitplan, der bei dir beginnt — alles in den Einstellungen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profiles with anime artwork, accent colours, layouts and a schedule that starts your way — all in Settings."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perfiles con arte de anime, colores de acento, diseños y una programación que empieza a tu manera: todo en Ajustes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Des profils avec des illustrations d'anime, des couleurs d'accent, des dispositions et un calendrier qui démarre comme vous l'aimez — tout dans Réglages."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profil dengan karya seni anime, warna aksen, tata letak, dan jadwal yang mulai sesukamu — semuanya di Pengaturan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profili con illustrazioni anime, colori d'accento, layout e una programmazione che parte come vuoi tu — tutto in Impostazioni."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アニメアートのプロフィール、アクセントカラー、レイアウト、好みの放送予定 — すべて設定で。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Profile z grafiką anime, kolory akcentu, układy i harmonogram zaczynający od Ciebie — wszystko w Ustawieniach."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perfis com arte de anime, cores de destaque, layouts e uma programação que começa do seu jeito — tudo nos Ajustes."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Профили с артами, акцентные цвета, интерфейсы и расписание, начинающееся по-вашему, — всё в Настройках."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "โปรไฟล์พร้อมภาพอาร์ตอนิเมะ สีธีม เลย์เอาต์ และตารางที่เริ่มตามสไตล์คุณ — ทั้งหมดในการตั้งค่า"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anime görselli profiller, vurgu renkleri, yerleşimler ve senin tarzınla açılan bir yayın akışı — hepsi Ayarlar'da."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hồ sơ với ảnh anime, màu nhấn, bố cục và lịch mở đúng kiểu của bạn — tất cả trong Cài đặt."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "带动漫头像的用户档案、强调色、布局和按你习惯打开的放送表——都在设置里。"
-          }
-        }
-      }
-    },
-    "onboarding.tour_customize_title" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mach es zu deinem"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Make it yours"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hazlo tuyo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rendez-le vôtre"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jadikan milikmu"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rendilo tuo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自分らしく"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dostosuj do siebie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deixe com a sua cara"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройте под себя"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ปรับให้เป็นสไตล์คุณ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kendine göre yap"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Biến nó thành của bạn"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打造成你的样子"
-          }
-        }
-      }
-    },
-    "onboarding.tour_downloads_body" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sichere Episoden für offline, wähle deine Qualität und entscheide zwischen dem eingebauten Player und mpv für die schwierigeren Formate."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save episodes for offline, pick your quality, and choose between the built-in player and mpv for the trickier formats."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guarda episodios para verlos sin conexión, elige la calidad y decide entre el reproductor integrado o mpv para los formatos más difíciles."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enregistrez des épisodes pour les visionner hors ligne, choisissez la qualité, et decidez entre le lecteur intégré et mpv pour les formats plus délicats."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Simpan episode untuk offline, pilih kualitas, dan tentukan antara pemutar bawaan atau mpv untuk format yang lebih sulit."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salva episodi per guardarli offline, scegli la qualità e decidi tra il lettore integrato e mpv per i formati più difficili."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "エピソードをオフライン用に保存し、画質を選び、扱いにくい形式には内蔵プレイヤーかmpvを選べます。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zapisuj odcinki na offline, wybieraj jakość i decyduj między wbudowanym odtwarzaczem a mpv dla trudniejszych formatów."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salve episódios para assistir offline, escolha a qualidade e decida entre o player integrado e o mpv para os formatos mais difíceis."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сохраняйте эпизоды для офлайна, выбирайте качество и решайте между встроенным плеером и mpv для капризных форматов."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "บันทึกตอนไว้ดูออฟไลน์ เลือกคุณภาพ และเลือกได้ระหว่างเครื่องเล่นในตัวกับ mpv สำหรับไฟล์ที่ยากๆ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bölümleri çevrimdışı için kaydet, kaliteni seç ve zorlu formatlar için yerleşik oynatıcı ile mpv arasında karar ver."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lưu tập để xem ngoại tuyến, chọn chất lượng, và chọn giữa trình phát tích hợp hay mpv cho các định dạng khó tính."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "离线缓存剧集、自选画质，还能在内置播放器和 mpv 之间为特殊格式做选择。"
-          }
-        }
-      }
-    },
-    "onboarding.tour_downloads_title" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laden und abspielen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Download and play"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Descarga y reproduce"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Téléchargez et regardez"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unduh dan putar"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scarica e riproduci"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ダウンロードして視聴"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pobieraj i odtwarzaj"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Baixe e assista"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скачивайте и смотрите"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ดาวน์โหลดแล้วดูได้เลย"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İndir ve izle"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tải về và xem"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下载并观看"
-          }
-        }
-      }
-    },
-    "onboarding.tour_library_body" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tracke, was du schaust, mit AniList oder MyAnimeList. Fortschritt, Bewertungen und Listen bleiben über deine Geräte hinweg synchron."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Track what you watch with AniList or MyAnimeList. Progress, scores and lists stay in sync across your devices."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registra lo que ves con AniList o MyAnimeList. El progreso, las puntuaciones y las listas se mantienen sincronizados entre tus dispositivos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suivez ce que vous regardez avec AniList ou MyAnimeList. Progression, notes et listes restent synchronisées entre vos appareils."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Catat yang kamu tonton dengan AniList atau MyAnimeList. Progres, skor, dan daftar tetap sinkron antar perangkatmu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tieni traccia di ciò che guardi con AniList o MyAnimeList. Progressi, punteggi e liste restano sincronizzati tra i tuoi dispositivi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniListやMyAnimeListで視聴を記録しましょう。進捗、評価、リストが端末間で同期され続けます。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zapisuj, co oglądasz, w AniList lub MyAnimeList. Postęp, oceny i listy pozostają zsynchronizowane między urządzeniami."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Registre o que você assiste com AniList ou MyAnimeList. Progresso, notas e listas ficam sincronizados entre seus dispositivos."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Записывайте просмотренное в AniList или MyAnimeList. Прогресс, оценки и списки синхронизируются между вашими устройствами."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "บันทึกสิ่งที่คุณดูด้วย AniList หรือ MyAnimeList ความคืบหน้า คะแนน และรายการจะซิงก์กันทุกเครื่อง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İzlediklerini AniList veya MyAnimeList ile takip et. İlerleme, puanlar ve listeler cihazların arasında senkron kalır."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ghi lại những gì bạn xem bằng AniList hoặc MyAnimeList. Tiến độ, điểm và danh sách được đồng bộ giữa các thiết bị."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "用 AniList 或 MyAnimeList 记录你在看什么。进度、评分和列表会在你的设备间保持同步。"
-          }
-        }
-      }
-    },
-    "onboarding.tour_library_title" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine Bibliothek, überall"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your library, everywhere"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu biblioteca, en todas partes"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre bibliothèque, partout"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pustakamu, di mana saja"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tua libreria, ovunque"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ライブラリはどこでも"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twoja biblioteka, wszędzie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sua biblioteca, em todo lugar"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ваша библиотека — везде"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ไลบรารีของคุณ ทุกที่"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kitaplığın, her yerde"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thư viện của bạn, ở mọi nơi"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的媒体库，无处不在"
-          }
-        }
-      }
-    },
-    "onboarding.tour_modules_body" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox hostet nichts. Füge Module hinzu — die Quellen der Community — um daraus zu streamen, und wechsle jederzeit."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox hosts nothing. Add modules — the community's sources — to stream from, and switch between them any time."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox no aloja nada. Añade módulos (las fuentes de la comunidad) para transmitir y cambia entre ellos cuando quieras."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox n'héberge rien. Ajoutez des modules — les sources de la communauté — pour streamer, et passez de l'un à l'autre à tout moment."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox tidak menghosting apa pun. Tambahkan modul — sumber dari komunitas — untuk streaming, dan ganti kapan saja."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox non ospita nulla. Aggiungi moduli — le fonti della comunità — per lo streaming e cambiali quando vuoi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shiroxは何もホストしません。コミュニティのソースであるモジュールを追加して視聴し、いつでも切り替えられます。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox niczego nie hostuje. Dodawaj moduły — społecznościowe źródła — i streamuj z nich, zmieniając je w każdej chwili."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O Shirox não hospeda nada. Adicione módulos — as fontes da comunidade — para transmitir e troque entre eles quando quiser."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox ничего не размещает. Добавляйте модули — источники сообщества — и смотрите с них, переключаясь в любой момент."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox ไม่ได้โฮสต์เนื้อหาใดๆ เพิ่มโมดูล (แหล่งเนื้อหาจากชุมชน) เพื่อสตรีม และสลับได้ตลอดเวลา"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox hiçbir şey barındırmaz. Topluluğun kaynakları olan modülleri ekle, istediğin an aralarında geçiş yap."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox không lưu trữ nội dung. Thêm mô-đun — nguồn từ cộng đồng — để phát trực tuyến và chuyển đổi bất cứ lúc nào."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox 不托管任何内容。添加模块——社区提供的片源——来点播，并随时切换。"
-          }
-        }
-      }
-    },
-    "onboarding.tour_modules_title" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bring deine eigenen Quellen mit"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bring your own sources"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trae tus propias fuentes"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apportez vos propres sources"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bawa sumbermu sendiri"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Porta le tue fonti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ソースは自分で"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przynieś własne źródła"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Traga suas próprias fontes"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Источники — ваши"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "เลือกแหล่งเนื้อหาของคุณเอง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaynaklarını kendin seç"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tự mang nguồn của bạn"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自带片源"
-          }
-        }
-      }
-    },
-    "onboarding.tour_notifications_body" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folge einer Serie und bekomm eine Erinnerung zur Sendezeit, plus eine Woche Kommendes im Zeitplan."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follow a series and get a reminder at its air time, plus a week of what's coming on the schedule."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sigue una serie y recibe un aviso a su hora de emisión, además de una semana de estrenos en la programación."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suivez une série et recevez un rappel à son heure de diffusion, plus une semaine de sorties au calendrier."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ikuti sebuah serial dan dapatkan pengingat di jam tayangnya, plus sepekan jadwal yang akan datang."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Segui una serie e ricevi un promemoria al suo orario di messa in onda, più una settimana di programmazione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "シリーズをフォローすると放送時刻に通知が届き、放送予定では1週間の予定も確認できます。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Śledź serial i otrzymuj przypomnienie o godzinie emisji, a w harmonogramie zobacz cały tydzień premier."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siga uma série e receba um lembrete na hora de exibição, além de uma semana de lançamentos na programação."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подпишитесь на сериал и получайте напоминание в момент выхода, а в расписании — неделя ближайших релизов."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ติดตามซีรีส์แล้วรับการแจ้งเตือนตอนออกอากาศ พร้อมตารางล่วงหน้าทั้งสัปดาห์"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir diziyi takip et, yayın saatinde hatırlatma al; yayın akışında da bir haftanın programı seni beklesin."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Theo dõi một bộ và nhận nhắc nhở đúng giờ phát, cùng cả tuần lịch chiếu sắp tới."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "追番后会在播出时间收到提醒，放送表里还有整周的更新安排。"
-          }
-        }
-      }
-    },
-    "onboarding.tour_notifications_title" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wissen, wenn neue Episoden kommen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Know when new episodes drop"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entérate de los nuevos episodios"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sachez quand tombent les nouveaux épisodes"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tahu kapan episode baru tayang"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sapere quando escono i nuovi episodi"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新エピソードを見逃さない"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wiedz, gdy wyjdą nowe odcinki"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saiba quando saem novos episódios"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Узнавайте о выходе новых эпизодов"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "รู้ทันเมื่อมีตอนใหม่"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yeni bölümlerden haberdar ol"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhanh chóng biết khi có tập mới"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新集上线即刻知晓"
           }
         }
       }
@@ -94512,95 +93710,6 @@
         }
       }
     },
-    "settings.replay_home_tour" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Home-Tour"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The Home tour"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El tour de Inicio"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le tour de l’accueil"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tur Beranda"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il tour della Home"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホームツアー"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spacer po stronie głównej"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O tour da Página Inicial"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Экскурсия по «Дому»"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ทัวร์หน้าหลัก"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ana sayfa turu"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hướng dẫn Trang chủ"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "主页导览"
-          }
-        }
-      }
-    },
     "settings.replay_introduction" : {
       "localizations" : {
         "de" : {
@@ -128917,6 +128026,95 @@
         }
       }
     },
+    "store.browse_and_install" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Community-Module ansehen und installieren."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse community modules and install them."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explora módulos de la comunidad e instálalos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parcourez les modules communautaires et installez-les."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jelajahi modul komunitas dan instal."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sfoglia i moduli della community e installali."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コミュニティのモジュールを閲覧してインストールします。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeglądaj moduły społeczności i instaluj je."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explorar módulos da comunidade e instalá-los."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обзор модулей сообщества и их установка."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เรียกดูโมดูลของชุมชนและติดตั้ง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topluluk modüllerine göz at ve yükle."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duyệt và cài đặt mô-đun của cộng đồng."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浏览社区模块并安装。"
+          }
+        }
+      }
+    },
     "store.compatibility" : {
       "localizations" : {
         "de" : {
@@ -130788,451 +129986,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "视频"
-          }
-        }
-      }
-    },
-    "tour.bell_description" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Glocke öffnet deine Mitteilungen – neue Folgen und Aktivität."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The bell opens your notifications — new episodes and activity."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La campana abre tus notificaciones: nuevos episodios y actividad."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La cloche ouvre vos notifications — nouveaux épisodes et activité."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bel membuka notifikasi Anda — episode baru dan aktivitas."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La campanella apre le tue notifiche — nuovi episodi e attività."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ベルで通知を開けます — 新着エピソードとアクティビティ。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dzwonek otwiera powiadomienia — nowe odcinki i aktywność."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O sino abre suas notificações — novos episódios e atividade."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Колокольчик открывает уведомления — новые эпизоды и события."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "กระดิ่งเปิดการแจ้งเตือนของคุณ — ตอนใหม่และกิจกรรม"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zil, bildirimlerinizi açar — yeni bölümler ve etkinlikler."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chuông mở thông báo của bạn — tập mới và hoạt động."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "铃铛打开通知——新集数和动态。"
-          }
-        }
-      }
-    },
-    "tour.bell_title" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Was lief, was kommt"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "What aired, what’s next"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Qué se emitió, qué viene"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ce qui est sorti, ce qui vient"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yang sudah tayang, yang berikutnya"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cos’è uscito, cosa arriva"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "放送済みと次の放送"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Co wyszło, co dalej"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O que foi ao ar, o que vem"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Что вышло, что дальше"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ตอนที่ออกแล้วกับตอนถัดไป"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yayınlanan ve gelecek olanlar"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tập đã phát, tập kế tiếp"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "播出的与即将播出的"
-          }
-        }
-      }
-    },
-    "tour.calendar_description" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Kalender blättert durch das Programm, Woche für Woche."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The calendar pages through what’s airing, one week at a time."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El calendario recorre lo que se emite, semana a semana."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le calendrier parcourt les diffusions, semaine par semaine."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kalender menelusuri siaran, pekan demi pekan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il calendario sfoglia le uscite, settimana per settimana."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カレンダーは放送を週ごとにめくります。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kalendarz przewija emisje, tydzień po tygodniu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O calendário percorre o que vai ao ar, semana a semana."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Календарь листает эфиры неделя за неделей."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ปฏิทินเลื่อนดูรายการที่ออกอากาศทีละสัปดาห์"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Takvim, yayınlananları hafta hafta sayfalar."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lịch lật qua các tập phát sóng, từng tuần một."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日历按周翻阅播出节目。"
-          }
-        }
-      }
-    },
-    "tour.calendar_title" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine Woche auf einen Blick"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your week, at a glance"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu semana de un vistazo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre semaine en un coup d’œil"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sepekan Anda dalam sekali lihat"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tua settimana a colpo d’occhio"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一週間をひと目で"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twój tydzień w jednym rzucie oka"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sua semana num relance"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ваша неделя одним взглядом"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "สัปดาห์ของคุณในหนึ่งมอง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Haftanız bir bakışta"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cả tuần trong một cái nhìn"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一览你的一周"
-          }
-        }
-      }
-    },
-    "tour.step_of" : {
-      "comment" : "HighlightTour",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld von %2$lld"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld of %2$lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld de %2$lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld sur %2$lld"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld dari %2$lld"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld di %2$lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%2$lld件中%1$lld件目"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld z %2$lld"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld de %2$lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Шаг %1$lld из %2$lld"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld จาก %2$lld"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%2$lld adımdan %1$lld"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld trên %2$lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "第 %1$lld 步，共 %2$lld 步"
           }
         }
       }
