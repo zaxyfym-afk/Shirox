@@ -24,7 +24,18 @@ struct PosterViewer<Content: View>: View {
     /// 0 at rest, 1 once dragged far enough that releasing dismisses. Drives the
     /// backdrop fade and the shrink-toward-the-finger feel.
     private var dismissProgress: CGFloat {
-        min(1, abs(dragOffset.height) / Self.dismissDistance)
+        min(CGFloat(1), abs(dragOffset.height) / Self.dismissDistance)
+    }
+
+    /// The backdrop's and the shrink's fade, spelled out with typed literals: the mixed
+    /// `1 - progress * 0.55` forms read ambiguous to Xcode 26.3's checker (a nightly
+    /// failure Codemagic's newer toolchain didn't hit).
+    private var backdropFade: CGFloat {
+        CGFloat(1) - dismissProgress * CGFloat(0.55)
+    }
+
+    private var shrinkScale: CGFloat {
+        CGFloat(1) - dismissProgress * CGFloat(0.15)
     }
 
     /// The scroll view only pans once zoomed in, so drag-to-dismiss is safe to run
@@ -34,15 +45,15 @@ struct PosterViewer<Content: View>: View {
     var body: some View {
         ZStack {
             Color.black
-                .opacity(1 - dismissProgress * 0.55)
+                .opacity(Double(backdropFade))
                 .ignoresSafeArea()
 
             zoomableContent
-                .scaleEffect(1 - dismissProgress * 0.15)
+                .scaleEffect(shrinkScale)
                 .offset(dragOffset)
 
             closeButton
-                .opacity(1 - dismissProgress)
+                .opacity(Double(CGFloat(1) - dismissProgress))
         }
         #if !os(tvOS)
         .simultaneousGesture(dismissDrag)

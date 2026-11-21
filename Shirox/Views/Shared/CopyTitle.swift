@@ -207,7 +207,7 @@ enum AnimeExternalLink {
 /// schedule entry's. Cards that already push the details on tap leave it off.
 struct AnimeContextMenuItems: View {
     let media: Media
-    var onOpenDetails: (() -> Void)? = nil
+    var onOpenDetails: (() -> Void)?
 
     @ObservedObject private var aniListAuth = AniListAuthManager.shared
     @ObservedObject private var malAuth = MALAuthManager.shared

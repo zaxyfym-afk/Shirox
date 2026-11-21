@@ -1719,9 +1719,10 @@ struct AniListDetailView: View {
     @ViewBuilder
     private func cinematicContent(media: Media) -> some View {
         CinematicDetailPage(media: media, leadingInset: leadingInset,
-                            onRefresh: { await vm.refresh() }) {
+                            onRefresh: { await vm.refresh() },
+                            hero: {
             cinematicHero(media: media)
-        } rows: {
+        }, rows: {
             AiringInfoSection(media: media)
             if !isSingleEpisode(media) {
                 cinematicEpisodes(media: media)
@@ -1730,7 +1731,7 @@ struct AniListDetailView: View {
             MoreLikeThisSection(items: media.recommendations ?? [])
             WatchOrderSection(entries: watchOrder, margin: CinematicMetrics.margin, titleFont: .title2.weight(.bold))
             cinematicRelations(media: media)
-        }
+        })
         .alert("detail.reset_progress", isPresented: $showResetConfirmation) {
             Button("common.reset", role: .destructive) {
                 ContinueWatchingManager.shared.resetProgress(

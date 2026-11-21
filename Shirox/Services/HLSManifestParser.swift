@@ -149,15 +149,19 @@ enum HLSManifestParser {
         var audio: [HLSAudioRendition] = []
         if let group = best.attrs["AUDIO"] {
             var seen = Set<URL>()
-            audio = lines.filter { $0.hasPrefix("#EXT-X-MEDIA:") }
-                .map { parseAttributes(String($0.dropFirst("#EXT-X-MEDIA:".count))) }
-                .filter { $0["TYPE"] == "AUDIO" && $0["GROUP-ID"] == group }
-                .compactMap { attrs in
-                    guard let url = attrs["URI"].flatMap({ URL(string: $0, relativeTo: baseURL)?.absoluteURL }),
-                          seen.insert(url).inserted else { return nil }
-                    return HLSAudioRendition(url: url, name: attrs["NAME"] ?? String(localized: "shared.audio"),
-                                             language: attrs["LANGUAGE"], isDefault: attrs["DEFAULT"] == "YES")
-                }
+            // The chain spelled out step by step: as one map/filter/compactMap expression
+            // it was more than Xcode 26.3's checker could weigh (a timeout the nightly
+            // build died on), and the same code is harder to misread in pieces.
+            let mediaLines = lines.filter { $0.hasPrefix("#EXT-X-MEDIA:") }
+            let mediaAttrs = mediaLines.map { parseAttributes(String($0.dropFirst("#EXT-X-MEDIA:".count))) }
+            let audioGroupAttrs = mediaAttrs.filter { $0["TYPE"] == "AUDIO" && $0["GROUP-ID"] == group }
+            audio = audioGroupAttrs.compactMap { attrs -> HLSAudioRendition? in
+                guard let uri = attrs["URI"],
+                      let url = URL(string: uri, relativeTo: baseURL)?.absoluteURL,
+                      seen.insert(url).inserted else { return nil }
+                return HLSAudioRendition(url: url, name: attrs["NAME"] ?? String(localized: "shared.audio"),
+                                         language: attrs["LANGUAGE"], isDefault: attrs["DEFAULT"] == "YES")
+            }
         }
         return HLSVariantChoice(video: best.url, audioRenditions: audio, bandwidth: best.bandwidth,
                                 codecs: best.attrs["CODECS"])

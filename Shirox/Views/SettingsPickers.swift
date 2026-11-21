@@ -441,10 +441,13 @@ struct AppIconPickerSheet: View {
         return ZStack {
             ForEach(options.indices, id: \.self) { index in
                 let offset = progress - CGFloat(index)
+                // Typed literals: the bare `offset * -150` and `1 - abs(offset) * 2` read
+                // ambiguous to Xcode 26.3's checker (a nightly failure); the intent is
+                // unchanged.
                 Text(options[index].title)
                     .font(.title2.bold())
-                    .offset(x: offset * -150)
-                    .opacity(1 - min(abs(offset) * 2, 1))
+                    .offset(x: offset * CGFloat(-150))
+                    .opacity(Double(CGFloat(1) - min(abs(offset) * CGFloat(2), CGFloat(1))))
             }
         }
         .offset(y: -25)

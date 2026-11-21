@@ -56,15 +56,22 @@ jobs:
    needs: prepare-release
    # macos-26's pool starves at peak (the cron note above); macos-15's is a
    # different queue. Its image default Xcode is 16.4, too old for the iOS 26
-   # availability guards, so 26.3 (which ships the iOS 26 SDK) is pinned by hand.
+   # availability guards, so the newest Xcode the runner ships is picked at run
+   # time instead of a hand-pinned version: the pin sat at 26.3 while the image
+   # moved on, and the same green code failed only under that older toolchain.
    runs-on: macos-15
-   env:
-     DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
    permissions:
      contents: write
    steps:
      - name: Checkout repository
        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+     - name: Select the newest Xcode on the runner
+       run: |
+         NEWEST=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+         echo "Using $NEWEST"
+         echo "DEVELOPER_DIR=$NEWEST/Contents/Developer" >> "$GITHUB_ENV"
+         "$NEWEST/Contents/Developer/usr/bin/xcodebuild" -version
 
      - name: Make build script executable
        run: chmod +x ./buildipa.sh

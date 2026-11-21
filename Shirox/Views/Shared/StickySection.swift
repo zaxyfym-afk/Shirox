@@ -117,7 +117,6 @@ struct StickySection<Content: View, Header: View, MinimisedHeader: View>: View {
         }
         .coordinateSpace(.named("SECTION"))
     }
-
 }
 
 /// A sticky section's dials. `StickySection` is generic over its three view types, and a
