@@ -67,7 +67,8 @@ struct AnimeReleaseDetailsView: View {
     /// The countdown's moment: the row's own timestamp while it is the only one known,
     /// then the refetched record's — whichever is real right now.
     private var nextAiringAt: Date? {
-        if let next = full?.nextAiringEpisode, let seconds = next.airingAt, seconds > Date().timeIntervalSince1970 {
+        if let next = full?.nextAiringEpisode, let seconds = next.airingAt,
+           TimeInterval(seconds) > Date().timeIntervalSince1970 {
             return Date(timeIntervalSince1970: TimeInterval(seconds))
         }
         if let airingAt = context.airingAt, airingAt > Date() { return airingAt }
@@ -128,7 +129,7 @@ struct AnimeReleaseDetailsView: View {
 
     private var hero: some View {
         HStack(alignment: .bottom, spacing: 14) {
-            CachedAsyncImage(urlString: media.coverImage.best)
+            CachedAsyncImage(urlString: media.coverImage.best ?? "")
                 .frame(width: 96, height: 136)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay(

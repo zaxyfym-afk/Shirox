@@ -135,6 +135,37 @@ struct HomeView: View {
         }
     }
 
+    /// Continue Watching and Reading, then the source's rows.
+    private var rows: some View {
+        Group {
+            #if !os(tvOS)
+            if !continueWatching.items.isEmpty {
+                ContinueWatchingSection(items: continueWatching.items, navTarget: $cwNavTarget)
+            }
+            if !mangaProgress.items.isEmpty {
+                ContinueReadingSection(items: mangaProgress.items, readerContext: $readerContext,
+                                       detailItem: $readingDetail)
+            }
+            #endif
+            // Like the hero: the leaving and arriving rows overlap while they turn.
+            ZStack(alignment: .topLeading) {
+                VStack(alignment: .leading, spacing: 24) {
+                    if discovery.usesSimkl {
+                        ForEach(simkl.layout?.rows ?? []) { row in
+                            AnimeSection(title: row.title, items: row.items) {
+                                SimklListView(list: row.list)
+                            }
+                        }
+                    } else {
+                        discoveryRows
+                    }
+                }
+                .id(homePage)
+                .transition(.pageTurn(step: pageStep))
+            }
+        }
+    }
+
     /// The AniList discovery rows: Top Anime first, its weekly/monthly/yearly pick right
     /// in the header, then Top Weekly Movies, New Anime, Top Weekly Rated and All-Time
     /// Favorites — each a ranking AniList actually serves, never a relabelled all-time

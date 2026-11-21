@@ -114,6 +114,9 @@ struct ModuleSwitcherMenu: View {
 /// The module's own page on the web, resolved the way `ModuleWebsiteButton` resolves it —
 /// extracted so the switcher menu can list it without keeping a second button alive.
 enum ModuleWebsiteLinks {
+    /// Read on the main actor: the module manager's state is main-actor isolated, and
+    /// this only ever runs from a menu's body.
+    @MainActor
     static func links(href: String?, moduleId: String?) -> [WebLink] {
         guard let href, !href.isEmpty else { return [] }
         let modules = ModuleManager.shared.modules

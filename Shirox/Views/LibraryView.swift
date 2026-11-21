@@ -1199,7 +1199,7 @@ struct LibraryView: View {
     /// local one — signed-out users' default. Signed in anywhere, or browsing Simkl's
     /// list, the page keeps all of its height for the entries.
     private var shouldOfferConnectCard: Bool {
-        !aniListAuth.isLoggedIn && !malAuth.isLoggedIn && !simklAuth.isLoggedIn && vm.isLocal
+        !anilistAuth.isLoggedIn && !malAuth.isLoggedIn && !simklAuth.isLoggedIn && vm.isLocal
     }
 
     /// The Library's in-page sign-in: AniList and MyAnimeList side by side, each with its
