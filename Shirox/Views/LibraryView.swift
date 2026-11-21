@@ -1086,6 +1086,12 @@ struct LibraryView: View {
 
     private var libraryContentBase: some View {
         VStack(spacing: 0) {
+            // Signed out of both trackers: the Library's own connection card, inside the
+            // page above the local list — not only the toolbar's Sign In. The local
+            // library stays exactly where it was, scrolling under it.
+            if shouldOfferConnectCard {
+                libraryConnectCard
+            }
             #if os(iOS)
             // One List (or, laid out as a grid, one scroll view) in every state, the header rows
             // included — see `entriesList`.
@@ -1185,6 +1191,89 @@ struct LibraryView: View {
         .navigationTitle("common.library")
         .searchable(text: $searchText, prompt: String(localized: "library.search_library"))
         #endif
+    }
+
+    // MARK: - Library connect card
+
+    /// The card shows when neither tracker is connected and the list on screen is the
+    /// local one — signed-out users' default. Signed in anywhere, or browsing Simkl's
+    /// list, the page keeps all of its height for the entries.
+    private var shouldOfferConnectCard: Bool {
+        !aniListAuth.isLoggedIn && !malAuth.isLoggedIn && !simklAuth.isLoggedIn && vm.isLocal
+    }
+
+    /// The Library's in-page sign-in: AniList and MyAnimeList side by side, each with its
+    /// own real logo and its own connect button that runs the real authentication. The
+    /// moment either lands, the page re-points at that account's list — the card
+    /// disappears, the library above it never blinked.
+    private var libraryConnectCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("library.connect_trackers")
+                .font(.headline)
+            Text("library.connect_trackers_hint")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 10) {
+                trackerTile(.anilist)
+                trackerTile(.mal)
+            }
+        }
+        .padding(16)
+        .padding(.top, 10)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.primary.opacity(0.08))
+                .frame(height: 1)
+        }
+    }
+
+    /// One tracker's tile: the service's logo on its white tile — the logo they use
+    /// everywhere, fetched from the same source the Settings pages show — its name, and
+    /// its connect action.
+    private func trackerTile(_ type: ProviderType) -> some View {
+        Button {
+            signIn(to: type)
+        } label: {
+            VStack(spacing: 9) {
+                CachedAsyncImage(urlString: type.iconURL)
+                    .frame(width: 42, height: 42)
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.1), lineWidth: 1)
+                    )
+                    .accessibilityHidden(true)
+
+                Text(type.displayName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                Text("library.sign_in")
+                    .font(.caption.weight(.bold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(Color.primary, in: Capsule())
+                    .foregroundStyle(Color.onSolidPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.primary.opacity(0.05))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "library.connect_with \(type.displayName)"))
     }
 
     private var libraryContent: some View {

@@ -135,6 +135,113 @@ final class AniListService {
         )
     }
 
+    // MARK: - Discovery rankings
+
+    /// How far back a ranking window reaches. "Top Anime" ranks the titles that started
+    /// within the window; the reach is the honest difference between a weekly, a monthly
+    /// and a yearly ranking.
+    enum RankingPeriod: String, CaseIterable, Identifiable {
+        case weekly, monthly, yearly
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .weekly:  return String(localized: "home.ranking_weekly")
+            case .monthly: return String(localized: "home.ranking_monthly")
+            case .yearly:  return String(localized: "home.ranking_yearly")
+            }
+        }
+
+        var windowSeconds: Int {
+            switch self {
+            case .weekly:  return 7 * 86_400
+            case .monthly: return 30 * 86_400
+            case .yearly:  return 365 * 86_400
+            }
+        }
+    }
+
+    /// The discovery rows' raw results, one aliased query per period.
+    struct RankingsRaw {
+        let topAnime: [AniListMedia]
+        let topMovies: [AniListMedia]
+        let newAnime: [AniListMedia]
+        let topAiringRated: [AniListMedia]
+        let allTimeFavorites: [AniListMedia]
+    }
+
+    /// The discovery categories Home shows, every one a ranking AniList actually serves:
+    ///
+    /// - Top Anime: the most popular titles that *started airing* within the picked
+    ///   period — weekly, monthly or yearly, the window is the ranking.
+    /// - Top Weekly Movies: AniList's own trending among films — the service's live,
+    ///   week-scale signal, not a relabelled all-time list.
+    /// - New Anime: the newest titles that have actually started.
+    /// - Top Weekly Rated: the highest scored among the currently airing — the shows
+    ///   being scored this week.
+    /// - All-Time Favorites: AniList's favourites count, genuinely all-time.
+    func rankings(period: RankingPeriod) async throws -> RankingsRaw {
+        let perPage = DataSaver.rowLength(20)
+        let since = Int(Date().timeIntervalSince1970) - period.windowSeconds
+        let query = """
+        query ($since: Int) {
+          topAnime: Page(page: 1, perPage: \(perPage)) {
+            media(type: ANIME, startDate_greater: $since, sort: POPULARITY_DESC, isAdult: false) { ...MediaFields }
+          }
+          topMovies: Page(page: 1, perPage: \(perPage)) {
+            media(type: ANIME, format: MOVIE, sort: TRENDING_DESC, isAdult: false) { ...MediaFields }
+          }
+          newAnime: Page(page: 1, perPage: \(perPage)) {
+            media(type: ANIME, sort: START_DATE_DESC, status_not: NOT_YET_RELEASED, isAdult: false) { ...MediaFields }
+          }
+          topAiringRated: Page(page: 1, perPage: \(perPage)) {
+            media(type: ANIME, status: RELEASING, sort: SCORE_DESC, isAdult: false) { ...MediaFields }
+          }
+          allTimeFavorites: Page(page: 1, perPage: \(perPage)) {
+            media(type: ANIME, sort: FAVOURITES_DESC, isAdult: false) { ...MediaFields }
+          }
+        }
+        fragment MediaFields on Media {
+          id
+          title { romaji english native }
+          coverImage { large extraLarge }
+          bannerImage
+          averageScore
+          genres
+          description(asHtml: false)
+        }
+        """
+        let data = try await post(query: query, variables: ["since": since])
+
+        struct Feed: Decodable {
+            let topAnime: PageContent?
+            let topMovies: PageContent?
+            let newAnime: PageContent?
+            let topAiringRated: PageContent?
+            let allTimeFavorites: PageContent?
+        }
+        struct Response: Decodable {
+            let data: Feed?
+            let errors: [GraphQLError]?
+        }
+        let response = try JSONDecoder().decode(Response.self, from: data)
+        guard let feed = response.data else {
+            if let errors = response.errors {
+                if errors.contains(where: { $0.status == 403 }) { throw AniListError.httpError(403) }
+                throw AniListError.graphQL(errors.map(\.message).joined(separator: ", "))
+            }
+            throw AniListError.noData
+        }
+        return RankingsRaw(
+            topAnime: feed.topAnime?.media ?? [],
+            topMovies: feed.topMovies?.media ?? [],
+            newAnime: feed.newAnime?.media ?? [],
+            topAiringRated: feed.topAiringRated?.media ?? [],
+            allTimeFavorites: feed.allTimeFavorites?.media ?? []
+        )
+    }
+
     func search(keyword: String) async throws -> [AniListMedia] {
         let query = """
         query ($search: String) {

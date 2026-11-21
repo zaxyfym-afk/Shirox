@@ -86,6 +86,8 @@ struct DetailView: View {
     /// from the toolbar's menu or the "Link with AniList" button, whichever opened them.
     @Namespace private var sheetZoom
     @State private var linksZoomID = "edit"
+    /// The Module Store, pushed from the toolbar's module menu.
+    @State private var showModuleStore = false
     @State private var sequelSearchItem: SearchItem?
     @State private var watchOrder: [TVDBMappingService.AniraMediaEntry] = []
     @State private var leadingInset: CGFloat = 0
@@ -391,9 +393,18 @@ struct DetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                ModuleWebsiteButton(href: vm.detailHref ?? item.href, moduleId: effectiveModuleId,
-                                    trackers: TrackerWebLinks.links(anilist: vm.aniListID, mal: malID, simkl: pageSimklID))
+                // The module switcher, where the external-links button used to be: the
+                // installed modules, the Store, and — a section down — the links the old
+                // button offered. Selecting a module really switches this page's source.
+                ModuleSwitcherMenu(pageModuleId: effectiveModuleId,
+                                   href: vm.detailHref ?? item.href,
+                                   onSwitch: { vm.load(item: item) },
+                                   onOpenStore: { showModuleStore = true },
+                                   trackers: TrackerWebLinks.links(anilist: vm.aniListID, mal: malID, simkl: pageSimklID))
             }
+        }
+        .navigationDestinationCompat(isPresented: $showModuleStore) {
+            ModuleStoreView()
         }
         #elseif os(macOS)
         .navigationTitle(vm.detail?.title ?? item.title)

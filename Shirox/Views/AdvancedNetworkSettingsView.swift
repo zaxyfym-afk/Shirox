@@ -410,9 +410,9 @@ private struct NetworkTestPanel: View {
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.primary.opacity(0.85))
+                        .fill(Color.primary)
                 )
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.onSolidPrimary)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)

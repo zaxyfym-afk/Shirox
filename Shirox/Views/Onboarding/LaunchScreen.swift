@@ -2,20 +2,21 @@ import SwiftUI
 
 // MARK: - Config
 
-/// What the carry-on splash shows: the app's mark over the launch screen's own background,
-/// so the two read as one. The launch screen is the generated, contentless one — a plain
-/// system background — so the tint is exactly that, and the mark arrives as the app's own.
+/// What the carry-on splash shows: the app's real logo — the same artwork the home
+/// screen icon carries — over the launch screen's own background, so the two read as one.
+/// The launch screen is the generated, contentless one — a plain system background — so
+/// the tint is exactly that, and the logo arrives as the app's own.
 struct LaunchConfig {
-    var logo = Image("ShiroMark")
+    var logo = Image("AppIconRealistic")
     var tint = Color(uiColor: .systemBackground)
     var initialDelay: CGFloat = 0.45
     var iconPadding: CGFloat = 30
     var iconSize = CGSize(width: 150, height: 150)
     var iconRadius: CGFloat = 45
-    /// The mark's size while the splash is still holding still, standing in for the launch
+    /// The logo's size while the splash is still holding still, standing in for the launch
     /// screen's own. The asset is a 1024pt master; shown at its natural size it fills the
     /// screen several times over — the zoomed-in first frame the splash had.
-    var launchMarkSize: CGFloat = 90
+    var launchMarkSize: CGFloat = 92
 }
 
 // MARK: - Modifier
@@ -41,6 +42,20 @@ extension View {
         ))
         #else
         self
+        #endif
+    }
+}
+
+/// Whether this process has already run the launch reveal, read by the onboarding so the
+/// welcome screen's own logo waits for the splash's icon to bow out — the two never on
+/// screen at once, so the animated one is the only logo the first launch ever shows.
+/// Every platform answers; only iOS ever says yes.
+enum LaunchSplash {
+    static var playedThisProcess: Bool {
+        #if os(iOS)
+        SplashGate.hasPresentedThisProcess
+        #else
+        false
         #endif
     }
 }

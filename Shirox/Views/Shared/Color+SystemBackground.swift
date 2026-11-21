@@ -13,6 +13,14 @@ extension Color {
         return Color.black
         #endif
     }
+
+    /// The text on a solid `Color.primary` fill: the page background's own colour, so the
+    /// fill/text pair inverts with the appearance and always reads. The fix for the
+    /// pure-white button the dark appearance made illegible — `.white` on a near-white
+    /// `Color.primary` capsule — everywhere a solid label button appears.
+    static var onSolidPrimary: Color {
+        .adaptiveSystemBackground
+    }
 }
 
 // MARK: - Curved Gradient Shadow

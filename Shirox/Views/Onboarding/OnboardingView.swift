@@ -35,8 +35,11 @@ struct OnboardingView: View {
     /// navigation path checks it, so a rapid second tap or swipe is refused rather than
     /// stacked onto the moving page. This is the single source of truth for the step.
     @State private var isTurning = false
-    /// The hero's slow float, running only where motion is allowed.
+    /// The hero logo's slow float, running only where motion is allowed.
     @State private var markFloats = false
+    /// Whether the welcome's logo has been revealed: hidden until the launch splash has
+    /// handed the logo over on a first launch, so the animated one is the only logo seen.
+    @State private var heroShown = false
 
     // The modules page: the two catalogs' picks, the Store door, the import-by-link field.
     @State private var recommended: [ModuleStoreEntry] = []
@@ -61,28 +64,31 @@ struct OnboardingView: View {
     }
 
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                topBar
+        // One column: the bar, the page, the controls. The controls are a stack child, not
+        // an overlay, so the Next button and the page indicators sit at the bottom on every
+        // device — anchored by layout, not by an offset that a small screen or a keyboard
+        // could betray — and the page takes the space above them without anything ever
+        // crossing.
+        VStack(spacing: 0) {
+            topBar
 
-                Group {
-                    switch page {
-                    case 0: welcomePage
-                    case 1: appearancePage
-                    case 2: accountsPage
-                    default: modulesPage
-                    }
+            Group {
+                switch page {
+                case 0: welcomePage
+                case 1: appearancePage
+                case 2: accountsPage
+                default: modulesPage
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(pageTurn)
-                .id(page)
-                .animation(motion, value: page)
-                // The swipe: a horizontal drag that ends past the threshold turns the page.
-                // Vertical scrolling and the pages' own controls never reach it — it only
-                // fires when the drag was mostly sideways, and never mid-turn.
-                .contentShape(Rectangle())
-                .gesture(swipe)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .transition(pageTurn)
+            .id(page)
+            .animation(motion, value: page)
+            // The swipe: a horizontal drag that ends past the threshold turns the page.
+            // Vertical scrolling and the pages' own controls never reach it — it only
+            // fires when the drag was mostly sideways, and never mid-turn.
+            .contentShape(Rectangle())
+            .gesture(swipe)
 
             controls
         }
@@ -180,7 +186,9 @@ struct OnboardingView: View {
         .padding(.top, 8)
     }
 
-    /// The progress line and the next button; the last page carries its own call to action.
+    /// The progress line and the next button, anchored at the screen's bottom by the
+    /// stack above: the indicators sit beside the navigation control, as asked, on every
+    /// iPhone size, with nothing hard-coded about where the screen ends.
     private var controls: some View {
         HStack(spacing: 16) {
             OnboardingProgress(page: page, lastPage: lastPage)
@@ -197,11 +205,11 @@ struct OnboardingView: View {
                             .font(.caption.weight(.bold))
                     }
                     .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.onSolidPrimary)
                     .padding(.horizontal, 22)
                     .padding(.vertical, 12)
                     .background(
-                        Capsule().fill(Color.primary.opacity(0.85))
+                        Capsule().fill(Color.primary)
                     )
                 }
                 .buttonStyle(OnboardingPressStyle())
@@ -209,7 +217,8 @@ struct OnboardingView: View {
             }
         }
         .padding(.horizontal, 24)
-        .padding(.bottom, 24)
+        .padding(.top, 12)
+        .padding(.bottom, 18)
     }
 
     private func goForward() {
@@ -264,8 +273,8 @@ struct OnboardingView: View {
 
     // MARK: - Welcome
 
-    /// The app in one poster frame: the floating mark, the typed promise, and what the app
-    /// doesn't host. Grey ink on white; the colour lives in the mark itself.
+    /// The app in one poster column: the real logo as the centrepiece, the typed promise,
+    /// and what the app doesn't host. Grey ink on white; the logo carries its own colour.
     private var welcomePage: some View {
         BalancedPage {
             VStack(alignment: .leading, spacing: 0) {
@@ -312,8 +321,17 @@ struct OnboardingView: View {
         }
         .onAppear {
             markFloats = false
+            heroShown = false
+            // The logo reveals itself after the launch splash has handed it over — on a
+            // first launch the splash's icon is still riding out of the way, and showing
+            // a second copy beneath it would break the animation's story. The wait is
+            // the splash's own timeline, not a guess: the icon bows out ~2.75s in.
+            let revealDelay: Double = reduceMotion ? 0.05 : (LaunchSplash.playedThisProcess ? 2.85 : 0.3)
+            DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {
+                heroShown = true
+            }
             if !reduceMotion {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { markFloats = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay + 0.4) { markFloats = true }
             }
         }
     }
@@ -446,8 +464,8 @@ struct OnboardingView: View {
                         .font(.subheadline.weight(.semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(Color.primary.opacity(0.85), in: Capsule())
-                        .foregroundStyle(.white)
+                        .background(Color.primary, in: Capsule())
+                        .foregroundStyle(Color.onSolidPrimary)
                 }
                 .buttonStyle(OnboardingPressStyle())
             }
@@ -503,9 +521,10 @@ struct OnboardingView: View {
 
     // MARK: - Modules
 
-    /// The three ways in, on one page: the catalogs' recommended picks with an install
-    /// button each, the Store behind one clear door, and import-by-link for a module from
-    /// anywhere. The finish button closes the flow; nothing here is required first.
+    /// The three ways in, each its own clearly separated area: the eight recommended
+    /// modules as a quiet list, the Store behind one full-width door, and import-by-link.
+    /// Generous spacing between the areas, hairline dividers inside them — no cards
+    /// stacked on cards. The finish button closes the flow; nothing here is required.
     private var modulesPage: some View {
         BalancedPage {
             VStack(alignment: .leading, spacing: 0) {
@@ -525,15 +544,17 @@ struct OnboardingView: View {
                     .padding(.top, 10)
                     .fixedSize(horizontal: false, vertical: true)
 
-                VStack(alignment: .leading, spacing: 14) {
-                    recommendedCard
-                    storeDoor
-                    importCard
-                }
-                .padding(.top, 20)
-                .padding(.bottom, 24)
+                recommendedArea
+                    .padding(.top, 26)
+
+                storeArea
+                    .padding(.top, 22)
+
+                importArea
+                    .padding(.top, 22)
 
                 finishButton
+                    .padding(.top, 30)
             }
         }
         .task { await loadRecommendations() }
@@ -552,58 +573,64 @@ struct OnboardingView: View {
                 .padding(.vertical, 16)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.primary.opacity(0.85))
+                        .fill(Color.primary)
                 )
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.onSolidPrimary)
         }
         .buttonStyle(OnboardingPressStyle())
         .padding(.top, 4)
     }
 
-    /// The two catalogs' picks: entries flagged featured first, the rest filling behind
-    /// them, only ones not installed already. Each row installs from its manifest; the
-    /// button turns into its progress and then a checkmark.
-    @ViewBuilder
-    private var recommendedCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 6) {
-                Text("onboarding.recommended_modules")
-                    .font(.body.weight(.semibold))
-                if !catalogLoaded {
-                    ProgressView()
-                        .controlSize(.small)
-                }
+    /// One area's heading: a small icon and a bold name, kept above the content so the
+    /// rows themselves can stay plain. The spinner rides the heading while the catalogs
+    /// are still answering.
+    private func areaHeader(_ title: LocalizedStringKey, icon: String, isLoading: Bool = false) -> some View {
+        HStack(spacing: 7) {
+            IconView(icon)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.body.weight(.bold))
+                .foregroundStyle(.primary)
+            if isLoading {
+                ProgressView()
+                    .controlSize(.small)
             }
+            Spacer(minLength: 0)
+        }
+        .padding(.bottom, 10)
+    }
+
+    // MARK: Recommended
+
+    /// The eight recommended modules, one row each, divided by hairlines: icon, name, and
+    /// its install action. No descriptions, no oversized tiles — the name is the point.
+    @ViewBuilder
+    private var recommendedArea: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            areaHeader("onboarding.recommended_modules", icon: "sparkles", isLoading: !catalogLoaded)
 
             if catalogLoaded, recommended.isEmpty {
                 Text("onboarding.recommended_empty")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .padding(.vertical, 6)
             }
 
-            ForEach(recommended) { entry in
-                HStack(spacing: 12) {
-                    ModuleStoreEntryIcon(entry: entry, size: 38)
+            VStack(spacing: 0) {
+                ForEach(Array(recommended.enumerated()), id: \.element.id) { index, entry in
+                    recommendedRow(entry)
+                        .padding(.vertical, 9)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(entry.name)
-                            .font(.subheadline.weight(.semibold))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.85)
-                        Text(entry.tagline)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
+                    if index < recommended.count - 1 {
+                        Divider()
+                            .overlay(Color.primary.opacity(0.07))
                     }
-
-                    Spacer(minLength: 8)
-
-                    recommendedInstallButton(entry)
                 }
             }
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(Color.primary.opacity(0.04))
@@ -614,32 +641,63 @@ struct OnboardingView: View {
         )
     }
 
+    /// One recommended module: its real icon from the catalog, its real name, and its
+    /// install action — whose label says its state, so nothing rides on colour alone.
+    private func recommendedRow(_ entry: ModuleStoreEntry) -> some View {
+        HStack(spacing: 12) {
+            ModuleStoreEntryIcon(entry: entry, size: 40)
+
+            Text(entry.name)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+
+            Spacer(minLength: 8)
+
+            recommendedInstallButton(entry)
+        }
+        .frame(minHeight: 44)
+    }
+
+    /// Install → Installing → Installed, each state labelled and each guarded: the entry
+    /// sits in `installingEntryIDs` for the whole request, so a second tap can't start a
+    /// duplicate install behind the first one.
     @ViewBuilder
     private func recommendedInstallButton(_ entry: ModuleStoreEntry) -> some View {
         if store.installedModule(for: entry) != nil {
-            IconView("checkmark.circle.fill")
-                .font(.body.weight(.semibold))
-                .foregroundStyle(.green)
-                .accessibilityLabel(Text("modules.installed"))
+            HStack(spacing: 5) {
+                IconView("checkmark.circle.fill")
+                    .font(.subheadline.weight(.semibold))
+                Text("modules.installed")
+                    .font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.green)
         } else if installingEntryIDs.contains(entry.id) {
-            ProgressView()
-                .controlSize(.small)
+            HStack(spacing: 6) {
+                ProgressView()
+                    .controlSize(.small)
+                Text("modules.installing")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
         } else {
             Button {
                 install(entry)
             } label: {
                 Text("modules.add")
                     .font(.caption.weight(.bold))
-                    .padding(.horizontal, 13)
-                    .padding(.vertical, 7)
-                    .background(Color.primary.opacity(0.85), in: Capsule())
-                    .foregroundStyle(.white)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 8)
+                    .background(Color.primary, in: Capsule())
+                    .foregroundStyle(Color.onSolidPrimary)
             }
             .buttonStyle(OnboardingPressStyle())
         }
     }
 
     private func install(_ entry: ModuleStoreEntry) {
+        guard !installingEntryIDs.contains(entry.id) else { return }
         installingEntryIDs.insert(entry.id)
         Task {
             await store.install(entry)
@@ -647,41 +705,149 @@ struct OnboardingView: View {
         }
     }
 
+    /// The eight the Recommended section exists for — in this order, no others. Each is
+    /// matched against the catalogs' real entries by name, so what installs is the real
+    /// module with its real metadata and link; a name the catalogs don't carry is left
+    /// out rather than invented.
+    private static let recommendedNames = [
+        "All Anime", "123 Anime", "Anikoto", "Anime World",
+        "Anime Wave", "AnimePahe", "Miruro", "AnimeX"
+    ]
+
+    /// The catalogs' own spellings a wanted name stands for, where spacing differs:
+    /// "Anime Wave" publishes as "Aniwave".
+    private static let recommendedAliases: [String: [String]] = [
+        "Anime Wave": ["aniwave"]
+    ]
+
     private func loadRecommendations() async {
         guard !catalogLoaded else { return }
         await store.load()
         let installed = Set(moduleManager.modules.compactMap(\.sourceName))
-        let featured = store.catalog.entries.filter { $0.featured == true }
-        let rest = store.catalog.entries.filter { $0.featured != true }
-        recommended = Array((featured + rest).filter { !installed.contains($0.name) }.prefix(5))
+        recommended = Self.recommendedNames.compactMap { wanted in
+            guard let entry = Self.match(for: wanted, in: store.catalog.entries),
+                  !installed.contains(entry.name) else { return nil }
+            return entry
+        }
         catalogLoaded = true
     }
 
-    /// The Store's door: full width, chevron at the end, opening the real store over the
-    /// page — it comes back here the moment it's done.
-    private var storeDoor: some View {
-        Button {
-            showStore = true
-        } label: {
-            HStack(spacing: 12) {
-                IconView("cart")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 28)
-                VStack(alignment: .leading, spacing: 2) {
+    /// The catalog entry a wanted name stands for. Names compare without spaces or case
+    /// ("Anime World" finds "AnimeWorld"); a wanted name's aliases widen the compare
+    /// ("Anime Wave" finds "Aniwave"). Among the matches, the entry with an icon wins;
+    /// the shorter name breaks ties, which is the plain entry over a "(DUB)" variant.
+    static func match(for wanted: String, in entries: [ModuleStoreEntry]) -> ModuleStoreEntry? {
+        let key = normalizedName(wanted)
+        let aliases = Set((recommendedAliases[wanted] ?? []).map(normalizedName))
+        let candidates = entries.filter { entry in
+            let name = normalizedName(entry.name)
+            return name == key || aliases.contains(name)
+        }
+        return candidates.max { a, b in
+            let aHasIcon = !(a.iconURL ?? "").isEmpty
+            let bHasIcon = !(b.iconURL ?? "").isEmpty
+            if aHasIcon != bHasIcon { return !aHasIcon }
+            return a.name.count > b.name.count
+        }
+    }
+
+    private static func normalizedName(_ name: String) -> String {
+        name.lowercased().replacingOccurrences(of: " ", with: "")
+    }
+
+    // MARK: Store
+
+    /// The Store's door: full width, its own area under Recommended, opening the real
+    /// store over the page — it comes back here the moment it's done.
+    private var storeArea: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            areaHeader("onboarding.store_area", icon: "cart")
+
+            Button {
+                showStore = true
+            } label: {
+                HStack(spacing: 12) {
+                    IconView("cart")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 30)
                     Text("onboarding.open_module_store")
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.primary)
-                    Text("onboarding.store_hint")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: 8)
+                    IconView("chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.tertiary)
                 }
-                Spacer(minLength: 8)
-                IconView("chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
+                .padding(.horizontal, 16)
+                .frame(minHeight: 52)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.primary.opacity(0.04))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                )
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(OnboardingPressStyle())
+        }
+    }
+
+    /// Import from anywhere: paste the module's manifest link, check it's an https link,
+    /// hand it to the manager the Store itself uses, and say plainly what happened.
+    private var importArea: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            areaHeader("onboarding.import_module", icon: "link")
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    TextField("onboarding.import_hint", text: $importURL)
+                        .autocorrectionDisabled()
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                        #endif
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                .fill(Color.primary.opacity(0.06))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                .strokeBorder(importError == nil ? Color.primary.opacity(0.08) : Color.orange.opacity(0.5),
+                                              lineWidth: 1)
+                        )
+
+                    Button {
+                        importFromLink()
+                    } label: {
+                        if isImporting {
+                            ProgressView()
+                                .controlSize(.small)
+                                .frame(width: 44, height: 40)
+                        } else {
+                            Text("common.add")
+                                .font(.subheadline.weight(.bold))
+                                .padding(.horizontal, 16)
+                                .frame(height: 40)
+                                .background(Color.primary, in: Capsule())
+                                .foregroundStyle(Color.onSolidPrimary)
+                        }
+                    }
+                    .buttonStyle(OnboardingPressStyle())
+                    .disabled(isImporting)
+                }
+
+                if let importError {
+                    Text(importError)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .transition(.opacity)
+                }
             }
             .padding(16)
             .background(
@@ -692,79 +858,7 @@ struct OnboardingView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
             )
-            .contentShape(Rectangle())
         }
-        .buttonStyle(OnboardingPressStyle())
-    }
-
-    /// Import from anywhere: paste the module's manifest link, check it's an https link,
-    /// hand it to the manager the Store itself uses, and say plainly what happened.
-    private var importCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("onboarding.import_module")
-                .font(.body.weight(.semibold))
-
-            Text("onboarding.import_hint")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack(spacing: 10) {
-                TextField("onboarding.import_hint", text: $importURL)
-                    .autocorrectionDisabled()
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.URL)
-                    #endif
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 11, style: .continuous)
-                            .fill(Color.primary.opacity(0.06))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 11, style: .continuous)
-                            .strokeBorder(importError == nil ? Color.primary.opacity(0.08) : Color.orange.opacity(0.5),
-                                          lineWidth: 1)
-                    )
-
-                Button {
-                    importFromLink()
-                } label: {
-                    if isImporting {
-                        ProgressView()
-                            .controlSize(.small)
-                            .frame(width: 44, height: 40)
-                    } else {
-                        Text("common.add")
-                            .font(.subheadline.weight(.bold))
-                            .padding(.horizontal, 16)
-                            .frame(height: 40)
-                            .background(Color.primary.opacity(0.85), in: Capsule())
-                            .foregroundStyle(.white)
-                    }
-                }
-                .buttonStyle(OnboardingPressStyle())
-                .disabled(isImporting)
-            }
-
-            if let importError {
-                Text(importError)
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .transition(.opacity)
-            }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
-        )
     }
 
     private func importFromLink() {
@@ -792,44 +886,29 @@ struct OnboardingView: View {
 
     // MARK: - The frame
 
-    /// A poster-shaped outline holding the app's mark: empty and dashed until a source exists,
-    /// filled once one does. The same 2:3 as every poster elsewhere in the app, floating
-    /// slowly while the page shows.
+    /// The app's real logo — the very artwork the home screen carries — as the welcome's
+    /// centrepiece: centred horizontally, at its own proportions, neither stretched nor
+    /// cropped, floating gently where motion is allowed. The dashed poster frame and the
+    /// grey template mark it replaced are gone: the launch animation carries this same
+    /// image in, so the page simply receives it.
     private var frame: some View {
-        ZStack {
-            // The wash: neutral grey blurred into the poster's neighbourhood, so the hero
-            // reads as lit rather than drawn.
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color.primary.opacity(0.06))
-                .blur(radius: 24)
-                .padding(-14)
-                .opacity(markFloats ? 0.95 : 0.6)
-
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(
-                    hasSource ? AnyShapeStyle(Color.primary.opacity(0.8)) : AnyShapeStyle(Color.secondary.opacity(0.4)),
-                    style: StrokeStyle(lineWidth: 2, dash: hasSource ? [] : [7, 6])
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(hasSource ? Color.primary.opacity(0.05) : Color.clear)
-                )
-
-            // The app's own mark, not the 白 typeface glyph — the logo has squared terminals
-            // and its own angled top stroke, and a system font can't stand in for it. Shipped
-            // as a template image so it takes the same grey treatment as the frame.
-            Image("ShiroMark")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 86)
-                .foregroundStyle(hasSource ? AnyShapeStyle(Color.primary.opacity(0.85)) : AnyShapeStyle(Color.secondary.opacity(0.35)))
-                .offset(y: markFloats ? -8 : 8)
-        }
-        .frame(width: 128, height: 192)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 2.6).repeatForever(autoreverses: true), value: markFloats)
-        .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.8), value: hasSource)
-        .accessibilityHidden(true)
+        Image("AppIconRealistic")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 118, height: 118)
+            .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 27, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.16), radius: 16, y: 8)
+            .offset(y: markFloats ? -6 : 6)
+            .opacity(heroShown ? 1 : 0)
+            .scaleEffect(heroShown ? 1 : 0.88)
+            .frame(maxWidth: .infinity)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 2.6).repeatForever(autoreverses: true), value: markFloats)
+            .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.78), value: heroShown)
+            .accessibilityHidden(true)
     }
 
     // MARK: - Actions

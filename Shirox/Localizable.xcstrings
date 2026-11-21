@@ -131476,6 +131476,366 @@
           }
         }
       }
+    },
+    "home.ranking_weekly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Week"
+          }
+        }
+      }
+    },
+    "home.ranking_monthly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Month"
+          }
+        }
+      }
+    },
+    "home.ranking_yearly": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Year"
+          }
+        }
+      }
+    },
+    "home.top_anime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Anime"
+          }
+        }
+      }
+    },
+    "home.top_anime_period": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ranking period"
+          }
+        }
+      }
+    },
+    "home.top_weekly_movies": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Weekly Movies"
+          }
+        }
+      }
+    },
+    "home.new_anime": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Anime"
+          }
+        }
+      }
+    },
+    "home.top_weekly_rated": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Weekly Rated"
+          }
+        }
+      }
+    },
+    "home.all_time_favorites": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All-Time Favorites"
+          }
+        }
+      }
+    },
+    "home.no_rankings_yet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No titles in this ranking yet — try another period."
+          }
+        }
+      }
+    },
+    "schedule.episode_count %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld eps"
+          }
+        }
+      }
+    },
+    "countdown.days": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days"
+          }
+        }
+      }
+    },
+    "countdown.hours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hrs"
+          }
+        }
+      }
+    },
+    "countdown.minutes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Min"
+          }
+        }
+      }
+    },
+    "countdown.seconds": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sec"
+          }
+        }
+      }
+    },
+    "countdown.a11y %lld %lld %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days, %lld hours and %lld minutes until the next episode"
+          }
+        }
+      }
+    },
+    "release.next_episode %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Episode %lld in"
+          }
+        }
+      }
+    },
+    "release.tracking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracking"
+          }
+        }
+      }
+    },
+    "release.tracked_progress %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ep %lld watched"
+          }
+        }
+      }
+    },
+    "release.open_anime_details": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Anime Details"
+          }
+        }
+      }
+    },
+    "release.follow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow"
+          }
+        }
+      }
+    },
+    "release.unfollow": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Following — Unfollow"
+          }
+        }
+      }
+    },
+    "release.reminder_on": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Release notifications on"
+          }
+        }
+      }
+    },
+    "release.continue_episode %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue Episode %lld"
+          }
+        }
+      }
+    },
+    "release.total_episodes %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld episodes"
+          }
+        }
+      }
+    },
+    "release.no_modules_installed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No modules installed yet"
+          }
+        }
+      }
+    },
+    "release.switch_module": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch module"
+          }
+        }
+      }
+    },
+    "release.open_on_web": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open on the web"
+          }
+        }
+      }
+    },
+    "release.module_switched %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now using %@"
+          }
+        }
+      }
+    },
+    "release.following_toast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Following — you'll be told when it airs"
+          }
+        }
+      }
+    },
+    "modules.installing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing"
+          }
+        }
+      }
+    },
+    "library.connect_trackers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync your library"
+          }
+        }
+      }
+    },
+    "library.connect_trackers_hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect AniList or MyAnimeList to carry your lists everywhere. What you saved on this device stays right here."
+          }
+        }
+      }
+    },
+    "library.connect_with %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect %@"
+          }
+        }
+      }
+    },
+    "onboarding.store_area": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Module Store"
+          }
+        }
+      }
+    },
+    "home.top_anime_period_named %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top Anime · %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

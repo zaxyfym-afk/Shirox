@@ -85,22 +85,6 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var sections: some View {
-            // Accounts: notifications live here; the tracker and integration accounts
-            // moved under Sources, where the rest of what the app plays from already was.
-            Section {
-                NavigationLink {
-                    NotificationsSettingsView()
-                } label: {
-                    SettingsNavRow(
-                        icon: "bell",
-                        title: String(localized: "settings.notifications"),
-                        subtitle: String(localized: "settings.notifications_subtitle")
-                    )
-                }
-            } header: {
-                SettingsSectionHeader("settings.section_you")
-            }
-
             // Where things play.
             Section {
                 NavigationLink {
@@ -200,8 +184,20 @@ struct SettingsView: View {
                 SettingsSectionHeader("settings.section_sources")
             }
 
-            // The app itself.
+            // The app itself: notifications lead it — the account's feed and the episode
+            // releases are app-wide, not a category of their own — followed by the rest of
+            // what the app is.
             Section {
+                NavigationLink {
+                    NotificationsSettingsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "bell",
+                        title: String(localized: "settings.notifications"),
+                        subtitle: String(localized: "settings.notifications_subtitle")
+                    )
+                }
+
                 NavigationLink {
                     GeneralSettingsView()
                 } label: {
@@ -1042,9 +1038,9 @@ struct PlayerSettingsView: View {
                 .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                        .fill(isSelected ? Color.primary : Color.primary.opacity(0.05))
                 )
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .foregroundStyle(isSelected ? Color.onSolidPrimary : Color.primary)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -1071,9 +1067,9 @@ struct PlayerSettingsView: View {
                 .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                        .fill(isSelected ? Color.primary : Color.primary.opacity(0.05))
                 )
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .foregroundStyle(isSelected ? Color.onSolidPrimary : Color.primary)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -1269,9 +1265,9 @@ struct PlayerSettingsView: View {
                 .frame(height: 42)
                 .background(
                     RoundedRectangle(cornerRadius: 11, style: .continuous)
-                        .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                        .fill(isSelected ? Color.primary : Color.primary.opacity(0.05))
                 )
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .foregroundStyle(isSelected ? Color.onSolidPrimary : Color.primary)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

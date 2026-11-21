@@ -75,6 +75,8 @@ struct AniListDetailView: View {
     @AppStorage("hideFillerEpisodes") private var hideFillerEpisodes = false
     @State private var fillerEpisodeNumbers: Set<Int> = []
     @State private var sequelMediaId: Int?
+    /// The Module Store, pushed from the toolbar's module menu.
+    @State private var showModuleStore = false
     @State private var watchOrder: [TVDBMappingService.AniraMediaEntry] = []
     @State private var leadingInset: CGFloat = 0
     @AppStorage(DetailLayoutSetting.cinematicKey) private var cinematicLayout = true
@@ -375,15 +377,23 @@ struct AniListDetailView: View {
         #if os(iOS)
         .toolbarZoomSource("edit", in: sheetZoom, placement: .topBarTrailing) { editToolbarButton }
         .toolbar {
-            // The site of the module this show was last watched with, and its trackers' pages.
+            // The module switcher, where the external-links button used to be: the
+            // installed modules — switching really re-points playback — the Store, and
+            // the trackers' pages a section down, as the old button offered them.
             ToolbarItem(placement: .topBarTrailing) {
                 if let media = vm.media {
                     let cw = continueWatchingItem(for: media)
-                    ModuleWebsiteButton(href: cw?.detailHref, moduleId: cw?.moduleId,
-                                        trackers: TrackerWebLinks.links(anilist: pageAniListID, mal: pageMALID,
-                                                                        simkl: pageSimklID))
+                    ModuleSwitcherMenu(pageModuleId: cw?.moduleId,
+                                       href: cw?.detailHref,
+                                       onSwitch: {},
+                                       onOpenStore: { showModuleStore = true },
+                                       trackers: TrackerWebLinks.links(anilist: pageAniListID, mal: pageMALID,
+                                                                       simkl: pageSimklID))
                 }
             }
+        }
+        .navigationDestinationCompat(isPresented: $showModuleStore) {
+            ModuleStoreView()
         }
         .adaptiveSheet(item: $simklEdit) { target in
             SimklAnimeEditSheet(target: target)
