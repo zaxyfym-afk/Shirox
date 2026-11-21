@@ -246,11 +246,7 @@ struct NotificationsSettingsView: View {
     /// offers unfollow where swipe isn't available.
     private func followedCard(_ entry: FollowedSeries) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            CachedAsyncImage(urlString: entry.coverURL ?? "") { image in
-                image.resizable().scaledToFill()
-            } placeholder: {
-                Rectangle().fill(Color.primary.opacity(0.06))
-            }
+            CachedAsyncImage(urlString: entry.coverURL ?? "")
             .frame(height: 128)
             .frame(maxWidth: .infinity)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -262,8 +258,8 @@ struct NotificationsSettingsView: View {
                         .padding(.vertical, 3)
                         .background(.ultraThinMaterial, in: Capsule())
                         .padding(6)
+                        .transition(.opacity)
                 }
-                .transition(.opacity)
             }
 
             VStack(alignment: .leading, spacing: 2) {

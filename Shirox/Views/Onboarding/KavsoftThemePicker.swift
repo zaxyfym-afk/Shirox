@@ -163,9 +163,11 @@ struct KavsoftThemePicker: View {
                 }
                 .frame(width: size.width, height: size.height, alignment: .top)
 
-                // Shooting star, dark mode only.
+                // Shooting star, dark mode only (KeyframeAnimator needs iOS 17).
                 if isDark {
-                    ShootingStar()
+                    if #available(iOS 17.0, *) {
+                        ShootingStar()
+                    }
                 }
 
                 // Clouds dissolve into blur as night falls.
@@ -230,10 +232,9 @@ struct KavsoftThemePicker: View {
     }
 
     private var previewShape: some Shape {
-        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, *) {
-            return AnyShape(ConcentricRectangle(corners: .concentric, isUniform: true))
-        }
-        return AnyShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        // AnyShape can't be built below iOS 16, so the concentric (iOS 26) look
+        // falls back to the same continuous rounded rect on every version.
+        RoundedRectangle(cornerRadius: 24, style: .continuous)
     }
 
     // MARK: Segmented control
@@ -256,11 +257,10 @@ struct KavsoftThemePicker: View {
                         .rotationEffect(.degrees(isSelected ? rotation : 0))
 
                     Text(scheme.title)
-                        .font(.callout)
+                        .font(.callout.weight(.semibold))
                         .foregroundStyle(isDark ? Color.white : Color.black)
                         .environment(\.colorScheme, .light)
                 }
-                .fontWeight(.semibold)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background {
                     if isSelected {

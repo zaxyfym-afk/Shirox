@@ -207,7 +207,7 @@ struct SearchSourcePickerView: View {
                 IconView("checkmark.circle.fill")
                     .font(.body)
                     .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white, .accentColor)
+                    .foregroundStyle(.white, Color.accentColor)
                     .background(Circle().fill(Color(.secondarySystemGroupedBackground)))
                     .offset(x: 6, y: -6)
                     .accessibilityHidden(true)
