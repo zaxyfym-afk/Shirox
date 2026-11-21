@@ -73,9 +73,21 @@ enum MorphingRefreshGeometry {
     /// grow out of.
     static let dynamicIslandInset: CGFloat = 59
 
-    /// The pull is all of it by 60 pt, the native control's own scale.
+    /// The pull, in points, at which the gooey is whole and the refresh goes. Deliberately
+    /// long — near twice the native control's own ~60 pt — so the blob arrives slowly and
+    /// has room to stretch while the finger keeps dragging.
+    static let pullDistance: CGFloat = 110
+
+    /// The raw pull, 0 to 1 across the whole distance.
     static func progress(offsetWithInset: CGFloat) -> CGFloat {
-        max(0, min(-offsetWithInset / 60, 1))
+        max(0, min(-offsetWithInset / pullDistance, 1))
+    }
+
+    /// The pull smoothed: slow to start, gathering pace through the middle, easing out at
+    /// the end — the gooey materialises gently as the finger drags and stretches
+    /// progressively, rather than snapping in over the first few points.
+    static func stretch(_ progress: CGFloat) -> CGFloat {
+        progress * progress * (3 - 2 * progress)
     }
 
     /// How far the circle drops, in pt: the pull's share of the drop below the island. Phones
@@ -186,11 +198,22 @@ private struct QuietRefreshModifier: ViewModifier {
 /// region) and how far the scroll view's top edge sits below the window's top, and the
 /// blob shifts up by that distance — so it always grows out of the island, the notch, or
 /// the screen's top edge, on every page that can pull.
+///
+/// The refresh is the modifier's own, not the native control's. `.refreshable` was the
+/// source of the trigger jitter: beginning the native control while the list sits at its
+/// rest offset shifts the whole content downward by the control's height — the images on a
+/// full-bleed page visibly jump the moment the haptic lands — and it kept a gap open under
+/// the status bar for the control it hid. Here the pull is read straight off the scroll
+/// geometry: crossing the threshold fires the refresh once, the list never moves out from
+/// under anything, the position stays stable from pull to completion, and one haptic marks
+/// exactly the state change.
 @available(iOS 18.0, *)
 private struct MorphingBlobModifier: ViewModifier {
     nonisolated let action: @Sendable () async -> Void
 
+    /// What the blob draws: the pull, smoothed, so the gooey grows progressively.
     @State private var scrollProgress: CGFloat = 0
+    /// The raw pull, 0 to 1 across the whole distance, ahead of any smoothing.
     @State private var actualProgress: CGFloat = 0
     @State private var isRefreshing = false
     @State private var isAnimating = false
@@ -227,32 +250,51 @@ private struct MorphingBlobModifier: ViewModifier {
                 .allowsHitTesting(false)
             }
             .mask { Rectangle().ignoresSafeArea() }
-            .refreshable {
-                isRefreshing = true
-                await refresh()
-
-                if actualProgress == 0 {
-                    // The pull is over — the refresh outlasted it, or the list is back at the
-                    // top — so the blob shrinks away rather than blinking out.
-                    isAnimating = true
-                    withAnimation(.easeInOut(duration: 0.2), completionCriteria: .logicallyComplete) {
-                        scrollProgress = 0.01
-                    } completion: {
-                        scrollProgress = 0
-                        isAnimating = false
-                    }
-                }
-
-                isRefreshing = false
-            }
             .onScrollGeometryChange(for: CGFloat.self) { geometry in
                 geometry.contentOffset.y + geometry.contentInsets.top
             } action: { _, offset in
-                let progress = MorphingRefreshGeometry.progress(offsetWithInset: offset)
-                actualProgress = progress
+                let pull = MorphingRefreshGeometry.progress(offsetWithInset: offset)
+                actualProgress = pull
+
+                // The pull crossing the whole distance IS the trigger — one refresh per
+                // crossing, never re-fired while one is out, no release required.
+                if !isRefreshing, !isAnimating, pull >= 1 {
+                    beginRefresh(refresh)
+                }
+
                 // While refreshing the blob holds at a whole pull, whatever the content does.
-                if !isAnimating { scrollProgress = isRefreshing ? 1 : progress }
+                if !isAnimating {
+                    scrollProgress = isRefreshing ? 1 : MorphingRefreshGeometry.stretch(pull)
+                }
             }
+    }
+
+    /// One refresh: the haptic, the blob held whole, the work, and the smooth way back —
+    /// all from the pull's own tick, so there is exactly one state change to animate.
+    private func beginRefresh(_ refresh: @escaping @Sendable () async -> Void) {
+        isRefreshing = true
+        scrollProgress = 1
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        #endif
+        Task { @MainActor in
+            await refresh()
+
+            // The pull is over — the refresh outlasted it, or the list is back at the top —
+            // so the blob shrinks away rather than blinking out. While the finger is still
+            // down, the live pull carries the blob instead.
+            if actualProgress == 0 {
+                isAnimating = true
+                withAnimation(.easeInOut(duration: 0.2), completionCriteria: .logicallyComplete) {
+                    scrollProgress = 0.01
+                } completion: {
+                    scrollProgress = 0
+                    isAnimating = false
+                }
+            }
+
+            isRefreshing = false
+        }
     }
 }
 
