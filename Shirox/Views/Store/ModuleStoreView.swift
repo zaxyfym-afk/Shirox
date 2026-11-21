@@ -15,8 +15,12 @@ struct ModuleStoreView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 22) {
+                    SettingsPageHero(icon: "bag.fill", title: "store.title", subtitle: "store.hero_sub", tint: .pink)
+                        .padding(.top, 4)
                     if let error = store.errorMessage {
                         errorBanner(error)
+                    } else {
+                        sourceNotes
                     }
 
                     if !featured.isEmpty {
@@ -183,6 +187,29 @@ struct ModuleStoreView: View {
         .background(Color.accentColor.opacity(0.75), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
         .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
         .accessibilityHidden(true)
+    }
+
+    /// The catalogs' health, one soft line per source that didn't answer — the shelves that
+    /// did answer stay up, and the pull to refresh tries the failed ones again.
+    @ViewBuilder
+    private var sourceNotes: some View {
+        let failed = store.sourceStatuses.filter {
+            if case .failed = $0.health { return true }
+            return false
+        }
+        if !failed.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(failed) { status in
+                    HStack(spacing: 8) {
+                        IconView("wifi.exclamationmark")
+                            .foregroundStyle(.orange)
+                        Text("store.source_unavailable \(status.name)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
     }
 
     /// The placeholder catalog's own wording: this isn't "nothing found", it's "not yet".

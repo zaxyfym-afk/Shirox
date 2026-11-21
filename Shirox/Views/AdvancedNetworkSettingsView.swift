@@ -9,7 +9,7 @@ import SwiftUI
 /// (`NetworkDiagnostics`) and a reset (`NetworkReset`).
 struct AdvancedNetworkSettingsView: View {
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .indigo, heroIcon: "network", heroTitle: "settings.advanced_network", heroSubtitle: "settings.network_hero_sub") {
             TMDBProxySections()
             SecureDNSSections()
             ProxySections()

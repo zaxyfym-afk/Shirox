@@ -77479,6 +77479,16 @@
         }
       }
     },
+    "settings.backup_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export and restore your library and settings"
+          }
+        }
+      }
+    },
     "settings.backup_saved" : {
       "comment" : "BackupSettingsView",
       "localizations" : {
@@ -81037,6 +81047,16 @@
         }
       }
     },
+    "settings.customization_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance, app icon, icons and layout"
+          }
+        }
+      }
+    },
     "settings.customization_subtitle" : {
       "localizations" : {
         "de" : {
@@ -82721,6 +82741,16 @@
         }
       }
     },
+    "settings.discord_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rich presence and what it shares"
+          }
+        }
+      }
+    },
     "settings.discord_on" : {
       "localizations" : {
         "de" : {
@@ -84218,6 +84248,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已下载的剧集和章节不属于缓存，因此“清除全部内容”不会处理它们。请在“下载”标签页中删除单个剧集，或在“下载设置”中开启“观看后删除”。"
+          }
+        }
+      }
+    },
+    "settings.downloads_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speed, network and when downloads run"
           }
         }
       }
@@ -85819,6 +85859,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一般事件和活动。"
+          }
+        }
+      }
+    },
+    "settings.general_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabs, cards, refresh and language"
           }
         }
       }
@@ -89284,6 +89334,16 @@
         }
       }
     },
+    "settings.language_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The language Shirox shows itself in"
+          }
+        }
+      }
+    },
     "settings.last_restore" : {
       "comment" : "BackupSettingsView",
       "localizations" : {
@@ -89725,6 +89785,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让 iOS 在 AirPods 和其他耳机上以空间音频及其影院声音处理播放视频。关闭后为普通立体声，或在耳机在此处比在其他 App 中声音更小时关闭。下一个视频起生效。"
+          }
+        }
+      }
+    },
+    "settings.library_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lists, matching, artwork and imports"
           }
         }
       }
@@ -90886,6 +90956,16 @@
         }
       }
     },
+    "settings.logs_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything the app has logged, filtered and exportable"
+          }
+        }
+      }
+    },
     "settings.long_skip_duration" : {
       "comment" : "SettingsView",
       "localizations" : {
@@ -92043,6 +92123,16 @@
         }
       }
     },
+    "settings.modules_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed modules, repos and automation"
+          }
+        }
+      }
+    },
     "settings.monochrome" : {
       "comment" : "AppAppearance",
       "localizations" : {
@@ -92662,6 +92752,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "需要 https URL 和 IP 地址；在此之前保持关闭。 "
+          }
+        }
+      }
+    },
+    "settings.network_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked-region hosts, DNS and Cloudflare"
           }
         }
       }
@@ -94174,6 +94274,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "通知"
+          }
+        }
+      }
+    },
+    "settings.notifications_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New-episode alerts for followed series"
           }
         }
       }
@@ -96224,6 +96334,16 @@
         }
       }
     },
+    "settings.player_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engine, gestures, audio and skipping"
+          }
+        }
+      }
+    },
     "settings.points %lld" : {
       "comment" : "SettingsView",
       "localizations" : {
@@ -97292,6 +97412,16 @@
         }
       }
     },
+    "settings.providers_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trackers, library sync and Discord"
+          }
+        }
+      }
+    },
     "settings.proxy" : {
       "comment" : "AdvancedNetworkSettingsView",
       "localizations" : {
@@ -98178,6 +98308,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "漫画阅读器中的毛玻璃按钮。关闭后使用实心控制项。"
+          }
+        }
+      }
+    },
+    "settings.reader_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap zones, scroll and page turning"
           }
         }
       }
@@ -102092,105 +102232,16 @@
         }
       }
     },
-    "settings.section_about" : {
-      "comment" : "SettingsView, section header",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Über"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "About"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acerca de"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "À propos"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tentang"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Info"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "情報"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Informacje"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sobre"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "О приложении"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "เกี่ยวกับ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hakkında"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Giới thiệu"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关于"
-          }
-        }
-      }
-    },
     "settings.section_app" : {
       "comment" : "SettingsView",
       "localizations" : {
-        "en" : {
+        "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "App"
           }
         },
-        "de" : {
+        "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "App"
@@ -102451,16 +102502,16 @@
     "settings.section_playback" : {
       "comment" : "SettingsView",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Playback"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wiedergabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Playback"
           }
         },
         "es" : {
@@ -102540,16 +102591,16 @@
     "settings.section_sources" : {
       "comment" : "SettingsView",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sources"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quellen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sources"
           }
         },
         "es" : {
@@ -102629,16 +102680,16 @@
     "settings.section_you" : {
       "comment" : "SettingsView",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Du"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You"
           }
         },
         "es" : {
@@ -105029,6 +105080,16 @@
         }
       }
     },
+    "settings.storage_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caches, library data and what each reset clears"
+          }
+        }
+      }
+    },
     "settings.streaming_and_video_playback" : {
       "comment" : "SettingsView",
       "localizations" : {
@@ -105916,6 +105977,16 @@
         }
       }
     },
+    "settings.subtitles_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text, colour, background and timing"
+          }
+        }
+      }
+    },
     "settings.subtitles_subtitle" : {
       "localizations" : {
         "de" : {
@@ -106622,6 +106693,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "标签页"
+          }
+        }
+      }
+    },
+    "settings.tabs_hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Order, visibility and labels of the tabs"
           }
         }
       }
@@ -134549,6 +134630,16 @@
         }
       }
     },
+    "store.hero_sub" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install modules from the community catalogs"
+          }
+        }
+      }
+    },
     "store.install" : {
       "comment" : "ModuleStoreView",
       "localizations" : {
@@ -135435,6 +135526,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "搜索模块"
+          }
+        }
+      }
+    },
+    "store.source_unavailable %@" : {
+      "comment" : "ModuleStoreView: one catalog source didn't answer",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ didn't answer. Pull to refresh to try it again; the shelves that did answer stay."
           }
         }
       }

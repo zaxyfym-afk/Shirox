@@ -10,7 +10,7 @@ struct DiscordSettingsView: View {
     @AppStorage(DiscordPresence.showsDetailsKey) private var showsDetails = true
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .indigo, heroIcon: "bubble.left.and.text.bubble.right", heroTitle: "settings.discord", heroSubtitle: "settings.discord_hero_sub") {
             Section {
                 Toggle("settings.discord_rich_presence", isOn: $enabled)
                     .switchTint()

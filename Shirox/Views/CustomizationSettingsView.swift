@@ -20,7 +20,7 @@ struct CustomizationSettingsView: View {
     @Environment(\.colorScheme) private var systemScheme
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: SettingsView.brandRed, heroIcon: "paintpalette", heroTitle: "settings.customization", heroSubtitle: "settings.customization_hero_sub") {
             Section {
                 #if os(iOS) && !targetEnvironment(macCatalyst)
                 if #available(iOS 26, *) {

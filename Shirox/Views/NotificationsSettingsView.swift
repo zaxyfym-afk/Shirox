@@ -12,7 +12,7 @@ struct NotificationsSettingsView: View {
     @State private var permission: UNAuthorizationStatus?
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .red, heroIcon: "bell", heroTitle: "settings.notifications", heroSubtitle: "settings.notifications_hero_sub") {
             Section {
                 Toggle("notifications.notify_new_episodes", isOn: $enabled)
                     .switchTint()

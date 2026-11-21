@@ -2,44 +2,10 @@ import AuthenticationServices
 import Combine
 import SwiftUI
 
-// MARK: - Navigation Row Component
-
-struct SettingsNavRow: View {
-    let icon: String
-    let title: String
-    var subtitle: String?
-    /// The row tile's accent, so a page can group by colour.
-    var tint: Color = .accentColor
-    var showsChevron: Bool = true
-
-    var body: some View {
-        HStack(spacing: 12) {
-            SettingsIconTile(icon: icon, size: 34, cornerRadius: 9, tint: tint)
-
-            Text(title)
-                .font(.body)
-
-            Spacer()
-
-            if let subtitle, !subtitle.isEmpty {
-                Text(subtitle)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.trailing)
-            }
-
-            if showsChevron {
-                IconView("chevron.right")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-            }
-        }
-        .padding(.vertical, 3)
-        .contentShape(Rectangle())
-    }
-}
-
 // MARK: - Root Settings View
+
+// The shared row, list, section and tile components live in SettingsDesign.swift; the
+// redesigned system moved there so every page builds on one file.
 
 #if !os(tvOS)
 /// The window a sign-in sheet hangs from: the app's key window, or nil when there's none.
@@ -56,51 +22,30 @@ func keyPresentationAnchor() -> ASPresentationAnchor? {
 }
 #endif
 
-/// A settings page's sections: grouped on a Mac, as System Settings is, where a List draws one
-/// flat full-width column; a List everywhere else.
-struct SettingsList<Content: View>: View {
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        #if os(macOS)
-        Form { content }
-            .formStyle(.grouped)
-        #else
-        List { content }
-        #endif
-    }
-}
-
-/// A settings section with the design system's header: the same shape as `Section("…")`,
-/// so a page's bare headers become one consistent, tiled look with a one-line swap.
-struct SettingsSection<Content: View>: View {
-    let icon: String
-    let titleKey: LocalizedStringKey
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        Section { content } header: {
-            SettingsSectionHeader(icon: icon, title: titleKey)
-        }
-    }
-}
-
 #if !os(tvOS)
-/// The active profile, at the top of Settings: a picture card — photo, anime artwork or
-/// colour — with the account's name under it.
+/// The active profile, at the top of Settings: a floating card — photo, anime artwork or
+/// colour — over a gradient ring, the account's name under it, opening the profile picker.
 private struct ProfileSettingsRow: View {
     @ObservedObject private var profiles = ProfileManager.shared
 
     var body: some View {
         HStack(spacing: 14) {
             if let active = profiles.active {
-                ProfileAvatarView(profile: active, size: 54, square: true)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
+                ProfileAvatarView(profile: active, size: 58, square: true)
+                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(colors: [SettingsView.brandRed.opacity(0.9), SettingsView.brandRed.opacity(0.35)],
+                                               startPoint: .topLeading, endPoint: .bottomTrailing),
+                                lineWidth: 1.5
+                            )
+                    )
+                    .shadow(color: .black.opacity(0.18), radius: 8, y: 3)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(profiles.active?.name ?? String(localized: "common.profile"))
-                    .font(.headline.weight(.semibold))
+                    .font(.title3.weight(.semibold))
                 Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -112,14 +57,18 @@ private struct ProfileSettingsRow: View {
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color.secondary.opacity(0.08))
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(
+                    LinearGradient(colors: [Color.primary.opacity(0.075), Color.primary.opacity(0.04)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
         )
-        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: Color.black.opacity(0.10), radius: 12, y: 5)
+        .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     /// "Add a Profile" only while the one profile is still as Shirox made it: named
@@ -246,7 +195,7 @@ struct SettingsView: View {
                     )
                 }
             } header: {
-                SettingsSectionHeader(icon: "person.fill", title: "settings.section_you")
+                SettingsSectionHeader(icon: "person.fill", title: "settings.section_you", tint: .purple)
             }
 
             // Where things play.
@@ -283,7 +232,7 @@ struct SettingsView: View {
                 }
                 #endif
             } header: {
-                SettingsSectionHeader(icon: "play.tv", title: "settings.section_playback")
+                SettingsSectionHeader(icon: "play.tv", title: "settings.section_playback", tint: .blue)
             }
 
             Section {
@@ -319,7 +268,7 @@ struct SettingsView: View {
                 }
                 #endif
             } header: {
-                SettingsSectionHeader(icon: "externaldrive", title: "settings.section_library_storage")
+                SettingsSectionHeader(icon: "externaldrive", title: "settings.section_library_storage", tint: .orange)
             }
 
             // What the app plays from.
@@ -342,12 +291,14 @@ struct SettingsView: View {
                     SettingsNavRow(
                         icon: "bag.fill",
                         title: String(localized: "store.title"),
-                        subtitle: String(localized: "store.get_more")
+                        subtitle: String(localized: "store.get_more"),
+                        tint: .pink,
+                        showsChevron: true
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(SettingsRowPressStyle())
             } header: {
-                SettingsSectionHeader(icon: "puzzlepiece.extension", title: "settings.section_sources")
+                SettingsSectionHeader(icon: "puzzlepiece.extension", title: "settings.section_sources", tint: .green)
             }
 
             // The app itself.
@@ -408,15 +359,21 @@ struct SettingsView: View {
                     SettingsNavRow(
                         icon: "graduationcap",
                         title: String(localized: "settings.replay_introduction"),
-                        subtitle: String(localized: "settings.replay_introduction_subtitle")
+                        subtitle: String(localized: "settings.replay_introduction_subtitle"),
+                        tint: .teal,
+                        showsChevron: true
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(SettingsRowPressStyle())
                 #endif
             } header: {
-                SettingsSectionHeader(icon: "gearshape", title: "settings.section_app")
+                SettingsSectionHeader(icon: "gearshape", title: "settings.section_app", tint: Self.brandRed)
             }
 
+            // Legal pages live here with the device facts rather than under an About section:
+            // the About block was removed, and the imprint, privacy and licence pages stay
+            // reachable without a section of their own. TMDB's terms ask for its logo and
+            // notice in a credits context, so the footer carries it.
             Section {
                 ForEach([LegalPage.imprint, .privacy, .contributors, .licenses], id: \.title) { page in
                     NavigationLink {
@@ -426,7 +383,15 @@ struct SettingsView: View {
                     }
                 }
 
-                // TMDB's terms ask for its logo and this notice in an About or Credits section.
+                copyRow(SettingsNavRow(icon: Platform.icon, title: String(localized: "settings.platform"), subtitle: Platform.summary),
+                        copying: Platform.summary, toast: String(localized: "settings.platform_copied"))
+                copyRow(SettingsNavRow(icon: "info.circle", title: String(localized: "modules.version"), subtitle: Self.appVersion),
+                        copying: Self.appVersion, toast: String(localized: "settings.version_copied"))
+            } header: {
+                SettingsSectionHeader(icon: "iphone", title: "settings.section_device", tint: .indigo)
+            } footer: {
+                // TMDB's terms ask for its logo and this notice in a credits context; the
+                // section footer carries both now the About section is gone.
                 VStack(alignment: .leading, spacing: 8) {
                     Image("TMDBLogo")
                         .resizable()
@@ -437,18 +402,7 @@ struct SettingsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.vertical, 4)
-            } header: {
-                SettingsSectionHeader(icon: "info.circle", title: "settings.section_about")
-            }
-
-            Section {
-                copyRow(SettingsNavRow(icon: Platform.icon, title: String(localized: "settings.platform"), subtitle: Platform.summary),
-                        copying: Platform.summary, toast: String(localized: "settings.platform_copied"))
-                copyRow(SettingsNavRow(icon: "info.circle", title: String(localized: "modules.version"), subtitle: Self.appVersion),
-                        copying: Self.appVersion, toast: String(localized: "settings.version_copied"))
-            } header: {
-                SettingsSectionHeader(icon: "iphone", title: "settings.section_device")
+                .padding(.top, 4)
             }
     }
 
@@ -477,6 +431,10 @@ struct SettingsView: View {
         let build   = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
         return "\(version) (\(build))"
     }
+
+    /// The app's own red, from the release badge — the accent the App section and the
+    /// profile card carry.
+    static let brandRed = Color(red: 0.937, green: 0.267, blue: 0.267)
 
     static func formattedBytes(_ bytes: Int) -> String {
         guard bytes > 0 else { return "0 KB" }
@@ -614,7 +572,7 @@ struct AccountsSettingsView: View {
     private var signedInSides: [LibrarySide] { librarySync.signedInSides }
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .purple, heroIcon: "person.2", heroTitle: "settings.providers", heroSubtitle: "settings.providers_hero_sub") {
             ProvidersSettingsSection()
 
             // Simkl is a write-side tracker, not a browsing source, so it isn't in the provider list,
@@ -853,7 +811,7 @@ struct PlayerSettingsView: View {
     private let longOptions  = [30, 60, 85, 90, 120, 150, 180]
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .blue, heroIcon: "play.tv", heroTitle: "settings.player", heroSubtitle: "settings.player_hero_sub") {
             SettingsSection(icon: "paintbrush", titleKey: "settings.display_and_style") {
                 // A phone's: a Mac's player is a window.
                 #if !os(macOS)
@@ -1011,7 +969,7 @@ struct SubtitleSettingsPage: View {
     @ObservedObject private var settings = SubtitleSettingsManager.shared
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .orange, heroIcon: "captions.bubble", heroTitle: "settings.subtitles", heroSubtitle: "settings.subtitles_hero_sub") {
             SettingsSection(icon: "eye", titleKey: "settings.preview") {
                 preview
                     .listRowInsets(EdgeInsets())
@@ -1176,7 +1134,7 @@ struct ReaderSettingsView: View {
     @AppStorage(ReaderTapZone.reversedKey) private var tapZonesReversed = false
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .brown, heroIcon: "book", heroTitle: "settings.reader", heroSubtitle: "settings.reader_hero_sub") {
             Section {
                 Toggle("settings.tap_sides_to_scroll_or", isOn: $tapZones)
                     .switchTint()
@@ -1284,7 +1242,7 @@ struct ModulesSettingsView: View {
     @State private var showStore = false
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .green, heroIcon: "puzzlepiece.extension", heroTitle: "common.modules", heroSubtitle: "settings.modules_hero_sub") {
             Section {
                 NavigationLink {
                     ModuleListView()
@@ -1386,7 +1344,7 @@ struct LibrarySettingsView: View {
     }
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .mint, heroIcon: "books.vertical", heroTitle: "common.library", heroSubtitle: "settings.library_hero_sub") {
             Section {
                 NavigationLink {
                     LibraryListOrderView()
@@ -1538,7 +1496,7 @@ struct DownloadsSettingsView: View {
     #endif
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .indigo, heroIcon: "arrow.down.circle", heroTitle: "common.downloads", heroSubtitle: "settings.downloads_hero_sub") {
             SettingsSection(icon: "arrow.down.circle", titleKey: "common.downloads") {
                 Picker("settings.download_quality", selection: $downloadQuality) {
                     Text("settings.best").tag("highest")
@@ -1627,7 +1585,7 @@ struct StorageSettingsView: View {
     @State private var showDeleteDownloadsConfirmation = false
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .gray, heroIcon: "internaldrive", heroTitle: "settings.storage_and_cache", heroSubtitle: "settings.storage_hero_sub") {
             SettingsSection(icon: "externaldrive", titleKey: "settings.data") {
                 Toggle("settings.data_saver", isOn: $dataSaverEnabled)
                     .switchTint()
@@ -2027,6 +1985,10 @@ struct SettingsViewLogger: View {
                 )
             } else {
                 ScrollView {
+                    SettingsPageHero(icon: "terminal", title: "settings.logs", subtitle: "settings.logs_hero_sub", tint: .secondary)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     LazyVStack(spacing: 6) {
                         ForEach(filteredEntries) { entry in
                             LogEntryRow(entry: entry)
@@ -2091,7 +2053,7 @@ struct SettingsViewLoggerFilter: View {
     @ObservedObject var viewModel = LogFilterViewModel.shared
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .secondary, heroIcon: "slider.horizontal.3", heroTitle: "settings.log_filters", heroSubtitle: "settings.logs_hero_sub") {
             Section(header: Text("settings.log_types"), footer: Text("settings.choose_which_log_categories_to")) {
                 ForEach($viewModel.filters) { $filter in
                     Toggle(isOn: $filter.isEnabled) {

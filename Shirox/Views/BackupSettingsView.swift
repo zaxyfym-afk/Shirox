@@ -27,7 +27,7 @@ struct BackupSettingsView: View {
     }
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .cyan, heroIcon: "arrow.up.arrow.down.circle", heroTitle: "settings.backup", heroSubtitle: "settings.backup_hero_sub") {
             exportSection
             importSection
             if let report { reportSection(report) }

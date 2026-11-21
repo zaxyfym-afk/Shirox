@@ -33,7 +33,7 @@ struct GeneralSettingsView: View {
     }
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .gray, heroIcon: "gearshape", heroTitle: "settings.general", heroSubtitle: "settings.general_hero_sub") {
             // Appearance — colour, app icon, icon packs — lives on the Customization page;
             // this page is the app's behaviour.
             Section {
@@ -167,7 +167,7 @@ struct IconPacksSettingsView: View {
     @State private var error: String?
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .teal, heroIcon: "shippingbox", heroTitle: "settings.icon_packs", heroSubtitle: "settings.customization_hero_sub") {
             Section {
                 row(title: String(localized: "settings.sf_symbols"), subtitle: String(localized: "settings.built_in"),
                     selected: store.selectedURL.isEmpty) { store.select(nil) }
@@ -390,6 +390,9 @@ struct TabBarCustomizationView: View {
     var body: some View {
         List {
             Section {
+                SettingsPageHero(icon: "square.stack.3d.up", title: "settings.customize_tabs", subtitle: "settings.tabs_hero_sub", tint: .gray)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 6, trailing: 16))
                 ForEach(tabs) { tab in
                     row(tab)
                 }
@@ -479,7 +482,7 @@ struct LanguageSettingsView: View {
     private let running = AppLanguage.current
 
     var body: some View {
-        SettingsList {
+        SettingsList(tint: .blue, heroIcon: "globe", heroTitle: "settings.language", heroSubtitle: "settings.language_hero_sub") {
             Section {
                 row(code: nil, title: String(localized: "settings.system_default"),
                     subtitle: AppLanguage.localizedName(for: Locale.preferredLanguages.first ?? "en"))
