@@ -137,7 +137,6 @@ private struct ReleaseRow: View {
             .padding(.trailing, 12)
         }
         .listRowInsets(EdgeInsets())
-        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
     }
 }
 
