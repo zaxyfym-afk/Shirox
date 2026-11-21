@@ -31,8 +31,8 @@
           "buildVersion": "129",
           "date": "2026-11-21",
           "localizedDescription": "Settings rebuilt where it counts: every page inside Settings has a new layout (the Player is three panes, Subtitles pins its live preview, Storage gets a usage meter, Reader shows its tap zones as a diagram), Profile is gone, Sources & Integrations is its own category, Settings opens the full module manager directly, the Module Store and module detail pages are new with a real Test button, Search's source picker lists only anime sources, the schedule and notification buttons are toolbar-sized, and Gooey Refresh no longer repeats its haptic while held.",
-          "size": 0,
-          "downloadURL": "https://github.com/xibrox/Shirox/releases/download/1.3.0/Shirox.ipa",
+          "size": 27786327,
+          "downloadURL": "https://github.com/xibrox/Shirox/releases/download/latest/Shirox.ipa",
           "updateDescription": "The gooey refresh slowed and steadied, schedule dates readable, About and the About screen gone, every Settings page redesigned, the intro fixed full-screen, the onboarding rebuilt on the Kavsoft engines, both module catalogs in the store, and the backup builder repaired."
         },
         {

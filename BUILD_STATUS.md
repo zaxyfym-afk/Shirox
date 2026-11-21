@@ -1,5 +1,22 @@
 # Build status
 
+## 2026-11-21, build 12: GREEN on the ninth session's work
+
+- Build 11 (6b0106c4720f310e9ad6ce19, on 6bc51d94, 2m07s) FAILED with three
+  errors, all mine, all small: the detail page's saved-result lookup lost its
+  subscript brackets in writing, ModuleDetailOutcome needed Equatable for the
+  views' `== .running`, and the usage bar's floor was an Int against CGFloat
+  widths. Fixed in 2889baf.
+- Build 12 (6b0107d625d93ceccccb98a4, on 2889baf, 4m56s) FINISHED GREEN:
+  Verify IPA passed, built SHA = pushed SHA. Unsigned Shirox.ipa 26.5 MB
+  (1.3.0 (129), com.shirox.app, min iOS 15.0) plus dSYMs, sha256
+  61bb2ccafc28036a...a86500, delivered as a file (download/Shirox-1.3.0-129.ipa
+  in the sandbox workspace).
+- i18n check green (0 hardcoded, all code keys in the catalog), icons check
+  green (all 220 listed), commit-message rules green. SwiftLint not runnable in
+  the sandbox (no swiftlint binary); the nightly runs it on push.
+
+
 ## Current state (2026-11-21, eighth session)
 
 - GREEN EVERYWHERE. Codemagic build 10 (6b00efd93d7daa4b309f43c9, on 93bb3f26, 4m50s)
