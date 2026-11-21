@@ -17,7 +17,7 @@ at github.com/zaxyfym-afk/Shirox and is public.
   That box has no Swift toolchain: nothing is ever compiled there. All builds
   go through Codemagic (primary since 2026-11-20), GitHub Actions (backup) or
   the user's Mac.
-- The version lives in `apps.json` (1.1.0, build 127) and names the release.
+- The version lives in `apps.json` (1.2.0, build 128) and names the release.
 - Port scripts and generators live OUTSIDE the repo, in the sandbox workspace
   at `/home/z/my-project/scripts/` (`ws*_strings.py`, `pbx_edit.py`,
   `poll_build.sh`, avatar and icon scratch dirs). The repo's own tools are
@@ -55,7 +55,8 @@ GitHub Actions is the backup: the `nightly` workflow
 (.github/workflows/nightly.yaml) runs on every push to main, on
 workflow_dispatch and on two crons (21:07 and 03:07 UTC), one run at a time
 (concurrency group `nightly`): it moves the `latest` tag to the commit,
-builds an unsigned IPA on macos-15 with Xcode 26.3 pinned via DEVELOPER_DIR
+builds an unsigned IPA on macos-15 with the newest Xcode the runner ships
+(picked at run time; the hand pin at 26.3 rotted and failed green code)
 (CODE_SIGNING_ALLOWED=NO), uploads artifact `Shirox-Nightly-IPA`, uploads
 `Shirox.ipa` to the `latest` release, has the bot stamp size and date into
 apps.json, and renames the release from apps.json. The free macOS pools do
@@ -127,3 +128,17 @@ GitHub pushes need a PAT supplied by the user (kept for the session in
 token is persistent at .scratch/codemagic-token (chmod 600, outside the
 repo, never printed or committed); scripts/codemagic.py reads it from there
 or from the CODEMAGIC_API_TOKEN environment variable.
+
+## The eighth session (2026-11-21)
+
+The gooey refresh left the native control (its begin-refresh content shift was
+the trigger jitter) and the pull slowed to 110 pt with a smoothed curve; the
+schedule's dots are gone and its selection is label-on-background; About is
+gone from Settings (legal pages under the device section, TMDB notice in its
+footer); Settings gained the hero-plus-accent system through SettingsDesign on
+the root and nineteen subpages; the intro reveal is one ZStack (icon rides up,
+fades; onboarding full screen); the onboarding is aurora scenes over the
+Kavsoft engines; the store shelves fill from Cufiy and xdfkenny with per-source
+health; the version is 1.2.0 (128); SwiftLint, strings and icons are green;
+the nightly picks its Xcode at run time. AppTab's raw values 0-4 are still the
+contract; the Profile tab was never one (verified, nothing removed).
