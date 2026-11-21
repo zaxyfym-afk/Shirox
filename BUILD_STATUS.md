@@ -1,6 +1,22 @@
 # Build status
 
-## 2026-11-21, tenth session: pending build
+## 2026-11-21, build 14: GREEN on the tenth session's work
+
+- Build 13 (6b01164dd35a039f907f7215, on ccdebf79, 0m40s) FAILED at Check Xcode: the
+  tour-removal edit had gutted the pbxproj (the regex that was meant to be line-scoped
+  consumed comma-terminated entries through each enclosing list's closing paren). The
+  project file was rebuilt from the last-known-good base with the eight tour lines
+  removed strictly one per line; every neighbouring entry verified back at its base
+  count, the diff carries nothing else. Fixed in 7747334.
+- Build 14 (6b011728537829bcb8bcb24d, on 77473342, 4m41s) FINISHED GREEN: Verify IPA
+  passed, built SHA = pushed SHA. Unsigned Shirox.ipa 26.5 MB, 1.4.0 (130),
+  com.shirox.app, min iOS 15.0, sha256 695f20a29dbff35ff3071f0e412d12463fb1d0c65c629830d9f225bcd863a3ff,
+  delivered as a file (download/Shirox-1.4.0-130.ipa in the sandbox workspace). The
+  binary carries no HighlightTour references and the new onboarding keys.
+- i18n check green (all code keys in the catalog), brace balance green on every changed
+  file, commit-message rules green.
+
+## 2026-11-21, tenth session: context
 
 - On top of: Store door as a full row in Settings › Modules, Home Tour deleted
   end to end (file, project refs, launch logic, Settings option, 21 keys), onboarding
