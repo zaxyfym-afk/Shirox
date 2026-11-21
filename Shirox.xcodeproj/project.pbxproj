@@ -2256,10 +2256,10 @@
 		1279E4D72FCA397700C9BA56 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				1279E4CC2FCA397700C9BA56				9D2C87EDBA1E8B0A8EF82D62 /* LiveCountdownView.swift */,
+				1279E4CC2FCA397700C9BA56 /* CachedAsyncImage.swift */,
+				9D2C87EDBA1E8B0A8EF82D62 /* LiveCountdownView.swift */,
 				70D4C887FEB1E5A958032567 /* AnimeReleaseDetailsView.swift */,
 				2D18FB665A726245CC7FA9F5 /* ModuleSwitcherMenu.swift */,
- /* CachedAsyncImage.swift */,
 				21201D48C8E94395977F4564 /* ScoreInputView.swift */,
 				1279E4CD2FCA397700C9BA56 /* CloudflareBypassSheetView.swift */,
 				1279E4CE2FCA397700C9BA56 /* Color+SystemBackground.swift */,
