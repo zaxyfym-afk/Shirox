@@ -1,5 +1,73 @@
 # Changelog
 
+## Unreleased: the twelfth session (2026-11-21)
+
+### Upstream, selectively integrated
+
+- Icon packs moved to the website (shiroxapp.github.io/iconpacks), cherry-picked from
+  upstream 8020406 + 491f941: one Official Icon Packs row instead of a hardcoded list,
+  packs installed from the old raw.githubusercontent address migrate to the website on
+  load — installed packs, the saved choice and pasted links alike — and a pack's
+  "multicolor" flag keeps its own colours. The local pack folders went with the move.
+
+### Settings, seven pages rebuilt one by one
+
+- Player: a console, not a list — the engine as one card split into Native/MPV halves,
+  quality as a six-slot ruler with short labels, the hold gesture as two icon cards,
+  skip lengths as chips, the watched threshold as a ring dial with the number inside.
+- Library: the title languages as a numbered ladder with arrows, the score format
+  chosen from five live previews of what 8.5/10 reads as in each scale, the tab order
+  as a full-width door.
+- Downloads: five label-only quality tiles — the description lines that truncated are
+  gone, so every option reads in full on every width — concurrency as one big
+  − / number / + stepper, the disk card without its repeated caption.
+- Sources: account cards with a status LED (green connected, amber re-auth, grey off),
+  a star for the primary source, and full-width sign-in buttons.
+- Modules: no row ever shows a blank icon box (monogram tile), the shelf header carries
+  its counts — N installed, K need attention.
+- General: the tab-customization door shows a miniature of the real bar (visible tabs
+  in order, first active, labels per the setting), the pull style is three preview
+  tiles instead of a menu.
+- Advanced network: a bench — the connection test as a full-width strip with results
+  and a verdict line, then five collapsible panels whose headers say whether they're
+  in use. Every field and validation preserved inside.
+
+### Onboarding, reworked
+
+- Pages turn by swipe: ends-only, mostly-horizontal drags, refused mid-turn, clamped
+  to the four pages. Buttons keep working; the two agree.
+- One navigation gate: the step is clamped on every path and a turn holds navigation
+  until the transition settles, so rapid Next taps and rapid swipes cannot stack the
+  last page or walk past either end.
+- Pages sit in a balanced container — centred when they fit, scrolling when they don't.
+- The launch reveal plays once per process (an icon-pack change rebuilt the root and
+  replayed it) and honours Reduce Motion on both its paths.
+- The notifications page is gone; its Kavsoft view, references and keys removed.
+  Permission stays where it belongs, in Settings › Notifications. The connect page is
+  accounts only.
+- The new modules page: the two configured catalogs' recommended picks with install
+  buttons, the Store behind one full-width door that returns here, and import-by-link
+  with validation and honest errors.
+
+### New
+
+- Settings › Changelog: the release history as a timeline — version, date, grouped
+  notes — bundled offline, updated with each release.
+
+### Fixed
+
+- Copy Name is back on the anime long-press menu, unconditional — it had been hiding
+  in the else of the link check, so any title with a page on AniList or MAL offered
+  copy link but not copy name.
+- Schedule's floating Today button is gone, and the desync under it is fixed: an
+  outside change of the selected day recentres the calendar's week window, so the
+  visible week, the highlight and the list move together.
+- Library's title no longer collapses into the navigation bar.
+
+### Housekeeping
+
+- Version 1.6.0 (132).
+
 ## Unreleased: the eleventh session (2026-11-21)
 
 ### Kavsoft components, the real ones

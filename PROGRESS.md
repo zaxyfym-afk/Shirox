@@ -297,3 +297,14 @@ now handled by the macos-15 pool and the 03:07 UTC cron.
 3858330 (fix: codemagic poller knows finished), verified 2026-11-20
 20:29 UTC by `git ls-remote`; e21f70d, the green-build fix commit, is two
 below it. The green-build docs ride on top of 3858330.
+
+## Twelfth session (2026-11-21)
+
+Upstream icon packs integrated on a branch (8020406, 491f941; website move, link
+migration, multicolor), Imprint/Privacy/Contributors/Licenses and the TMDB footer out
+of Settings (attribution relocated to the Changelog credits), seven Settings pages
+rebuilt with distinct structures, the Changelog page added, onboarding reworked
+(swipe, balanced pages, once-per-process splash with Reduce Motion, duplicate-page
+gate, modules page replacing notifications), Copy Name restored, Schedule's Today
+button removed with the calendar recentring fix, Library's title made still.
+

@@ -1,5 +1,12 @@
 # Build status
 
+## 2026-11-21, build 15+: the twelfth session (1.6.0)
+
+- Target release: 1.6.0 (132) on the twelfth session's commits — upstream icon-pack
+  cherry-picks, the seven Settings pages rebuilt, the onboarding rework (swipe, balance,
+  splash once-per-process + Reduce Motion, modules page), Copy Name, Schedule, Library,
+  and the Changelog page. RELEASE-NOTES carries the same notes bundled in-app.
+
 ## 2026-11-21, build 14: GREEN on the tenth session's work
 
 - Build 13 (6b01164dd35a039f907f7215, on ccdebf79, 0m40s) FAILED at Check Xcode: the
