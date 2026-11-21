@@ -13,6 +13,10 @@ struct HomeView: View {
     @State private var showNotifications = false
     /// Where the page before this one sat in `pagePosition`'s order.
     @State private var lastPagePosition: Int?
+    /// The AniList discovery rows behind the hero: Top Anime with its period pick, and
+    /// the four fixed rankings. Their own view model — the hero's feed and these rows
+    /// refresh on the same rhythm but live in different requests.
+    @StateObject private var rankings = HomeRankingsViewModel()
     @ObservedObject private var providerManager = ProviderManager.shared
     @ObservedObject private var tabRequests = TabRequests.shared
 
@@ -118,6 +122,7 @@ struct HomeView: View {
             await simkl.load(kind: discovery.simklKind)
         } else {
             await vm.load()
+            await rankings.load()
         }
     }
 
@@ -126,52 +131,68 @@ struct HomeView: View {
             await simkl.load(kind: discovery.simklKind, force: true)
         } else {
             await vm.reload()
+            await rankings.load(force: true)
         }
     }
 
-    /// Continue Watching and Reading, then the source's rows.
-    private var rows: some View {
-        Group {
-            #if !os(tvOS)
-            if !continueWatching.items.isEmpty {
-                ContinueWatchingSection(items: continueWatching.items, navTarget: $cwNavTarget)
+    /// The AniList discovery rows: Top Anime first, its weekly/monthly/yearly pick right
+    /// in the header, then Top Weekly Movies, New Anime, Top Weekly Rated and All-Time
+    /// Favorites — each a ranking AniList actually serves, never a relabelled all-time
+    /// list. A row without data yet stays out; a failed load says so with a retry.
+    @ViewBuilder
+    private var discoveryRows: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            if rankings.error != nil, rankings.isAllEmpty {
+                rankingsRetryRow
             }
-            if !mangaProgress.items.isEmpty {
-                ContinueReadingSection(items: mangaProgress.items, readerContext: $readerContext,
-                                       detailItem: $readingDetail)
-            }
-            #endif
-            // Like the hero: the leaving and arriving rows overlap while they turn.
-            ZStack(alignment: .topLeading) {
-                VStack(alignment: .leading, spacing: 24) {
-                    if discovery.usesSimkl {
-                        ForEach(simkl.layout?.rows ?? []) { row in
-                            AnimeSection(title: row.title, items: row.items) {
-                                SimklListView(list: row.list)
-                            }
-                        }
-                    } else {
-                        if !vm.trending.isEmpty {
-                            AnimeSection(title: String(localized: "shared.trending_now"), items: vm.trending) { BrowseView(category: .trending) }
-                        }
-                        if !vm.seasonal.isEmpty {
-                            AnimeSection(title: String(localized: "shared.this_season"), items: vm.seasonal) { BrowseView(category: .seasonal) }
-                        }
-                        if !vm.lastSeason.isEmpty {
-                            AnimeSection(title: String(localized: "shared.last_season_complete"), items: vm.lastSeason) { BrowseView(category: .lastSeason) }
-                        }
-                        if !vm.popular.isEmpty {
-                            AnimeSection(title: String(localized: "shared.all_time_popular"), items: vm.popular) { BrowseView(category: .popular) }
-                        }
-                        if !vm.topRated.isEmpty {
-                            AnimeSection(title: String(localized: "shared.top_rated"), items: vm.topRated) { BrowseView(category: .topRated) }
-                        }
-                    }
+
+            TopAnimeSection(items: rankings.topAnime,
+                            period: $rankings.period,
+                            isLoading: rankings.isLoading && rankings.topAnime.isEmpty)
+
+            if !rankings.topMovies.isEmpty {
+                AnimeSection(title: String(localized: "home.top_weekly_movies"), items: rankings.topMovies) {
+                    RankingsListPage(title: String(localized: "home.top_weekly_movies"), items: rankings.topMovies)
                 }
-                .id(homePage)
-                .transition(.pageTurn(step: pageStep))
+            }
+
+            if !rankings.newAnime.isEmpty {
+                AnimeSection(title: String(localized: "home.new_anime"), items: rankings.newAnime) {
+                    RankingsListPage(title: String(localized: "home.new_anime"), items: rankings.newAnime)
+                }
+            }
+
+            if !rankings.topAiringRated.isEmpty {
+                AnimeSection(title: String(localized: "home.top_weekly_rated"), items: rankings.topAiringRated) {
+                    RankingsListPage(title: String(localized: "home.top_weekly_rated"), items: rankings.topAiringRated)
+                }
+            }
+
+            if !rankings.favorites.isEmpty {
+                AnimeSection(title: String(localized: "home.all_time_favorites"), items: rankings.favorites) {
+                    RankingsListPage(title: String(localized: "home.all_time_favorites"), items: rankings.favorites)
+                }
             }
         }
+    }
+
+    /// The failed load's quiet row: what happened and the way back in.
+    private var rankingsRetryRow: some View {
+        VStack(spacing: 8) {
+            Text(rankings.error ?? "")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button("common.retry") {
+                Task { await rankings.load(force: true) }
+            }
+            .font(.subheadline.weight(.semibold))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Color.primary.opacity(0.07), in: Capsule())
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
     }
 
     var body: some View {
@@ -358,22 +379,30 @@ private struct HomeToolbar: ViewModifier {
             if discovery.usesSimkl {
                 ToolbarItem(placement: .navigation) { SimklKindMenu(kind: $kind) }
             }
-            ToolbarItem(placement: .primaryAction) { notificationsButton }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    anilistAuth.unreadNotificationCount = 0
+                    openNotifications()
+                } label: {
+                    IconView("bell")
+                        .font(.system(size: 17, weight: .medium))
+                        .notificationBadge(count: anilistAuth.unreadNotificationCount)
+                }
+                .accessibilityLabel("profile.notifications")
+            }
         }
         #elseif os(tvOS)
         currentToolbar(content)
         #else
+        // The capsule spans iOS 15 too, so there is no pre-16 fallback left to spell out.
         if #available(iOS 16, *) {
             currentToolbar(content)
         } else {
-            // A bare `if` in a toolbar builder needs iOS 16; before it, the condition lives
-            // inside the item.
             content.toolbar {
                 ToolbarItem(placement: Self.leadingPlacement) {
                     if discovery.usesSimkl { kindMenu }
                 }
-                ToolbarItem(placement: .primaryAction) { calendarButton }
-                ToolbarItem(placement: .primaryAction) { notificationsButton }
+                ToolbarItem(placement: .primaryAction) { joinedCapsule }
             }
         }
         #endif
@@ -390,18 +419,15 @@ private struct HomeToolbar: ViewModifier {
             if discovery.usesSimkl {
                 ToolbarItem(placement: Self.leadingPlacement) { kindMenu }
             }
-            // The schedule and the bell, separate buttons. iOS 26 would draw both items in
-            // one shared glass capsule; hiding the shared background and giving each button
-            // its own round chrome keeps them apart, as every other iOS release has them.
+            // The schedule and the bell share one capsule, the way the bottom bar reads:
+            // two icons, two targets, one shape. iOS 26's shared glass is hidden so the
+            // capsule is the app's own neutral one on every iOS version alike.
             #if os(iOS)
             if #available(iOS 26.0, *) {
-                ToolbarItem(placement: .primaryAction) { calendarButton }
-                    .sharedBackgroundVisibility(.hidden)
-                ToolbarItem(placement: .primaryAction) { notificationsButton }
+                ToolbarItem(placement: .primaryAction) { joinedCapsule }
                     .sharedBackgroundVisibility(.hidden)
             } else {
-                ToolbarItem(placement: .primaryAction) { calendarButton }
-                ToolbarItem(placement: .primaryAction) { notificationsButton }
+                ToolbarItem(placement: .primaryAction) { joinedCapsule }
             }
             #else
             ToolbarItem(placement: .primaryAction) { notificationsButton }
@@ -419,37 +445,50 @@ private struct HomeToolbar: ViewModifier {
         SimklKindMenu(kind: $kind).toolbarItemBackdrop()
     }
 
-    /// The schedule button: its own icon, hit area and action, in its own round chrome —
-    /// the icon at the tab bar's visual size (22 pt), the tap target the 44 pt standard.
-    private var calendarButton: some View {
-        Button(action: openCalendar) {
-            IconView("calendar")
-                .font(.system(size: 22, weight: .medium))
-                .foregroundStyle(.primary)
-                .frame(width: 44, height: 44)
-                .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("shared.upcoming")
-    }
+    /// The two buttons, one capsule: the schedule and the bell sit side by side inside a
+    /// single rounded shape, styled like the bottom bar — neutral, quiet, grey. Each
+    /// icon keeps its own 44 pt target so neither tap feels smaller than it was; the
+    /// capsule is only as wide as the two of them plus their gap.
+    private var joinedCapsule: some View {
+        HStack(spacing: 2) {
+            Button(action: openCalendar) {
+                IconView("calendar")
+                    .font(.system(size: 21, weight: .medium))
+                    .foregroundStyle(.primary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("shared.upcoming")
 
-    /// The bell, as the Library has it: the badge is AniList's unread count, cleared on open.
-    /// Its own round chrome, never one capsule shared with the schedule button beside it —
-    /// and the same 22 pt icon as the calendar next to it.
-    private var notificationsButton: some View {
-        Button {
-            anilistAuth.unreadNotificationCount = 0
-            openNotifications()
-        } label: {
-            IconView("bell")
-                .font(.system(size: 22, weight: .medium))
-                .foregroundStyle(.primary)
-                .frame(width: 44, height: 44)
-                .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
-                .notificationBadge(count: anilistAuth.unreadNotificationCount)
+            Button {
+                anilistAuth.unreadNotificationCount = 0
+                openNotifications()
+            } label: {
+                IconView("bell")
+                    .font(.system(size: 21, weight: .medium))
+                    .foregroundStyle(.primary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("profile.notifications")
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("profile.notifications")
+        .background(
+            Capsule().fill(Color.primary.opacity(0.07))
+        )
+        .overlay(
+            Capsule().strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+        )
+        .overlay(alignment: .trailing) {
+            // The unread badge rides the capsule's trailing edge, over the bell it belongs to.
+            Circle()
+                .fill(Color.red)
+                .frame(width: 8, height: 8)
+                .offset(x: 7)
+                .opacity(anilistAuth.unreadNotificationCount > 0 ? 1 : 0)
+                .accessibilityHidden(true)
+        }
     }
 }
 
@@ -1380,5 +1419,186 @@ private struct HomePressStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
             .opacity(configuration.isPressed ? 0.88 : 1.0)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Discovery rankings
+
+/// The AniList rankings behind Home's discovery rows. One request serves all five rows
+/// for the picked period; picking another period re-asks, and the answers are not cached
+/// across periods — a weekly ranking is a different ranking, not a filtered one.
+@MainActor
+final class HomeRankingsViewModel: ObservableObject {
+    /// The window Top Anime ranks. Changing it reloads the rows for the new period.
+    @Published var period: AniListService.RankingPeriod = .weekly {
+        didSet {
+            guard oldValue != period else { return }
+            Task { await load(force: true) }
+        }
+    }
+    @Published private(set) var topAnime: [Media] = []
+    @Published private(set) var topMovies: [Media] = []
+    @Published private(set) var newAnime: [Media] = []
+    @Published private(set) var topAiringRated: [Media] = []
+    @Published private(set) var favorites: [Media] = []
+    @Published private(set) var isLoading = false
+    @Published private(set) var error: String?
+
+    var isAllEmpty: Bool {
+        topAnime.isEmpty && topMovies.isEmpty && newAnime.isEmpty
+            && topAiringRated.isEmpty && favorites.isEmpty
+    }
+
+    private var loadedPeriod: AniListService.RankingPeriod?
+    /// In-flight guard: a period change while a load runs doesn't stack two requests.
+    private var loadID = 0
+
+    func load(force: Bool = false) async {
+        let period = period
+        if !force, loadedPeriod == period { return }
+        loadID += 1
+        let id = loadID
+        isLoading = true
+        error = nil
+        defer { if id == loadID { isLoading = false } }
+
+        do {
+            let raw = try await AniListService.shared.rankings(period: period)
+            guard id == loadID else { return }
+            topAnime = raw.topAnime.map { AniListProvider.shared.mapMedia($0) }
+            topMovies = raw.topMovies.map { AniListProvider.shared.mapMedia($0) }
+            newAnime = raw.newAnime.map { AniListProvider.shared.mapMedia($0) }
+            topAiringRated = raw.topAiringRated.map { AniListProvider.shared.mapMedia($0) }
+            favorites = raw.allTimeFavorites.map { AniListProvider.shared.mapMedia($0) }
+            loadedPeriod = period
+        } catch {
+            guard id == loadID else { return }
+            self.error = error.localizedDescription
+        }
+    }
+}
+
+/// Top Anime's row: the shelf, and in its header the period pick — weekly, monthly or
+/// yearly — as a menu beside the see-all link. The pick is real: the ranking it shows is
+/// the one for the window it names.
+private struct TopAnimeSection: View {
+    let items: [Media]
+    @Binding var period: AniListService.RankingPeriod
+    let isLoading: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Text("home.top_anime")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.primary)
+
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                }
+
+                Spacer(minLength: 0)
+
+                Menu {
+                    ForEach(AniListService.RankingPeriod.allCases) { candidate in
+                        Button {
+                            period = candidate
+                        } label: {
+                            if candidate == period {
+                                Label(candidate.title, icon: "checkmark")
+                            } else {
+                                Text(candidate.title)
+                            }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(period.title)
+                            .font(.subheadline.weight(.semibold))
+                        IconView("chevron.down")
+                            .font(.caption2.weight(.bold))
+                    }
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 7)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(
+                        Capsule().strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                    )
+                }
+                .accessibilityLabel("home.top_anime_period")
+
+                NavigationLink {
+                    RankingsListPage(title: String(localized: "home.top_anime_period_named \(period.title)"),
+                                     items: items)
+                } label: {
+                    HStack(spacing: 3) {
+                        Text("home.see_all")
+                            .font(.subheadline.weight(.semibold))
+                        IconView("chevron.right")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(
+                        Capsule().strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !items.isEmpty {
+                HomeShelf(items: items) { media in
+                    NavigationLink {
+                        MediaDestination(media: media)
+                    } label: {
+                        AniListCardView(media: media)
+                    }
+                    .buttonStyle(HomePressStyle())
+                    .animeContextMenu(media: media)
+                }
+            } else if !isLoading {
+                // The period has no ranked titles yet — a brand-new year's first days can,
+                // briefly. Said in one line rather than an empty shelf.
+                Text("home.no_rankings_yet")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
+/// The page a ranking's see-all opens: every title the ranking holds, on poster cards in
+/// a grid that adapts its columns to the device — the same cards the shelves show.
+private struct RankingsListPage: View {
+    let title: String
+    let items: [Media]
+
+    private let columns = [GridItem(.adaptive(minimum: 108), spacing: 14)]
+
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 18) {
+                ForEach(items) { media in
+                    NavigationLink {
+                        MediaDestination(media: media)
+                    } label: {
+                        AniListCardView(media: media)
+                    }
+                    .buttonStyle(HomePressStyle())
+                    .animeContextMenu(media: media)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+        }
+        .softScrollEdges()
+        .navigationTitle(Text(verbatim: title))
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }

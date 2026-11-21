@@ -2,14 +2,24 @@ import SwiftUI
 
 // MARK: - Airing information
 
-/// The detail page's airing card: where a title stands right now — status, how many
-/// episodes are out, when the next one airs and on what weekday slot — from the metadata
-/// AniList publishes. A fact the source doesn't give isn't shown; nothing is invented.
+/// The detail page's airing card: where a title stands right now — a live countdown to
+/// the next episode when one is reliably scheduled, how many episodes are out, when it
+/// airs and on what weekday slot — from the metadata AniList publishes. A fact the
+/// source doesn't give isn't shown; nothing is invented, and there is no Unknown row:
+/// with no upcoming episode the status line simply isn't there.
 struct AiringInfoSection: View {
     let media: Media
 
     private var nextDate: Date? {
         media.nextAiringEpisode?.airingAt.map { Date(timeIntervalSince1970: TimeInterval($0)) }
+    }
+
+    /// A reliable upcoming episode: the source gives both a number and a timestamp, and
+    /// the timestamp still lies ahead. Anything else — past broadcasts, missing data —
+    /// hides the countdown entirely rather than showing a shell.
+    private var upcomingDate: Date? {
+        guard let date = nextDate, date > Date(), media.nextAiringEpisode?.episode != nil else { return nil }
+        return date
     }
 
     private var aired: Int? {
@@ -31,38 +41,45 @@ struct AiringInfoSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(statusColor)
-                    .frame(width: 8, height: 8)
-                Text(media.statusDisplay ?? String(localized: "shared.unknown"))
-                    .font(.subheadline.weight(.semibold))
-                Spacer(minLength: 0)
-                if let availabilityLine {
-                    Text(availabilityLine)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            // The countdown, where the old status row sat — the same spot, now ticking.
+            // Shared with the release-details page, so both count the same way.
+            if let upcomingDate {
+                HStack(alignment: .top, spacing: 12) {
+                    if let episode = media.nextAiringEpisode?.episode {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("detail.next_episode \(episode)")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            LiveCountdownView(target: upcomingDate, compact: true)
+                        }
+                    } else {
+                        LiveCountdownView(target: upcomingDate, compact: true)
+                    }
+                    Spacer(minLength: 0)
                 }
             }
 
-            if let episode = media.nextAiringEpisode?.episode {
+            if let upcomingDate {
                 HStack(spacing: 10) {
                     IconView("calendar")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .frame(width: 24)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("detail.next_episode \(episode)")
-                            .font(.subheadline.weight(.medium))
-                        if let nextDate {
-                            HStack(spacing: 6) {
-                                Text(nextDate, format: .dateTime.weekday(.wide).hour().minute())
-                                Text(nextDate, style: .relative)
-                            }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        }
-                    }
+                    Text(upcomingDate, format: .dateTime.weekday(.wide).hour().minute())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                }
+            }
+
+            if let availabilityLine {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 8, height: 8)
+                    Text(availabilityLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     Spacer(minLength: 0)
                 }
             }

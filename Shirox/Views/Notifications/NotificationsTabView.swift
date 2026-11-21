@@ -151,7 +151,9 @@ struct NotificationsTabView: View {
                 } else {
                     ForEach(entries) { entry in
                         NavigationLink {
-                            MediaDestination(media: entry.media)
+                            // The shared release-details page: the same one the Schedule
+                            // opens, with the countdown, the follow and the reminder.
+                            AnimeReleaseDetailsView(context: AnimeReleaseContext(entry))
                         } label: {
                             episodeRow(entry)
                         }

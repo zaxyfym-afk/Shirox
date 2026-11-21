@@ -401,132 +401,121 @@ struct UpcomingCalendarView: View {
 
     private var scheduleContent: some View {
         VStack(spacing: 0) {
-            #if os(iOS)
-            if #available(iOS 18, *) {
-                HorizontalCalendar(date: selection) { day in
-                    dayCell(day.date)
-                }
-                .padding(.top, 6)
-                .padding(.bottom, 8)
-                Divider().opacity(0.5)
-            } else {
-                weekdayBar
-                Divider().opacity(0.5)
-            }
-            #else
-            weekdayBar
-            #endif
+            datePillBar
+            Divider().opacity(0.5)
             dayList
         }
     }
 
-    /// The selection the calendar pages and the cells write to.
-    private var selection: Binding<Date> {
-        Binding {
-            effectiveDay
-        } set: { day in
-            storedDay = day.timeIntervalSince1970
-        }
-    }
-
-    /// One day of the paged calendar: weekday and date, today ringed, the selection filled.
-    /// The selection is the label colour with the number in the background colour — always a
-    /// solid, always readable, in both appearances and under every tint, rather than an
-    /// accent that can sit against a number the same colour as itself.
-    @available(iOS 18.0, *)
-    private func dayCell(_ day: Date) -> some View {
+    /// The days the pill bar offers: a rolling window around today, widened to always
+    /// hold the picked day. Past days read the schedule too — AniList publishes them.
+    private var pillDays: [Date] {
         let calendar = Calendar.current
-        let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
-        let isToday = calendar.isDateInToday(day)
-        return Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                storedDay = day.timeIntervalSince1970
-            }
-        } label: {
-            VStack(spacing: 6) {
-                Text(day, format: .dateTime.weekday(.abbreviated))
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Text(day, format: .dateTime.day())
-                    .font(.title3.weight(.semibold))
-                    .monospacedDigit()
-                    .foregroundStyle(isSelected ? Self.selectionText : .primary)
-                    .frame(width: 34, height: 34)
-                    .background {
-                        if isSelected {
-                            Circle().fill(Self.selectionFill)
-                                .transition(.scale(scale: 0.5).combined(with: .opacity))
-                        }
-                    }
-                    .overlay {
-                        if isToday && !isSelected {
-                            Circle().strokeBorder(Color.accentColor.opacity(0.55), lineWidth: 1)
-                        }
-                    }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
-            .animation(.smooth(duration: 0.3), value: effectiveDay)
-            .contentShape(.rect)
+        let today = calendar.startOfDay(for: Date())
+        let earliest = min(effectiveDay, today)
+        let latest = max(effectiveDay, today)
+        guard let first = calendar.date(byAdding: .day, value: -7, to: earliest),
+              let last = calendar.date(byAdding: .day, value: 28, to: latest) else { return [] }
+        var days: [Date] = []
+        var cursor = first
+        while cursor <= last {
+            days.append(cursor)
+            guard let next = calendar.date(byAdding: .day, value: 1, to: cursor) else { break }
+            cursor = next
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Self.dayLabel(for: day))
-        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+        return days
     }
 
-    /// The seven days ahead, for the layouts without the paged calendar.
-    private var weekDays: [Date] {
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: Date())
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
-    }
-
-    // MARK: - Weekday bar
-
-    private var weekdayBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(weekDays, id: \.self) { day in
-                    dayChip(day)
+    /// The date selector: one horizontal strip of compact rounded pills, each a day —
+    /// its weekday (or Today), its number, and how many episodes air on it. Fixed pill
+    /// dimensions keep the strip steady; the strip scrolls, the picked day scrolls into
+    /// view, and there is no floating Today button anywhere — today is simply the first
+    /// pill the strip shows, named like every other day.
+    private var datePillBar: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(pillDays, id: \.self) { day in
+                        datePill(day)
+                            .id(day)
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .onAppear {
+                proxy.scrollTo(effectiveDay, anchor: .center)
+            }
+            .onChangeOf(storedDay) { _ in
+                // Follows the picked day when the selection moves from outside the strip
+                // — a week page-turn or a restored scene — but a tap inside the strip is
+                // already in view, so no scroll runs for it.
+                proxy.scrollTo(effectiveDay, anchor: .center)
+            }
         }
     }
 
-    private func dayChip(_ day: Date) -> some View {
+    /// One day's pill: weekday over day number over episode count, stacked, in a rounded
+    /// rectangle the same size every day. Selected is the solid label colour with the
+    /// inverse number — always readable in both appearances; today, when it isn't picked,
+    /// keeps a quiet ring. The count appears only once its week has actually loaded — a
+    /// week still loading shows the pill's space, never an invented number.
+    private func datePill(_ day: Date) -> some View {
         let calendar = Calendar.current
         let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
         let isToday = calendar.isDateInToday(day)
+        let weekLoaded = vm.isWeekLoaded(containing: day)
+        let episodeCount = vm.episodes(on: day).count
         return Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                 storedDay = day.timeIntervalSince1970
             }
         } label: {
             VStack(spacing: 3) {
-                Text(day, format: .dateTime.weekday(.abbreviated))
+                Text(isToday ? String(localized: "shared.today")
+                             : day.formatted(.dateTime.weekday(.abbreviated)))
                     .font(.caption2.weight(.semibold))
-                Text(day, format: .dateTime.day())
-                    .font(.title3.weight(.bold))
+                    .textCase(.uppercase)
+                    .foregroundStyle(isSelected ? Self.selectionText.opacity(0.8)
+                                                : (isToday ? Color.accentColor : Color.secondary))
+                    .lineLimit(1)
+
+                Text(day.formatted(.dateTime.day()))
+                    .font(.body.weight(.bold))
                     .monospacedDigit()
+                    .foregroundStyle(isSelected ? Self.selectionText : Color.primary)
+
+                Text(verbatim: countLabel(loaded: weekLoaded, count: episodeCount))
+                    .font(.system(size: 9, weight: .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(isSelected ? Self.selectionText.opacity(0.7) : Color.secondary)
+                    .lineLimit(1)
+                    .frame(height: 11)
             }
-            .frame(minWidth: 52)
-            .padding(.vertical, 8)
+            .frame(width: 58, height: 76)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(isSelected ? AnyShapeStyle(Self.selectionFill) : AnyShapeStyle(Color.secondary.opacity(0.12)))
+                    .fill(isSelected ? AnyShapeStyle(Self.selectionFill)
+                                     : AnyShapeStyle(Color.primary.opacity(0.05)))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(isToday && !isSelected ? Color.accentColor.opacity(0.55) : Color.clear, lineWidth: 1)
+                    .strokeBorder(isToday && !isSelected ? Color.accentColor.opacity(0.55) : Color.primary.opacity(0.07),
+                                  lineWidth: 1)
             )
-            .foregroundStyle(isSelected ? AnyShapeStyle(Self.selectionText) : AnyShapeStyle(Color.primary))
             .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Self.dayLabel(for: day))
         .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+
+    /// What the count line says: the number and "eps" when the week is loaded, an em
+    /// dash when it isn't — the dash is visibly not a number, so it can't be read as a
+    /// count of zero. A day with no episodes says "0 eps" honestly.
+    private func countLabel(loaded: Bool, count: Int) -> String {
+        guard loaded else { return "—" }
+        return String(localized: "schedule.episode_count \(count)")
     }
 
     // MARK: - Day list
@@ -562,7 +551,7 @@ struct UpcomingCalendarView: View {
                 Section {
                     ForEach(entries) { entry in
                         NavigationLink {
-                            MediaDestination(media: entry.media)
+                            AnimeReleaseDetailsView(context: AnimeReleaseContext(entry))
                         } label: {
                             row(entry)
                         }

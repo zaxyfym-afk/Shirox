@@ -29,6 +29,28 @@ enum ReleaseNotes {
     /// own notes — nothing here is invented after the fact.
     static let releases: [ShiroxRelease] = [
         ShiroxRelease(
+            version: "1.6.1", build: "133", date: "2026-11-21",
+            features: [
+                "One shared release-details page behind the Schedule and Notifications rows: live countdown, follow, reminder, tracking, Copy Name and share",
+                "Anime detail pages switch module from the toolbar — the module list, the Store, and the web links kept one level down",
+                "Home's discovery rows rebuilt on real AniList rankings: Top Anime by week, month or year, plus Top Weekly Movies, New Anime, Top Weekly Rated and All-Time Favorites"
+            ],
+            improvements: [
+                "The Schedule and Notifications buttons share one capsule, styled like the bottom bar",
+                "Schedule's date pills carry each day's episode count, stacked weekday over number, no Today button",
+                "Recommended Modules is exactly the eight asked for, matched against the real catalogs by name",
+                "The onboarding Modules page rebuilt: three clear areas, hairline-divided rows, room to breathe",
+                "The Library signs in inside the page — AniList and MyAnimeList with their own logos, local content untouched"
+            ],
+            fixes: [
+                "The welcome screen shows the real Shirox logo, not a grey dashed placeholder",
+                "The Next button and page indicators sit anchored at the bottom, over nothing",
+                "Solid-label buttons are readable in dark mode — the white-on-white Install state is gone",
+                "The airing card counts down live and hides itself when no episode is scheduled, instead of saying Unknown",
+                "The launch splash and the welcome logo never appear twice — first launch hands the logo over once"
+            ]
+        ),
+        ShiroxRelease(
             version: "1.6.0", build: "132", date: "2026-11-21",
             features: [
                 "Changelog page: the app's release history as a timeline, offline",
