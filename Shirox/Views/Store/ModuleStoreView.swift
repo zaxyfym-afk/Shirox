@@ -221,21 +221,6 @@ struct ModuleStoreView: View {
         }
     }
 
-    private func errorBanner(_ message: String) -> some View {
-        HStack(spacing: 10) {
-            IconView("exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
-            Text(message)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-        .padding(4)
-    }
-    
-    // MARK: - Source notes preserved
-    
-    // (sourceNotes unchanged)
-
     // MARK: - Installed
 
     /// The modules themselves, from the module manager: what the store's entries stand for.
