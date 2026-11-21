@@ -251,7 +251,6 @@ struct HomeView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.25), value: isLoadingEmpty)
-            #endif
             // `ProviderStatusBanner` existed but was never placed in any view — a provider
             // switch that quietly falls back (AniList failing in a way ProviderManager treats
             // as transient, like a rate limit) served the other provider's rows successfully,
