@@ -452,14 +452,15 @@ struct UpcomingCalendarView: View {
         }
     }
 
-    /// One day of the paged calendar: weekday and date, a dot when something airs, today
-    /// ringed, the selection filled.
+    /// One day of the paged calendar: weekday and date, today ringed, the selection filled.
+    /// The selection is the label colour with the number in the background colour — always a
+    /// solid, always readable, in both appearances and under every tint, rather than an
+    /// accent that can sit against a number the same colour as itself.
     @available(iOS 18.0, *)
     private func dayCell(_ day: Date) -> some View {
         let calendar = Calendar.current
         let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
         let isToday = calendar.isDateInToday(day)
-        let count = vm.episodes(on: day).count
         return Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 storedDay = day.timeIntervalSince1970
@@ -472,11 +473,11 @@ struct UpcomingCalendarView: View {
                 Text(day, format: .dateTime.day())
                     .font(.title3.weight(.semibold))
                     .monospacedDigit()
-                    .foregroundStyle(isSelected ? Color.white : .primary)
+                    .foregroundStyle(isSelected ? Self.selectionText : .primary)
                     .frame(width: 34, height: 34)
                     .background {
                         if isSelected {
-                            Circle().fill(Color.accentColor)
+                            Circle().fill(Self.selectionFill)
                                 .transition(.scale(scale: 0.5).combined(with: .opacity))
                         }
                     }
@@ -485,10 +486,6 @@ struct UpcomingCalendarView: View {
                             Circle().strokeBorder(Color.accentColor.opacity(0.55), lineWidth: 1)
                         }
                     }
-                Circle()
-                    .fill(isSelected ? Color.white.opacity(0.85) : Color.accentColor)
-                    .frame(width: 4, height: 4)
-                    .opacity(count > 0 ? 1 : 0)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
@@ -525,7 +522,6 @@ struct UpcomingCalendarView: View {
         let calendar = Calendar.current
         let isSelected = calendar.isDate(day, inSameDayAs: effectiveDay)
         let isToday = calendar.isDateInToday(day)
-        let count = vm.episodes(on: day).count
         return Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 storedDay = day.timeIntervalSince1970
@@ -537,22 +533,18 @@ struct UpcomingCalendarView: View {
                 Text(day, format: .dateTime.day())
                     .font(.title3.weight(.bold))
                     .monospacedDigit()
-                Circle()
-                    .fill(isSelected ? Color.white.opacity(0.85) : Color.accentColor)
-                    .frame(width: 4, height: 4)
-                    .opacity(count > 0 ? 1 : 0)
             }
             .frame(minWidth: 52)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(isSelected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(Color.secondary.opacity(0.12)))
+                    .fill(isSelected ? AnyShapeStyle(Self.selectionFill) : AnyShapeStyle(Color.secondary.opacity(0.12)))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .strokeBorder(isToday && !isSelected ? Color.accentColor.opacity(0.55) : Color.clear, lineWidth: 1)
             )
-            .foregroundStyle(isSelected ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color.primary))
+            .foregroundStyle(isSelected ? AnyShapeStyle(Self.selectionText) : AnyShapeStyle(Color.primary))
             .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -678,5 +670,31 @@ struct UpcomingCalendarView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE"
         return formatter.string(from: date)
+    }
+
+    // MARK: - The selection's colours
+
+    /// The selected day's circle: the label colour — white in dark appearance, black in light —
+    /// solid against whatever sits behind the strip, never an accent that can wash out.
+    static var selectionFill: Color {
+        #if os(macOS)
+        Color(nsColor: .labelColor)
+        #elseif os(tvOS)
+        Color.white
+        #else
+        Color(uiColor: .label)
+        #endif
+    }
+
+    /// The number on it, the inverse of the fill: the page background, so the pair always
+    /// reads, in both appearances and under every tint.
+    static var selectionText: Color {
+        #if os(macOS)
+        Color(nsColor: .windowBackgroundColor)
+        #elseif os(tvOS)
+        Color.black
+        #else
+        Color(uiColor: .systemBackground)
+        #endif
     }
 }
