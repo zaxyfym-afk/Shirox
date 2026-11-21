@@ -54,6 +54,11 @@ struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
 
     @State private var addSplash = false
 
+    /// The splash is a once-per-process event. The root this modifier hangs on is rebuilt
+    /// when the icon pack changes, and a rebuild re-runs `onAppear` — without this flag a
+    /// mid-session icon change would replay the whole launch reveal.
+    private static var hasPresentedThisProcess = false
+
     func body(content: Content) -> some View {
         content
             .onAppear(perform: presentSplash)
@@ -74,6 +79,8 @@ struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
     /// The cover goes up without an animation: it should look like the launch screen was
     /// still up, not like something arrived on top of the app.
     private func presentSplash() {
+        guard !Self.hasPresentedThisProcess else { return }
+        Self.hasPresentedThisProcess = true
         DispatchQueue.main.async {
             var transaction = Transaction()
             transaction.disablesAnimations = true
@@ -133,6 +140,18 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
         .ignoresSafeArea()
         .task {
             guard !animateIcon else { return }
+            // Reduce Motion: the reveal is decoration, so it hands the finished
+            // composition straight over — onboarding full screen, no icon, no ride.
+            if UIAccessibility.isReduceMotionEnabled {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    animateIcon = true
+                    iconFading = true
+                    iconGone = true
+                }
+                return
+            }
             try? await nap(Double(config.initialDelay))
             withAnimation(.carryOn(duration: 0.5, bounce: 0.05)) {
                 animateIcon = true
@@ -262,6 +281,18 @@ private struct LaunchScreenOnly: View {
             .ignoresSafeArea()
             .task {
                 guard !scaleDown else { return }
+
+                // Reduce Motion: no bounce, no expanding cut-out — the splash hands over
+                // after a plain hold, which is the static splash's whole job.
+                if UIAccessibility.isReduceMotionEnabled {
+                    try? await nap(Double(config.initialDelay) + 0.3)
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) {
+                        dismiss()
+                    }
+                    return
+                }
 
                 // Bounce down
                 try? await nap(Double(config.initialDelay))

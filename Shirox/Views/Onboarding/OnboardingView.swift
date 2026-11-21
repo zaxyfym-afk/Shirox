@@ -1,18 +1,19 @@
 import AuthenticationServices
 import SwiftUI
-import UserNotifications
 
 /// First-run setup, rebuilt around the two Kavsoft pieces the project carries: the
 /// appearance pick is the real ATPicker port — the animated sky, the sliding capsule, the
-/// pick applying the instant it's tapped — and the notifications page is the
-/// CompactNotificationView port, its keyframed notification stack standing in for a wall of
-/// text. The rest is white and grey on purpose: nothing between the user and the two things
-/// the app needs (a source, and whatever tracking they want).
+/// pick applying the instant it's tapped — and the welcome page opens out of the real
+/// ASplashScreen port, the launch icon shrinking and rising to reveal the flow beneath.
+/// The rest is white and grey on purpose: nothing between the user and the two things the
+/// app needs (a source, and whatever tracking they want).
 ///
-/// The flow is four screens: the welcome, the appearance pick, connecting sources, then
-/// notification permission. No informational pages between them, and one back control —
-/// the system bar's arrow is hidden where this screen is pushed, so the custom chevron is
-/// the only one there is.
+/// The flow is four screens: the welcome, the appearance pick, connecting the AniList and
+/// MyAnimeList accounts, then modules. No informational pages between them, and one back
+/// control — the system bar's arrow is hidden where this screen is pushed, so the custom
+/// chevron is the only one there is. Pages also turn by swipe, and the turn itself guards
+/// the buttons: a Next tapped while the previous transition is still moving does nothing,
+/// so no amount of tapping or swiping can stack two copies of the last page.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage(AppColorScheme.key) private var colorScheme = AppColorScheme.system.rawValue
@@ -20,28 +21,35 @@ struct OnboardingView: View {
     @EnvironmentObject private var moduleManager: ModuleManager
     @ObservedObject private var aniListAuth = AniListAuthManager.shared
     @ObservedObject private var malAuth = MALAuthManager.shared
-    @ObservedObject private var notifier = EpisodeReleaseNotifier.shared
+    @ObservedObject private var store = ModuleStoreService.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var envColorScheme
 
-    @State private var showSources = false
-    /// The step the sources screen grows out of.
-    @Namespace private var sourcesZoom
-    /// The page being shown: welcome, appearance, connect, notifications.
+    /// The page being shown: welcome, appearance, accounts, modules.
     @State private var page = 0
     private let lastPage = 3
     /// Which way the last page turn went, so the arriving page enters from that side.
     @State private var turnDirection: Edge = .trailing
+    /// True from the moment a turn starts until its transition has finished: every
+    /// navigation path checks it, so a rapid second tap or swipe is refused rather than
+    /// stacked onto the moving page. This is the single source of truth for the step.
+    @State private var isTurning = false
     /// The hero's slow float, running only where motion is allowed.
     @State private var markFloats = false
+
+    // The modules page: the two catalogs' picks, the Store door, the import-by-link field.
+    @State private var recommended: [ModuleStoreEntry] = []
+    @State private var catalogLoaded = false
+    @State private var installingEntryIDs: Set<String> = []
+    @State private var showStore = false
+    @State private var importURL = ""
+    @State private var isImporting = false
+    @State private var importError: String?
+
     #if os(iOS)
     @State private var presentationWindow: UIWindow?
     #endif
-    /// The notifications page's state: permission read on entry, so a previously determined
-    /// answer (granted in an earlier run, or refused) is honoured and the system prompt is
-    /// never shown twice.
-    @State private var permissionStatus: UNAuthorizationStatus?
 
     /// The one thing that has to be true before the app can show anything.
     private var hasSource: Bool { !moduleManager.modules.isEmpty }
@@ -61,31 +69,37 @@ struct OnboardingView: View {
                     switch page {
                     case 0: welcomePage
                     case 1: appearancePage
-                    case 2: connectPage
-                    default: notificationsPage
+                    case 2: accountsPage
+                    default: modulesPage
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .transition(pageTurn)
                 .id(page)
                 .animation(motion, value: page)
-
-                controls
+                // The swipe: a horizontal drag that ends past the threshold turns the page.
+                // Vertical scrolling and the pages' own controls never reach it — it only
+                // fires when the drag was mostly sideways, and never mid-turn.
+                .contentShape(Rectangle())
+                .gesture(swipe)
             }
+
+            controls
         }
         .background(Color(.systemBackground).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
         .modifier(OnboardingNavBarHider())
-        .sheet(isPresented: $showSources) {
-            // The real sources screen, not a copy of it: whatever it gains later, onboarding
-            // gains too, and there's one code path to keep correct.
+        #if !os(tvOS)
+        .sheet(isPresented: $showStore) {
+            // The real store, over the modules page: whatever it gains later, onboarding
+            // gains too, and it returns here the moment it's done.
             NavigationStack {
-                ModuleListView(showsDone: true)
+                ModuleStoreView()
             }
             .environmentObject(moduleManager)
             .macSheetFrame()
-            .zoomingOut(of: "sources", in: sourcesZoom)
         }
+        #endif
         #if os(iOS)
         .onAppear {
             presentationWindow = UIApplication.shared.connectedScenes
@@ -108,6 +122,24 @@ struct OnboardingView: View {
                 .combined(with: .opacity)
                 .combined(with: .scale(scale: 0.96, anchor: .center))
         )
+    }
+
+    /// The horizontal swipe: ends only, mostly horizontal, well past a short drag, and
+    /// refused while a turn is already running. Clamping lives in `goBack`/`goForward`,
+    /// so neither direction can leave the valid pages.
+    private var swipe: some Gesture {
+        DragGesture(minimumDistance: 30, coordinateSpace: .local)
+            .onEnded { value in
+                guard !isTurning else { return }
+                let horizontal = value.translation.width
+                guard abs(horizontal) > 64,
+                      abs(horizontal) > abs(value.translation.height) * 1.5 else { return }
+                if horizontal < 0 {
+                    goForward()
+                } else {
+                    goBack()
+                }
+            }
     }
 
     // MARK: - Chrome
@@ -181,13 +213,53 @@ struct OnboardingView: View {
     }
 
     private func goForward() {
+        guard page < lastPage, !isTurning else { return }
         turnDirection = .trailing
-        withAnimation(motion) { page += 1 }
+        page = min(page + 1, lastPage)
+        holdTheGate()
     }
 
     private func goBack() {
+        guard page > 0, !isTurning else { return }
         turnDirection = .leading
-        withAnimation(motion) { page -= 1 }
+        page = max(page - 1, 0)
+        holdTheGate()
+    }
+
+    /// Closes navigation for the length of the page's transition, then opens it again.
+    /// With `page` clamped on both edges and the gate checked on every path — buttons,
+    /// swipes, Skip — repeated rapid taps cannot push the same page twice or walk the
+    /// count past either end.
+    private func holdTheGate() {
+        isTurning = true
+        let settle: Double = reduceMotion ? 0.08 : 0.55
+        DispatchQueue.main.asyncAfter(deadline: .now() + settle) {
+            isTurning = false
+        }
+    }
+
+    // MARK: - The balanced page
+
+    /// Every page's container: the content is centred in the space when it fits, scrolls
+    /// when it doesn't, and never sits pinned to the top with dead space below.
+    private struct BalancedPage<Content: View>: View {
+        @ViewBuilder var content: () -> Content
+
+        var body: some View {
+            GeometryReader { proxy in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        content()
+                            .frame(maxWidth: 560)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: proxy.size.height)
+                    .padding(.horizontal, 24)
+                }
+            }
+        }
     }
 
     // MARK: - Welcome
@@ -195,9 +267,8 @@ struct OnboardingView: View {
     /// The app in one poster frame: the floating mark, the typed promise, and what the app
     /// doesn't host. Grey ink on white; the colour lives in the mark itself.
     private var welcomePage: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                Spacer(minLength: 20)
+        BalancedPage {
+            VStack(alignment: .leading, spacing: 0) {
                 frame
                     .padding(.top, 12)
                     .padding(.bottom, 36)
@@ -237,10 +308,13 @@ struct OnboardingView: View {
                         .padding(.top, 12)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: 560, alignment: .leading)
-                Spacer(minLength: 20)
             }
-            .padding(.horizontal, 24)
+        }
+        .onAppear {
+            markFloats = false
+            if !reduceMotion {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { markFloats = true }
+            }
         }
     }
 
@@ -250,7 +324,7 @@ struct OnboardingView: View {
     /// day when light is, the capsule sliding under the scheme it's on. The pick applies to
     /// the whole app the moment it's tapped — the sky's own change is the app's change.
     private var appearancePage: some View {
-        ScrollView {
+        BalancedPage {
             VStack(alignment: .leading, spacing: 0) {
                 Text("onboarding.set_up_shirox")
                     .font(.caption.weight(.semibold))
@@ -280,40 +354,34 @@ struct OnboardingView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 24)
             }
-            .padding(.horizontal, 24)
-            .frame(maxWidth: 560, alignment: .leading)
         }
     }
 
-    // MARK: - Connect
+    // MARK: - Accounts
 
-    /// The two things the app needs connected, each its own action: a source to play from,
-    /// and whichever trackers the user keeps their lists on. AniList and MyAnimeList each
-    /// get their own connect button and their own state; one of them is fine, both are
-    /// better, and neither blocks the flow.
-    private var connectPage: some View {
-        ScrollView {
+    /// The two trackers the app writes back to, each its own card and its own connect
+    /// button, with connected states that flip the moment the web session lands. One of
+    /// them is fine, both are better, and neither blocks the flow.
+    private var accountsPage: some View {
+        BalancedPage {
             VStack(alignment: .leading, spacing: 0) {
                 Text("onboarding.set_up_shirox")
                     .font(.caption.weight(.semibold))
                     .tracking(2.2)
                     .foregroundStyle(.secondary)
 
-                Text("onboarding.connect_sources")
+                Text("onboarding.connect_accounts")
                     .font(.system(size: 30, weight: .heavy))
                     .lineSpacing(-2)
                     .padding(.top, 8)
 
-                Text("onboarding.sources_body")
+                Text("onboarding.accounts_body")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .padding(.top, 10)
                     .fixedSize(horizontal: false, vertical: true)
 
                 VStack(spacing: 12) {
-                    sourceRow
-                        .zoomSource("sources", in: sourcesZoom, cornerRadius: 16)
-
                     trackerCard(.anilist)
                     trackerCard(.mal)
 
@@ -322,8 +390,6 @@ struct OnboardingView: View {
                 .padding(.top, 24)
                 .padding(.bottom, 24)
             }
-            .padding(.horizontal, 24)
-            .frame(maxWidth: 560, alignment: .leading)
         }
         #if os(iOS)
         .onAppear {
@@ -335,57 +401,6 @@ struct OnboardingView: View {
             }
         }
         #endif
-    }
-
-    /// The source row: the one thing the app can't open without. Ticking comes from real
-    /// state — the count of installed modules is the row's detail once one is in.
-    private var sourceRow: some View {
-        Button {
-            showSources = true
-        } label: {
-            HStack(spacing: 14) {
-                ZStack {
-                    Circle()
-                        .strokeBorder(hasSource ? Color.clear : Color.secondary.opacity(0.35), lineWidth: 1.5)
-                        .background(Circle().fill(hasSource ? Color.primary.opacity(0.85) : Color.clear))
-                        .frame(width: 28, height: 28)
-                    if hasSource {
-                        IconView("checkmark")
-                            .font(.caption2.weight(.bold))
-                            .foregroundStyle(.white)
-                            .transition(reduceMotion ? .opacity : .scale(scale: 0.4).combined(with: .opacity))
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("onboarding.add_source")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text(hasSource
-                         ? "\(moduleManager.modules.count) connected"
-                         : String(localized: "onboarding.add_source_hint"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer(minLength: 0)
-
-                IconView("chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.primary.opacity(0.04))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(hasSource ? Color.primary.opacity(0.25) : Color.primary.opacity(0.08), lineWidth: 1)
-            )
-        }
-        .buttonStyle(OnboardingPressStyle())
-        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: hasSource)
     }
 
     /// One tracker card: the service's own logo on its tile, its name, and its own connect
@@ -486,106 +501,293 @@ struct OnboardingView: View {
         #endif
     }
 
-    // MARK: - Notifications
+    // MARK: - Modules
 
-    /// The Kavsoft notification permission experience, inline: the keyframed stack of
-    /// episode alerts rising and dissolving over the bell, then one button that asks iOS
-    /// for permission and one that moves on. A permission already decided (granted, or
-    /// refused in an earlier run) is honoured — no system prompt re-appears, and the page
-    /// says where things stand.
-    private var notificationsPage: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                switch notificationState {
-                case .undetermined:
-                    KavsoftNotificationPermissionView(
-                        primaryAction: {
-                            Task {
-                                _ = await notifier.requestPermissionIfNeeded()
-                                permissionStatus = await notifier.authorizationStatus
-                            }
-                        },
-                        secondaryAction: finish
-                    )
-                    .frame(maxWidth: 440)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 16)
-                case .granted:
-                    permissionLine(key: "onboarding.notifications_on", symbol: "bell.badge.fill")
-                case .denied:
-                    permissionLine(key: "onboarding.notifications_off", symbol: "bell.slash")
-                }
+    /// The three ways in, on one page: the catalogs' recommended picks with an install
+    /// button each, the Store behind one clear door, and import-by-link for a module from
+    /// anywhere. The finish button closes the flow; nothing here is required first.
+    private var modulesPage: some View {
+        BalancedPage {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("onboarding.set_up_shirox")
+                    .font(.caption.weight(.semibold))
+                    .tracking(2.2)
+                    .foregroundStyle(.secondary)
 
-                Button {
-                    finish()
-                } label: {
-                    Text(hasSource ? String(localized: "onboarding.start_watching")
-                                   : String(localized: "onboarding.skip_for_now"))
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color.primary.opacity(0.85))
-                        )
-                        .foregroundStyle(.white)
+                Text("onboarding.modules_title")
+                    .font(.system(size: 30, weight: .heavy))
+                    .lineSpacing(-2)
+                    .padding(.top, 8)
+
+                Text("onboarding.modules_body")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 10)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                VStack(alignment: .leading, spacing: 14) {
+                    recommendedCard
+                    storeDoor
+                    importCard
                 }
-                .buttonStyle(OnboardingPressStyle())
-                .padding(.horizontal, 24)
                 .padding(.top, 20)
-                .padding(.bottom, 28)
+                .padding(.bottom, 24)
+
+                finishButton
             }
-            .frame(maxWidth: 560)
-            .frame(maxWidth: .infinity)
         }
-        .task { permissionStatus = await notifier.authorizationStatus }
+        .task { await loadRecommendations() }
     }
 
-    private enum NotificationAskState { case undetermined, granted, denied }
+    /// The finish button the last page carries itself: it starts the app, modules or no
+    /// modules — the Store is always there later.
+    private var finishButton: some View {
+        Button {
+            finish()
+        } label: {
+            Text(hasSource ? String(localized: "onboarding.start_watching")
+                           : String(localized: "onboarding.skip_for_now"))
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.primary.opacity(0.85))
+                )
+                .foregroundStyle(.white)
+        }
+        .buttonStyle(OnboardingPressStyle())
+        .padding(.top, 4)
+    }
 
-    private var notificationState: NotificationAskState {
-        switch permissionStatus {
-        case .authorized, .provisional, .ephemeral: return .granted
-        case .denied: return .denied
-        default: return .undetermined
+    /// The two catalogs' picks: entries flagged featured first, the rest filling behind
+    /// them, only ones not installed already. Each row installs from its manifest; the
+    /// button turns into its progress and then a checkmark.
+    @ViewBuilder
+    private var recommendedCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Text("onboarding.recommended_modules")
+                    .font(.body.weight(.semibold))
+                if !catalogLoaded {
+                    ProgressView()
+                        .controlSize(.small)
+                }
+            }
+
+            if catalogLoaded, recommended.isEmpty {
+                Text("onboarding.recommended_empty")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(recommended) { entry in
+                HStack(spacing: 12) {
+                    ModuleStoreEntryIcon(entry: entry, size: 38)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entry.name)
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                        Text(entry.tagline)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+
+                    Spacer(minLength: 8)
+
+                    recommendedInstallButton(entry)
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.primary.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    private func recommendedInstallButton(_ entry: ModuleStoreEntry) -> some View {
+        if store.installedModule(for: entry) != nil {
+            IconView("checkmark.circle.fill")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.green)
+                .accessibilityLabel(Text("modules.installed"))
+        } else if installingEntryIDs.contains(entry.id) {
+            ProgressView()
+                .controlSize(.small)
+        } else {
+            Button {
+                install(entry)
+            } label: {
+                Text("modules.add")
+                    .font(.caption.weight(.bold))
+                    .padding(.horizontal, 13)
+                    .padding(.vertical, 7)
+                    .background(Color.primary.opacity(0.85), in: Capsule())
+                    .foregroundStyle(.white)
+            }
+            .buttonStyle(OnboardingPressStyle())
         }
     }
 
-    /// What the page says when iOS has already answered for this app: granted, or refused —
-    /// with the way back through system settings for the second.
-    private func permissionLine(key: String, symbol: String) -> some View {
-        VStack(spacing: 10) {
-            Label {
-                Text(LocalizedStringKey(key))
-            } icon: {
-                IconView(symbol)
-            }
-            .font(.body.weight(.semibold))
-            .padding(.vertical, 30)
+    private func install(_ entry: ModuleStoreEntry) {
+        installingEntryIDs.insert(entry.id)
+        Task {
+            await store.install(entry)
+            installingEntryIDs.remove(entry.id)
+        }
+    }
 
-            if notificationState == .denied {
-                Button {
+    private func loadRecommendations() async {
+        guard !catalogLoaded else { return }
+        await store.load()
+        let installed = Set(moduleManager.modules.compactMap(\.sourceName))
+        let featured = store.catalog.entries.filter { $0.featured == true }
+        let rest = store.catalog.entries.filter { $0.featured != true }
+        recommended = Array((featured + rest).filter { !installed.contains($0.name) }.prefix(5))
+        catalogLoaded = true
+    }
+
+    /// The Store's door: full width, chevron at the end, opening the real store over the
+    /// page — it comes back here the moment it's done.
+    private var storeDoor: some View {
+        Button {
+            showStore = true
+        } label: {
+            HStack(spacing: 12) {
+                IconView("cart")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("onboarding.open_module_store")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("onboarding.store_hint")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                Spacer(minLength: 8)
+                IconView("chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.primary.opacity(0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(OnboardingPressStyle())
+    }
+
+    /// Import from anywhere: paste the module's manifest link, check it's an https link,
+    /// hand it to the manager the Store itself uses, and say plainly what happened.
+    private var importCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("onboarding.import_module")
+                .font(.body.weight(.semibold))
+
+            Text("onboarding.import_hint")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 10) {
+                TextField("onboarding.import_hint", text: $importURL)
+                    .autocorrectionDisabled()
                     #if os(iOS)
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                    #elseif os(macOS)
-                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
-                        NSWorkspace.shared.open(url)
-                    }
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.URL)
                     #endif
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            .fill(Color.primary.opacity(0.06))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            .strokeBorder(importError == nil ? Color.primary.opacity(0.08) : Color.orange.opacity(0.5),
+                                          lineWidth: 1)
+                    )
+
+                Button {
+                    importFromLink()
                 } label: {
-                    Text("notifications.open_system_settings")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.primary.opacity(0.08), in: Capsule())
+                    if isImporting {
+                        ProgressView()
+                            .controlSize(.small)
+                            .frame(width: 44, height: 40)
+                    } else {
+                        Text("common.add")
+                            .font(.subheadline.weight(.bold))
+                            .padding(.horizontal, 16)
+                            .frame(height: 40)
+                            .background(Color.primary.opacity(0.85), in: Capsule())
+                            .foregroundStyle(.white)
+                    }
                 }
                 .buttonStyle(OnboardingPressStyle())
-                .padding(.bottom, 16)
+                .disabled(isImporting)
+            }
+
+            if let importError {
+                Text(importError)
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity)
             }
         }
-        .frame(maxWidth: .infinity)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.primary.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+    }
+
+    private func importFromLink() {
+        let trimmed = importURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: trimmed),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "https" || scheme == "http" else {
+            importError = String(localized: "onboarding.bad_link")
+            return
+        }
+        importError = nil
+        isImporting = true
+        let before = moduleManager.modules.count
+        Task {
+            await moduleManager.addModule(from: url)
+            isImporting = false
+            if moduleManager.modules.count > before {
+                importURL = ""
+                importError = nil
+            } else {
+                importError = moduleManager.errorMessage ?? String(localized: "onboarding.import_failed")
+            }
+        }
     }
 
     // MARK: - The frame
@@ -635,6 +837,39 @@ struct OnboardingView: View {
     private func finish() {
         hasCompletedOnboarding = true
         dismiss()
+    }
+}
+
+// MARK: - Store entry icon
+
+/// A catalog entry's icon, drawn the same way everywhere the store shows one: the image
+/// when it loads, a monogram tile when there isn't one.
+struct ModuleStoreEntryIcon: View {
+    let entry: ModuleStoreEntry
+    var size: CGFloat = 38
+
+    var body: some View {
+        Group {
+            if let urlString = entry.iconURL, !urlString.isEmpty {
+                CachedAsyncImage(urlString: urlString)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Color.primary.opacity(0.08))
+                    Text(verbatim: String(entry.name.prefix(1)).uppercased())
+                        .font(.system(size: size * 0.4, weight: .bold, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .frame(width: size, height: size)
+        .overlay(
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .accessibilityHidden(true)
     }
 }
 
