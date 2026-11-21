@@ -449,13 +449,14 @@ private struct HomeToolbar: ViewModifier {
         SimklKindMenu(kind: $kind).toolbarItemBackdrop()
     }
 
-    /// The schedule button: its own icon, hit area and action, in its own round chrome.
+    /// The schedule button: its own icon, hit area and action, in its own round chrome —
+    /// sized like any other toolbar button, not like a bottom-bar tab.
     private var calendarButton: some View {
         Button(action: openCalendar) {
             IconView("calendar")
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 19, weight: .medium))
                 .foregroundStyle(.primary)
-                .frame(width: 36, height: 36)
+                .frame(width: 44, height: 44)
                 .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
         }
         .buttonStyle(.plain)
@@ -465,16 +466,17 @@ private struct HomeToolbar: ViewModifier {
     }
 
     /// The bell, as the Library has it: the badge is AniList's unread count, cleared on open.
-    /// Its own round chrome, never one capsule shared with the schedule button beside it.
+    /// Its own round chrome, never one capsule shared with the schedule button beside it —
+    /// and toolbar-sized, matching the schedule button next to it.
     private var notificationsButton: some View {
         Button {
             anilistAuth.unreadNotificationCount = 0
             openNotifications()
         } label: {
             IconView("bell")
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 19, weight: .medium))
                 .foregroundStyle(.primary)
-                .frame(width: 36, height: 36)
+                .frame(width: 44, height: 44)
                 .glassChrome(Circle(), enabled: true, off: .ultraThinMaterial)
                 .notificationBadge(count: anilistAuth.unreadNotificationCount)
         }

@@ -1,6 +1,47 @@
 # Progress
 
-Updated: 2026-11-21, eighth session (gooey, schedule, settings everywhere, onboarding, store, CI).
+Updated: 2026-11-21, ninth session (settings subpages rebuilt, profile removed, sources
+split from modules, store and module detail pages, search source picker, gooey state
+machine, toolbar buttons).
+
+## This session, in short
+
+The user re-issued the overhaul brief: the main Settings page is fine now, but every page
+INSIDE it must be rebuilt, and a long list of removals, splits and fixes must land with it.
+Done, in the brief's order:
+
+- Profile removed completely: the Settings card, and behind it the whole local-profile
+  system — ProfilesView, ProfileManager, ProfileSwap, AppProfile, the avatar catalog, and
+  the two tests that exercised them. ShiroxApp's launch plumbing for the picker went too.
+  AniList/MAL/Simkl authentication stays, on the new page below.
+- The Providers background artifact: the tinted background wash and the hero tile's glow
+  shadow were what rendered behind the section; the whole decorative layer is deleted at
+  the root, not covered over.
+- Decorative headers and page tints removed everywhere: SettingsDesign is the system's own
+  inset-grouped list; SettingsSectionHeader is plain text. No page colour, no hero, no
+  oversized header, on any subpage or nested page.
+- Every Settings subpage rebuilt with a layout that fits what the page does (the changelog
+  lists each). The main Settings page itself untouched by design.
+- Gooey Refresh runs an explicit state machine: one haptic and one refresh per pull, never
+  re-armed while the finger is down, shrink refuses re-entry.
+- The schedule and notifications buttons are 19 pt icons in 44 pt targets — toolbar-sized,
+  still two separate buttons.
+- Module Store rebuilt: no featured shelf (the store.featured label is gone), clean rows,
+  neutral monogram icon fallback, data-URI icons decode, categories and search kept, the
+  installed modules at the bottom. The store detail page: Install/Update/Reinstall, Test,
+  Copy Link, Remove, and version/compatibility/source as facts.
+- Module detail pages exist for installed modules too (the info button on every row): the
+  same minimal card with Activate, Test, Copy Link, Remove, and the last test's honest
+  result.
+- Settings › Modules opens the full module manager directly; the automation toggles live
+  in its toolbar menu; the built-in source rows moved off it.
+- Sources & Integrations is its own category with AniList/MAL as account cards, Simkl,
+  Discord, tracking toggles and the sync runs.
+- Search's top-right picker shows only the anime sources (AniList, MyAnimeList, Simkl
+  while signed in, and searchable modules); picking one re-runs the search, as before.
+- 109 unused keys pruned, 39 new keys translated into all fourteen languages; version
+  1.3.0 (129).
+
 
 ## This session, in short
 

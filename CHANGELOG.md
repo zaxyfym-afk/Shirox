@@ -1,5 +1,94 @@
 # Changelog
 
+## Unreleased: the ninth session (2026-11-21)
+
+### Settings, rebuilt one page at a time
+
+The main Settings page keeps its design. Every page INSIDE it got a new layout, not a
+recolor:
+
+- Player: three panes under a segmented control — Playback (engine, quality, ambient,
+  background audio, spatial), Controls (landscape, glass, hold action and tolerance, pause
+  for Control Center), Episodes (skip lengths, auto-skip, auto-next, reverse order, the
+  watched threshold). One-tap navigation instead of one long scroll.
+- Subtitles: the live preview is pinned above the controls and stays visible while the
+  sliders scroll under it; Style, Background, Position and Timing are their own groups.
+- Reader: a diagram of the page's two tap zones — which side goes forward flips with the
+  reversed-direction toggle, and the diagram dims when tap zones are off.
+- Library: the title-language order is its own drag-to-reorder group; badges, matching and
+  the on-device library keep their sections, with the filler and schedule notes folded in.
+- Downloads: quality as five plain segments, automation grouped, delete-all moved to an
+  "On Disk" section with the size it will remove.
+- Storage & Cache: a usage meter (total with a proportional bar over artwork, downloads,
+  website data and other) opens the page; every individual reset is a row with its size,
+  no longer folded into a disclosure group.
+- Notifications: the master switch and the system's permission status share one section;
+  the manual check now shows what the last sweep found beside the button.
+- Customization: the theme leads as three plain segments (System / Light / Dark), the tint
+  swatches under it, then icon and icon packs, then layout, then the filler and schedule
+  toggles as one Details group.
+- Backup: two big action buttons — create with the accounts switch and its consequences
+  written above the button, restore with its own progress line — and the last restore's
+  report below.
+- Advanced network: the connection test leads the page, before the proxies it diagnoses;
+  reset stays last.
+- Discord: the account rides under the master switch, so sign-in state is the first thing
+  the page says.
+
+Descriptions are shorter throughout: notes that repeated the row's title are gone, and the
+warnings that remain (backup accounts, mpv, revoked tokens) are the ones that earn their
+space.
+
+### Removed
+
+- Profile is completely gone from Settings — the card, the picker, the whole local-profile
+  system behind it (ProfilesView, ProfileManager, ProfileSwap, AppProfile, the avatar
+  catalog and its tests). Account authentication lives on Sources & Integrations.
+- The "Manage Installed Modules" step: Settings › Modules opens the full module manager
+  directly now. Its automation toggles (default extension, reuse last result, reuse last
+  stream) moved to a menu on the manager's toolbar.
+- The built-in AniList / MyAnimeList / Simkl rows on the module manager — those sources
+  have their own page now.
+- The hero header and every icon-and-title block on every settings page, and every page
+  tint: the subpages are the system's own inset-grouped lists. This also removes what
+  rendered behind the Providers section — the tinted background wash and the hero tile's
+  glow shadow were the artifact.
+
+### New
+
+- Sources & Integrations, its own Settings category: AniList and MyAnimeList as account
+  cards (icon, status, sign in/out, make primary, drag to reorder the chain), Simkl with
+  its budget row, Discord, the tracking toggles and the library sync runs.
+- Module detail pages: icon, name, version, author and source; Activate; a Test button —
+  exactly that label — that runs the module the way playing runs it (search, episodes,
+  stream) and reports pass, the step it failed on and why, or why it couldn't run. Nothing
+  is faked: manga, local-files and Jellyfin modules say they aren't run this way. Copy
+  Link copies the manifest. Remove confirms first.
+- The Module Store, rebuilt: no featured shelf, no hero — clean rows with a neutral
+  monogram fallback when an icon is missing (inline `data:` icons decode now), category
+  chips, search, and the installed modules at the bottom. The store detail page carries
+  Install / Update / Reinstall, Test, Copy Link, Remove, and version, compatibility and
+  source as quiet lines.
+- Search's source picker: only the anime sources — AniList, MyAnimeList, Simkl while
+  signed in, and the installed modules that can search. Picking one switches the search
+  and re-runs the query, as before. No module management in this sheet.
+
+### Fixed
+
+- Gooey Refresh: the pull now runs through an explicit state machine (idle → refreshing →
+  completing → idle). The trigger fires only from idle — one haptic, one refresh per pull —
+  and the machine returns to idle only once the refresh has finished AND the pull is back
+  at rest, so holding the gesture or dragging on after a fast refresh can never re-arm it.
+  The shrink-back animation also refuses re-entry, so the geometry ticks can't restart it.
+- The schedule and notifications buttons are toolbar-sized now: 19 pt icons in 44 pt hit
+  targets, matching buttons, never a merged capsule.
+
+### Housekeeping
+
+- 109 unused localization keys pruned (the profile system's, the removed intermediate
+  pages', the shortened notes); 39 new keys translated into all fourteen languages.
+- Version 1.3.0 (129).
+
 ## Unreleased: the eighth session (2026-11-21)
 
 ### Fixed

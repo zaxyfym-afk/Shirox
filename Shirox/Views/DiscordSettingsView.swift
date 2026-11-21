@@ -9,11 +9,48 @@ struct DiscordSettingsView: View {
     @AppStorage(DiscordPresence.showsCoverKey) private var showsCover = true
     @AppStorage(DiscordPresence.showsDetailsKey) private var showsDetails = true
 
+    /// Who the presence runs as: signed in, testing, or the way in.
+    @ViewBuilder
+    private var accountRows: some View {
+        if discord.isSignedIn {
+            LabeledContent("settings.discord_account") {
+                Text(discord.username ?? String(localized: "settings.signed_in"))
+                    .foregroundStyle(.secondary)
+            }
+            Button(LocalizedStringKey(discord.isShowingTest ? "settings.discord_clear_test" : "settings.discord_send_test")) {
+                if discord.isShowingTest { discord.clear() } else { discord.showTest() }
+            }
+            Button("settings.sign_out", role: .destructive) { discord.signOut() }
+        } else {
+            Button {
+                if let anchor = keyPresentationAnchor() {
+                    discord.signIn(presentationAnchor: anchor)
+                }
+            } label: {
+                HStack {
+                    Text("settings.discord_sign_in")
+                    if discord.isSigningIn { Spacer(); ProgressView() }
+                }
+            }
+            .disabled(discord.isSigningIn)
+        }
+        if let error = discord.lastError {
+            Text(error)
+                .font(.caption)
+                .foregroundStyle(.red)
+        }
+    }
+
     var body: some View {
-        SettingsList(tint: .indigo, heroIcon: "bubble.left.and.text.bubble.right", heroTitle: "settings.discord", heroSubtitle: "settings.discord_hero_sub") {
+        SettingsList {
+            // The switch and the account it runs as, one section: off means everything
+            // under it is out of the way.
             Section {
                 Toggle("settings.discord_rich_presence", isOn: $enabled)
                     .switchTint()
+                if enabled {
+                    accountRows
+                }
             } footer: {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("settings.discord_rich_presence_note")
@@ -23,46 +60,12 @@ struct DiscordSettingsView: View {
 
             if enabled {
                 Section {
-                    if discord.isSignedIn {
-                        LabeledContent("settings.discord_account") {
-                            Text(discord.username ?? String(localized: "settings.signed_in"))
-                                .foregroundStyle(.secondary)
-                        }
-                        Button(LocalizedStringKey(discord.isShowingTest ? "settings.discord_clear_test" : "settings.discord_send_test")) {
-                            if discord.isShowingTest { discord.clear() } else { discord.showTest() }
-                        }
-                        Button("settings.sign_out", role: .destructive) { discord.signOut() }
-                    } else {
-                        Button {
-                            if let anchor = keyPresentationAnchor() {
-                                discord.signIn(presentationAnchor: anchor)
-                            }
-                        } label: {
-                            HStack {
-                                Text("settings.discord_sign_in")
-                                if discord.isSigningIn { Spacer(); ProgressView() }
-                            }
-                        }
-                        .disabled(discord.isSigningIn)
-                    }
-                    if let error = discord.lastError {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                } header: {
-                    SettingsSectionHeader(icon: "person.circle", title: "settings.discord_account")
-                } footer: {
-                    Text("settings.discord_sign_in_note")
-                }
-
-                Section {
                     Toggle("settings.discord_show_cover", isOn: $showsCover)
                         .switchTint()
                     Toggle("settings.discord_show_details", isOn: $showsDetails)
                         .switchTint()
                 } header: {
-                    SettingsSectionHeader(icon: "eye", title: "settings.discord_shown")
+                    SettingsSectionHeader("settings.discord_shown")
                 } footer: {
                     Text("settings.discord_shown_note")
                 }
@@ -74,7 +77,7 @@ struct DiscordSettingsView: View {
                         #endif
                         .autocorrectionDisabled()
                 } header: {
-                    SettingsSectionHeader(icon: "tag", title: "settings.discord_application_id")
+                    SettingsSectionHeader("settings.discord_application_id")
                 } footer: {
                     Text("settings.discord_application_id_note")
                 }

@@ -328,11 +328,6 @@ final class ModuleStoreService: ObservableObject {
         return filtered(shelf, matching: search)
     }
 
-    /// The curated header: featured entries, whatever shelf they sit on.
-    func featured(matching search: String = "") -> [ModuleStoreEntry] {
-        filtered(catalog.entries.filter { $0.featured == true }, matching: search)
-    }
-
     /// Every entry answering a search, across shelves.
     func allEntries(matching search: String) -> [ModuleStoreEntry] {
         filtered(catalog.entries, matching: search)

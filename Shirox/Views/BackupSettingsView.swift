@@ -4,6 +4,9 @@ import UniformTypeIdentifiers
 
 /// Export and restore of a `.shiroxbackup` file.
 ///
+/// Two actions, each one big plain button with the accounts switch and the consequences
+/// written under it — not a list of rows. The last restore's report lands under them.
+///
 /// tvOS has no document picker, so this whole screen is iOS/Catalyst only, matching the
 /// existing gating on the Settings "Data" section.
 struct BackupSettingsView: View {
@@ -27,11 +30,12 @@ struct BackupSettingsView: View {
     }
 
     var body: some View {
-        SettingsList(tint: .cyan, heroIcon: "arrow.up.arrow.down.circle", heroTitle: "settings.backup", heroSubtitle: "settings.backup_hero_sub") {
+        List {
             exportSection
             importSection
             if let report { reportSection(report) }
         }
+        .softScrollEdges()
         .navigationTitle("settings.backup")
         // One importer only: two `.fileImporter` modifiers in a single view conflict —
         // see the note in SearchView.swift.
@@ -64,39 +68,70 @@ struct BackupSettingsView: View {
         }
     }
 
-    // MARK: - Export
+    // MARK: Export
 
     @ViewBuilder
     private var exportSection: some View {
-        Section("settings.create_backup") {
-            Toggle("settings.include_accounts", isOn: $includeAccounts)
-                .switchTint()
-            Text(includeAccounts
-                 ? String(localized: "settings.this_backup_will_contain_live")
-                 : String(localized: "settings.progress_library_settings_and_modules"))
-                .font(.caption)
-                .foregroundStyle(includeAccounts ? .orange : .secondary)
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                Toggle("settings.include_accounts", isOn: $includeAccounts)
+                    .switchTint()
+                Text(includeAccounts
+                     ? String(localized: "settings.this_backup_will_contain_live")
+                     : String(localized: "settings.progress_library_settings_and_modules"))
+                    .font(.caption)
+                    .foregroundStyle(includeAccounts ? .orange : .secondary)
 
-            #if os(macOS)
-            // A Mac saves the file where it's told; the share menu there has no "Save".
-            Button("settings.save_backup") { saveBackup() }
-            #else
-            Button("settings.create_backup") { createBackup() }
-            #endif
-
-            if let exportedURL {
-                #if os(iOS)
-                AnchoredShareButton(items: [exportedURL]) {
-                    Label("settings.share \(exportedURL.lastPathComponent)", icon: "square.and.arrow.up")
+                #if os(macOS)
+                // A Mac saves the file where it's told; the share menu there has no "Save".
+                Button {
+                    saveBackup()
+                } label: {
+                    Label("settings.save_backup", icon: "square.and.arrow.up")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 11)
+                        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.accentColor.opacity(0.14)))
                 }
+                .buttonStyle(.plain)
                 #else
-                if #available(macOS 13.0, *) {
-                    ShareLink(item: exportedURL) {
-                        Label("settings.share \(exportedURL.lastPathComponent)", icon: "square.and.arrow.up")
-                    }
+                Button {
+                    createBackup()
+                } label: {
+                    Label("settings.create_backup", icon: "square.and.arrow.up")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 11)
+                        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.accentColor.opacity(0.14)))
                 }
+                .buttonStyle(.plain)
                 #endif
+
+                if let exportedURL {
+                    #if os(iOS)
+                    AnchoredShareButton(items: [exportedURL]) {
+                        Label("settings.share \(exportedURL.lastPathComponent)", icon: "square.and.arrow.up")
+                            .font(.subheadline.weight(.medium))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 9)
+                            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+                    }
+                    #else
+                    if #available(macOS 13.0, *) {
+                        ShareLink(item: exportedURL) {
+                            Label("settings.share \(exportedURL.lastPathComponent)", icon: "square.and.arrow.up")
+                                .font(.subheadline.weight(.medium))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 9)
+                                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+                        }
+                    }
+                    #endif
+                }
             }
+            .padding(.vertical, 4)
+        } header: {
+            SettingsSectionHeader("settings.create_backup")
         }
     }
 
@@ -129,16 +164,35 @@ struct BackupSettingsView: View {
         }
     }
 
-    // MARK: - Import
+    // MARK: Import
 
     @ViewBuilder
     private var importSection: some View {
-        Section("settings.restore") {
-            Button("settings.restore_from_backup") { showImporter = true }
+        Section {
+            VStack(alignment: .leading, spacing: 10) {
+                Button {
+                    showImporter = true
+                } label: {
+                    Label("settings.restore_from_backup", icon: "square.and.arrow.down")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 11)
+                        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+                }
+                .buttonStyle(.plain)
                 .disabled(isRestoring)
-            Text("settings.replaces_the_progress_library_settings")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                if isRestoring {
+                    HStack(spacing: 8) {
+                        ProgressView().controlSize(.small)
+                        Text("settings.restoring")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(.vertical, 4)
+        } header: {
+            SettingsSectionHeader("settings.restore")
         }
     }
 
@@ -193,7 +247,7 @@ struct BackupSettingsView: View {
         }
     }
 
-    // MARK: - Result
+    // MARK: Result
 
     @ViewBuilder
     private func reportSection(_ report: BackupImportReport) -> some View {

@@ -143,9 +143,7 @@ struct ShiroxApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        // Before anything reads the stored data: a profile switch swaps it now.
-        ProfileManager.applyPendingSwitch()
-        // Before the first request, and after the switch: the setting is the profile's.
+        // Before the first request: the network settings ship in the app bundle.
         SecureDNS.applyAtLaunch()
         NetworkProxy.applyAtLaunch()
         KingfisherImageCache.configure()
@@ -160,8 +158,6 @@ struct ShiroxApp: App {
             _ = CastManager.shared
         #endif
         ProviderManager.shared.setup(providers: [AniListProvider.shared, MALProvider.shared])
-        // Creates the first profile on an install that has none, and keeps its account picture.
-        _ = ProfileManager.shared
         // Anyone who already has the app set up has effectively finished onboarding; don't
         // interrupt an existing install to tell it how to do what it is already doing.
         if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding"),
@@ -189,7 +185,7 @@ struct ShiroxApp: App {
     var body: some Scene {
         WindowGroup {
             // Rebuilt when the icon pack changes: views look their icons up as they're made.
-            ProfileHost { RootTabView().id(iconPacks.revision) }
+            RootTabView().id(iconPacks.revision)
                 .environmentObject(moduleManager)
                 .appAppearance()
                 #if os(macOS)
@@ -204,14 +200,10 @@ struct ShiroxApp: App {
                 // connected. Onboarding says so and wires up the two things that fix it.
                 //
                 // The carry-on launch screen presents it, revealed beneath the shrunk launch
-                // icon, so it never slides in over a finished splash. `onFinished` covers the
-                // other start: the reveal done, the profile picker asks at launch when it should.
+                // icon, so it never slides in over a finished splash.
                 .launchScreen(
                     config: LaunchConfig(),
                     showOnBoarding: !hasCompletedOnboarding,
-                    onFinished: {
-                        if hasCompletedOnboarding { ProfileManager.shared.presentAtLaunchIfNeeded() }
-                    },
                     onBoarding: {
                         OnboardingView()
                             .environmentObject(moduleManager)
@@ -230,7 +222,6 @@ struct ShiroxApp: App {
                     // it would just be revealed by the fade instead of arriving on its own.
                     guard !stillShowing else { return }
                     showOnboarding = !hasCompletedOnboarding
-                    if hasCompletedOnboarding { ProfileManager.shared.presentAtLaunchIfNeeded() }
                 }
                 #endif
                 .onChangeOf(scenePhase) { phase in

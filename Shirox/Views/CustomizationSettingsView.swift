@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Settings ▸ Customization: everything that shapes how Shirox looks — appearance and app
-/// icon, layout, episodes, and the schedule's starting point. Every control here is real
-/// and saved; appearance lives on this page alone, and the pages that own the rest (player,
-/// subtitles, tabs) each have their one door on the root.
+/// Settings ▸ Customization: everything that shapes how Shirox looks. The theme leads as a
+/// three-way segment — System, Light, Dark — over the tint swatches, then the app's icon and
+/// icon packs, then the layout toggles. Appearance lives on this page alone; the pages that
+/// own the rest (player, subtitles, tabs) each have their one door on the root.
 struct CustomizationSettingsView: View {
     @AppStorage(AppColorScheme.key) private var colorScheme = AppColorScheme.system.rawValue
     @AppStorage(AppTint.key) private var tint = AppTint.monochrome.rawValue
@@ -20,86 +20,13 @@ struct CustomizationSettingsView: View {
     @Environment(\.colorScheme) private var systemScheme
 
     var body: some View {
-        SettingsList(tint: SettingsView.brandRed, heroIcon: "paintpalette", heroTitle: "settings.customization", heroSubtitle: "settings.customization_hero_sub") {
-            Section {
-                #if os(iOS) && !targetEnvironment(macCatalyst)
-                if #available(iOS 26, *) {
-                    // The scene and the carousel; the plain pickers below 26.
-                    Button {
-                        showThemePicker = true
-                    } label: {
-                        LabeledContent("settings.appearance") {
-                            Text((AppColorScheme(rawValue: colorScheme) ?? .system).title)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        showIconPicker = true
-                    } label: {
-                        LabeledContent("settings.app_icon") {
-                            Text(appIconTitle)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    appearancePicker
-                    appIconPicker
-                }
-                #else
-                appearancePicker
-                #endif
-
-                TintColorRow(tint: $tint)
-
-                NavigationLink {
-                    IconPacksSettingsView()
-                } label: {
-                    LabeledContent("settings.icon_packs") {
-                        Text(IconPackStore.shared.selected?.pack.name ?? String(localized: "settings.sf_symbols"))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            } header: {
-                SettingsSectionHeader(icon: "circle", title: "settings.appearance")
-            } footer: {
-                Text("settings.buttons_switches_and_highlights_monochrome")
-            }
-
+        SettingsList {
+            themeSection
+            iconSection
             if DetailLayoutSetting.isOffered {
-                Section {
-                    Toggle("settings.cinematic_home", isOn: $cinematicHomeLayout)
-                        .switchTint()
-                    Toggle("settings.cinematic_detail_pages", isOn: $cinematicDetailLayout)
-                        .switchTint()
-                } header: {
-                    SettingsSectionHeader(icon: "square.grid.3x2", title: "settings.layout")
-                } footer: {
-                    Text("settings.cinematic_note")
-                }
+                layoutSection
             }
-
-            Section {
-                Toggle("settings.hide_filler_episodes", isOn: $hideFillerEpisodes)
-                    .switchTint()
-                Text("settings.hide_filler_note")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                SettingsSectionHeader(icon: "list.bullet.rectangle", title: "common.episodes")
-            }
-
-            Section {
-                Toggle("settings.schedule_starts_in_library", isOn: $scheduleStartsInLibrary)
-                    .switchTint()
-                Text("settings.schedule_starts_note")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                SettingsSectionHeader(icon: "calendar", title: "shared.upcoming")
-            }
+            detailsSection
         }
         .softScrollEdges()
         .navigationTitle("settings.customization")
@@ -126,14 +53,108 @@ struct CustomizationSettingsView: View {
         #endif
     }
 
-    private var appearancePicker: some View {
-        Picker("settings.appearance", selection: $colorScheme) {
-            ForEach(AppColorScheme.allCases) { scheme in
-                Text(scheme.title).tag(scheme.rawValue)
+    // MARK: Theme
+
+    /// The theme as three plain segments; on iOS 26 the segment opens the full scene picker.
+    private var themeSection: some View {
+        Section {
+            #if os(iOS) && !targetEnvironment(macCatalyst)
+            if #available(iOS 26, *) {
+                Button {
+                    showThemePicker = true
+                } label: {
+                    LabeledContent("settings.appearance") {
+                        Text((AppColorScheme(rawValue: colorScheme) ?? .system).title)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+            } else {
+                Picker("settings.appearance", selection: $colorScheme) {
+                    ForEach(AppColorScheme.allCases) { scheme in
+                        Text(scheme.title).tag(scheme.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.vertical, 4)
+            }
+            #else
+            Picker("settings.appearance", selection: $colorScheme) {
+                ForEach(AppColorScheme.allCases) { scheme in
+                    Text(scheme.title).tag(scheme.rawValue)
+                }
+            }
+            .pickerStyle(.menu)
+            .retinted(tint)
+            #endif
+
+            TintColorRow(tint: $tint)
+        } header: {
+            SettingsSectionHeader("settings.appearance")
+        } footer: {
+            Text("settings.buttons_switches_and_highlights_monochrome")
+        }
+    }
+
+    // MARK: Icon
+
+    private var iconSection: some View {
+        Section {
+            #if os(iOS) && !targetEnvironment(macCatalyst)
+            if #available(iOS 26, *) {
+                Button {
+                    showIconPicker = true
+                } label: {
+                    LabeledContent("settings.app_icon") {
+                        Text(appIconTitle)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+            } else {
+                appIconPicker
+            }
+            #endif
+
+            NavigationLink {
+                IconPacksSettingsView()
+            } label: {
+                LabeledContent("settings.icon_packs") {
+                    Text(IconPackStore.shared.selected?.pack.name ?? String(localized: "settings.sf_symbols"))
+                        .foregroundStyle(.secondary)
+                }
             }
         }
-        .pickerStyle(.menu)
-        .retinted(tint)
+    }
+
+    // MARK: Layout
+
+    private var layoutSection: some View {
+        Section {
+            Toggle("settings.cinematic_home", isOn: $cinematicHomeLayout)
+                .switchTint()
+            Toggle("settings.cinematic_detail_pages", isOn: $cinematicDetailLayout)
+                .switchTint()
+        } header: {
+            SettingsSectionHeader("settings.layout")
+        } footer: {
+            Text("settings.cinematic_note")
+        }
+    }
+
+    // MARK: Details
+
+    /// The two content-level choices: filler episodes on the detail page, and where the
+    /// schedule opens.
+    private var detailsSection: some View {
+        Section {
+            Toggle("settings.hide_filler_episodes", isOn: $hideFillerEpisodes)
+                .switchTint()
+            Toggle("settings.schedule_starts_in_library", isOn: $scheduleStartsInLibrary)
+                .switchTint()
+        } header: {
+            SettingsSectionHeader("settings.details")
+        }
     }
 
     #if os(iOS) && !targetEnvironment(macCatalyst)
@@ -150,9 +171,7 @@ struct CustomizationSettingsView: View {
     private var appIconTitle: String {
         AppIconOption(name: appIcon).title
     }
-    #endif
 
-    #if os(iOS) && !targetEnvironment(macCatalyst)
     /// Picking an icon asks iOS to switch to it; the picker only moves once it has.
     private var appIconSelection: Binding<String?> {
         Binding(get: { appIcon }, set: { name in

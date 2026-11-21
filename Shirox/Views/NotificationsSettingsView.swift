@@ -5,6 +5,9 @@ import UserNotifications
 ///
 /// Deliberately separate from the tracker accounts' social notifications (the Library's
 /// bell): this page is only about episodes airing, from the app's own follow list.
+///
+/// The page opens on its status — whether the system will deliver at all — with the master
+/// switch right under it, the check-now action beside it, and the followed series below.
 struct NotificationsSettingsView: View {
     @ObservedObject private var store = FollowedSeriesStore.shared
     @ObservedObject private var notifier = EpisodeReleaseNotifier.shared
@@ -12,40 +15,9 @@ struct NotificationsSettingsView: View {
     @State private var permission: UNAuthorizationStatus?
 
     var body: some View {
-        SettingsList(tint: .red, heroIcon: "bell", heroTitle: "settings.notifications", heroSubtitle: "settings.notifications_hero_sub") {
-            Section {
-                Toggle("notifications.notify_new_episodes", isOn: $enabled)
-                    .switchTint()
-                Text("notifications.notify_new_episodes_footer")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } header: {
-                SettingsSectionHeader(icon: "play.rectangle.on.rectangle", title: "notifications.new_episodes")
-            }
-
-            permissionSection
-
-            Section {
-                Button {
-                    Task { await checkNow() }
-                } label: {
-                    HStack {
-                        Text("notifications.check_now")
-                        Spacer()
-                        if notifier.isChecking { ProgressView() }
-                    }
-                }
-                .disabled(store.series.isEmpty || !enabled)
-
-                if !notifier.isChecking {
-                    Text(lastCheckLine)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } footer: {
-                Text("notifications.check_now_footer")
-            }
-
+        List {
+            statusSection
+            checkSection
             followedSection
         }
         .softScrollEdges()
@@ -59,26 +31,41 @@ struct NotificationsSettingsView: View {
         }
     }
 
-    // MARK: - Permission
+    // MARK: Status
 
-    /// The system's answer to showing notifications at all; nil until asked.
-    private var permissionSection: some View {
+    /// The switch, and the one thing that can silently break it: the system's permission.
+    private var statusSection: some View {
         Section {
+            Toggle("notifications.notify_new_episodes", isOn: $enabled)
+                .switchTint()
+            permissionRow
+        }
+    }
+
+    @ViewBuilder
+    private var permissionRow: some View {
+        if permission == .denied {
             HStack {
-                Label(permissionLabel, icon: permissionIcon)
+                Label(permissionLabel, icon: "exclamationmark.triangle")
+                    .foregroundStyle(.orange)
                 Spacer()
-                if permission == .denied {
-                    Button("notifications.open_system_settings") { openSystemSettings() }
-                        .font(.caption)
-                }
+                Button("notifications.open_system_settings") { openSystemSettings() }
+                    .font(.caption.weight(.semibold))
             }
-            if permission == .denied {
-                Text("notifications.denied_hint")
-                    .font(.caption)
+        } else if let permission {
+            HStack {
+                Label(permissionLabel, icon: permissionIcon(for: permission))
                     .foregroundStyle(.secondary)
+                Spacer()
             }
-        } header: {
-            SettingsSectionHeader(icon: "bell.fill", title: "notifications.permission")
+        }
+    }
+
+    private func permissionIcon(for status: UNAuthorizationStatus) -> String {
+        switch status {
+        case .authorized, .provisional, .ephemeral: return "checkmark.circle"
+        case .denied: return "exclamationmark.triangle"
+        default: return "questionmark.circle"
         }
     }
 
@@ -90,11 +77,28 @@ struct NotificationsSettingsView: View {
         }
     }
 
-    private var permissionIcon: String {
-        switch permission {
-        case .authorized, .provisional, .ephemeral: return "checkmark.circle"
-        case .denied: return "exclamationmark.circle"
-        default: return "questionmark.circle"
+    // MARK: Check
+
+    /// One manual sweep, with when it last ran and what it found.
+    private var checkSection: some View {
+        Section {
+            Button {
+                Task { await checkNow() }
+            } label: {
+                HStack {
+                    Text("notifications.check_now")
+                    Spacer()
+                    if notifier.isChecking {
+                        ProgressView()
+                    } else {
+                        Text(lastCheckLine)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            .disabled(store.series.isEmpty || !enabled)
         }
     }
 
@@ -125,7 +129,7 @@ struct NotificationsSettingsView: View {
         return String(localized: "notifications.up_to_date")
     }
 
-    // MARK: - Followed series
+    // MARK: Followed series
 
     @ViewBuilder
     private var followedSection: some View {
@@ -154,7 +158,7 @@ struct NotificationsSettingsView: View {
                 }
             }
         } header: {
-            SettingsSectionHeader(icon: "heart.text.square", title: "notifications.followed_series")
+            SettingsSectionHeader("notifications.followed_series")
         } footer: {
             if !store.series.isEmpty {
                 Text("notifications.followed_footer")
@@ -199,7 +203,7 @@ struct NotificationsSettingsView: View {
         Task { await notifier.cancel(seriesID: entry.id) }
     }
 
-    // MARK: - Helpers
+    // MARK: Helpers
 
     private func openSystemSettings() {
         #if os(iOS)

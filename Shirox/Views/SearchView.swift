@@ -128,7 +128,7 @@ struct SearchView: View {
         }
         .adaptiveSheet(isPresented: $showModuleList) {
             NavigationStack {
-                ModuleListView(showsDone: true)
+                SearchSourcePickerView()
             }
             .environmentObject(moduleManager)
             .appTint()

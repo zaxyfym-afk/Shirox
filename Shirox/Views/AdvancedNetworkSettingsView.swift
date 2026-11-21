@@ -9,12 +9,14 @@ import SwiftUI
 /// (`NetworkDiagnostics`) and a reset (`NetworkReset`).
 struct AdvancedNetworkSettingsView: View {
     var body: some View {
-        SettingsList(tint: .indigo, heroIcon: "network", heroTitle: "settings.advanced_network", heroSubtitle: "settings.network_hero_sub") {
+        SettingsList {
+            // Diagnostics first: test what's broken before touching anything, and reset
+            // last, when everything else has been tried.
+            ConnectionTestSection()
             TMDBProxySections()
             SecureDNSSections()
             ProxySections()
             UserAgentSections()
-            ConnectionTestSection()
             NetworkResetSection()
         }
         .softScrollEdges()
@@ -66,7 +68,7 @@ private struct TMDBProxySections: View {
                 addressField(String(localized: "settings.custom_image_base_url"), text: $imageBase, prompt: TMDBHostSettings.defaultImageBase)
             }
         } header: {
-            SettingsSectionHeader(icon: "server.rack", title: "TMDB")
+            SettingsSectionHeader("TMDB")
         } footer: {
             Text(useProxies ? footer : Self.note)
         }
@@ -109,7 +111,7 @@ private struct SecureDNSSections: View {
                 addressField(String(localized: "settings.server_ip_addresses"), text: $serverAddresses, prompt: SecureDNSSettings.defaultServerAddresses)
             }
         } header: {
-            SettingsSectionHeader(icon: "shield", title: "settings.dns_over_https")
+            SettingsSectionHeader("settings.dns_over_https")
         } footer: {
             Text(secureDNS ? footer : Self.note)
         }
@@ -165,7 +167,7 @@ private struct ProxySections: View {
                     .onChangeOf(password) { ProxyKeychain.save($0, account: NetworkProxySettings.passwordAccount) }
             }
         } header: {
-            SettingsSectionHeader(icon: "network", title: "settings.proxy")
+            SettingsSectionHeader("settings.proxy")
         } footer: {
             Text(enabled ? footer : Self.note)
         }
@@ -207,7 +209,7 @@ private struct UserAgentSections: View {
                     .disabled(userAgent == NetworkUserAgent.standard)
             }
         } header: {
-            SettingsSectionHeader(icon: "safari", title: "settings.user_agent")
+            SettingsSectionHeader("settings.user_agent")
         } footer: {
             Text(enabled ? String(localized: "settings.shiroxs_own \(NetworkUserAgent.standard)") : Self.note)
         }

@@ -1,3 +1,4 @@
+import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -262,7 +263,7 @@ struct ModuleImportView: View {
                     .localizedDescription
             }
         case .icon:
-            guard let jpeg = ProfileManager.normalizedPhoto(data, maxSide: 256) else {
+            guard let jpeg = Self.normalizedJPEG(data, maxSide: 256) else {
                 problem = "\(url.lastPathComponent) isn't a picture."
                 return
             }
@@ -270,6 +271,22 @@ struct ModuleImportView: View {
         case nil:
             break
         }
+    }
+
+    /// A picked picture, scaled to `maxSide` on its longer side and stored as JPEG.
+    private static func normalizedJPEG(_ data: Data, maxSide: Int) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                  kCGImageSourceCreateThumbnailFromImageAlways: true,
+                  kCGImageSourceCreateThumbnailWithTransform: true,
+                  kCGImageSourceThumbnailMaxPixelSize: maxSide
+              ] as CFDictionary) else { return nil }
+        let output = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(output, "public.jpeg" as CFString, 1, nil)
+        else { return nil }
+        CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return output as Data
     }
 
     private func fill(from module: ModuleDefinition) {

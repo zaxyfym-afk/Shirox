@@ -204,18 +204,35 @@ private struct QuietRefreshModifier: ViewModifier {
 /// rest offset shifts the whole content downward by the control's height — the images on a
 /// full-bleed page visibly jump the moment the haptic lands — and it kept a gap open under
 /// the status bar for the control it hid. Here the pull is read straight off the scroll
-/// geometry: crossing the threshold fires the refresh once, the list never moves out from
-/// under anything, the position stays stable from pull to completion, and one haptic marks
-/// exactly the state change.
+/// geometry and run through an explicit state machine (`idle`, `refreshing`, `completing`):
+/// the trigger fires only from `idle`, one haptic marks the crossing, and the machine
+/// returns to `idle` only once the refresh has finished AND the pull is back at rest — so
+/// holding the pull or dragging on after a fast refresh can never re-arm the trigger, and
+/// the haptic can never spam.
 @available(iOS 18.0, *)
 private struct MorphingBlobModifier: ViewModifier {
     nonisolated let action: @Sendable () async -> Void
+
+    /// The refresh's own state machine. One refresh per pull: the trigger fires only from
+    /// `idle`, and the machine returns to `idle` only once BOTH the refresh cycle has
+    /// finished AND the pull has come back to rest — so holding the pull, or dragging
+    /// further, can never re-arm the trigger and spam the haptic.
+    private enum Phase {
+        /// At rest. The only state the trigger may fire from.
+        case idle
+        /// The refresh is running. Held here however the finger moves afterwards.
+        case refreshing
+        /// The refresh finished while the finger was still down: the blob holds its whole
+        /// pull until the gesture ends, then shrinks. Not re-armed.
+        case completing
+    }
+    @State private var phase: Phase = .idle
 
     /// What the blob draws: the pull, smoothed, so the gooey grows progressively.
     @State private var scrollProgress: CGFloat = 0
     /// The raw pull, 0 to 1 across the whole distance, ahead of any smoothing.
     @State private var actualProgress: CGFloat = 0
-    @State private var isRefreshing = false
+    /// True while the shrink-back animation runs, so geometry ticks don't fight it.
     @State private var isAnimating = false
     /// The window's hardware top inset: the island's region on the phones that have one,
     /// the notch's on those, the status bar's height elsewhere. Zero on a landscape phone
@@ -256,23 +273,38 @@ private struct MorphingBlobModifier: ViewModifier {
                 let pull = MorphingRefreshGeometry.progress(offsetWithInset: offset)
                 actualProgress = pull
 
-                // The pull crossing the whole distance IS the trigger — one refresh per
-                // crossing, never re-fired while one is out, no release required.
-                if !isRefreshing, !isAnimating, pull >= 1 {
-                    beginRefresh(refresh)
-                }
+                switch phase {
+                case .idle:
+                    // The pull crossing the whole distance IS the trigger — one refresh per
+                    // crossing, and only from here. While refreshing, completing or the
+                    // shrink's tail, crossings do nothing at all.
+                    if !isAnimating, pull >= 1 {
+                        beginRefresh(refresh)
+                    } else if !isAnimating {
+                        scrollProgress = MorphingRefreshGeometry.stretch(pull)
+                    }
 
-                // While refreshing the blob holds at a whole pull, whatever the content does.
-                if !isAnimating {
-                    scrollProgress = isRefreshing ? 1 : MorphingRefreshGeometry.stretch(pull)
+                case .refreshing:
+                    // The refresh owns the blob: held at a whole pull whatever the content
+                    // and the finger do, so a hold or a further drag can't re-trigger.
+                    scrollProgress = 1
+
+                case .completing:
+                    // Refresh done, finger still down: hold whole until the pull returns to
+                    // rest, then shrink away. Not before — that is what kept re-arming.
+                    if pull <= 0 {
+                        shrinkAway()
+                    } else {
+                        scrollProgress = 1
+                    }
                 }
             }
     }
 
-    /// One refresh: the haptic, the blob held whole, the work, and the smooth way back —
-    /// all from the pull's own tick, so there is exactly one state change to animate.
+    /// One refresh: the haptic, the blob held whole, the work, and the state it ends in —
+    /// called only from `idle`, so there is exactly one haptic and one refresh per pull.
     private func beginRefresh(_ refresh: @escaping @Sendable () async -> Void) {
-        isRefreshing = true
+        phase = .refreshing
         scrollProgress = 1
         #if os(iOS)
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -280,20 +312,29 @@ private struct MorphingBlobModifier: ViewModifier {
         Task { @MainActor in
             await refresh()
 
-            // The pull is over — the refresh outlasted it, or the list is back at the top —
-            // so the blob shrinks away rather than blinking out. While the finger is still
-            // down, the live pull carries the blob instead.
-            if actualProgress == 0 {
-                isAnimating = true
-                withAnimation(.easeInOut(duration: 0.2), completionCriteria: .logicallyComplete) {
-                    scrollProgress = 0.01
-                } completion: {
-                    scrollProgress = 0
-                    isAnimating = false
-                }
+            // The work is over. Finger gone (the list is back at its rest offset): shrink
+            // now. Finger still down holding the pull: stay held, whole, until the pull
+            // returns to rest — the geometry tick will call the shrink.
+            if actualProgress <= 0 {
+                shrinkAway()
+            } else {
+                phase = .completing
             }
+        }
+    }
 
-            isRefreshing = false
+    /// The smooth way back to `idle`: the blob shrinks, and only once it has is the
+    /// trigger armed again. The geometry tick that started the shrink keeps arriving while
+    /// it runs, so a second call does nothing — the animation must run once, to its end.
+    private func shrinkAway() {
+        guard !isAnimating else { return }
+        isAnimating = true
+        withAnimation(.easeInOut(duration: 0.2), completionCriteria: .logicallyComplete) {
+            scrollProgress = 0.01
+        } completion: {
+            scrollProgress = 0
+            isAnimating = false
+            phase = .idle
         }
     }
 }

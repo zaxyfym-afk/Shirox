@@ -3,9 +3,6 @@ import UniformTypeIdentifiers
 
 struct ModuleListView: View {
     @EnvironmentObject private var moduleManager: ModuleManager
-    @ObservedObject private var providerManager = ProviderManager.shared
-    @ObservedObject private var discovery = DiscoverySource.shared
-    @ObservedObject private var simklAuth = SimklAuthManager.shared
     @Environment(\.dismiss) private var dismiss
     /// In a sheet, a Done button closes it — a Mac's sheet can't be swiped away.
     var showsDone = false
@@ -26,7 +23,12 @@ struct ModuleListView: View {
     @State private var showModuleImport = false
     /// The module whose script is open in the editor.
     @State private var editingScriptOf: ModuleDefinition?
-
+    /// The module whose detail page is open: status, test, copy link.
+    @State private var detailModule: ModuleDefinition?
+    /// Automation: reuse the last choices instead of asking every time.
+    @AppStorage("useDefaultExtension") private var useDefaultExtension = false
+    @AppStorage("autoPickLastSearchResult") private var autoPickLastSearchResult = false
+    @AppStorage("autoPickLastStream") private var autoPickLastStream = false
     private static var localFilesBlurb: String {
         #if os(macOS) || targetEnvironment(macCatalyst)
         String(localized: "modules.watch_video_files_from_your")
@@ -87,19 +89,10 @@ struct ModuleListView: View {
                 #endif
                 }
 
+                // The modules themselves. The built-in anime sources (AniList, MyAnimeList,
+                // Simkl) are not listed here any more: they live on Settings › Sources &
+                // Integrations, and Search's source picker switches between them.
                 Section {
-                    ForEach(ProviderType.userProviders, id: \.self) { type in
-                        builtInProviderRow(type)
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
-                    }
-                    // Home and Search from Simkl — offered while signed in, as its search needs the account.
-                    if simklAuth.isLoggedIn {
-                        builtInProviderRow(.simkl)
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
-                    }
-
                     if moduleManager.modules.isEmpty {
                         emptyModulesView
                             .listRowInsets(EdgeInsets())
@@ -130,6 +123,11 @@ struct ModuleListView: View {
                                         Label("modules.check_again", icon: "checkmark.shield")
                                     }
                                     .disabled(moduleManager.checking.contains(module.id))
+                                    Button {
+                                        detailModule = module
+                                    } label: {
+                                        Label("modules.details", icon: "info.circle")
+                                    }
                                     Button(role: .destructive) {
                                         removeModule(module)
                                     } label: {
@@ -140,7 +138,7 @@ struct ModuleListView: View {
                         .onMove(perform: moduleManager.moveModules)
                     }
                 } header: {
-                    Text("modules.sources")
+                    Text("common.modules")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .textCase(.uppercase)
@@ -221,6 +219,9 @@ struct ModuleListView: View {
                     }
                     .accessibilityLabel("store.get_more")
                 }
+                ToolbarItem(placement: .automatic) {
+                    automationMenu
+                }
             }
             .modifier(DoneItem(isShown: showsDone) { dismiss() })
             .confirmationDialog(
@@ -276,6 +277,10 @@ struct ModuleListView: View {
             .frame(minWidth: 640, minHeight: 520)
             #endif
         }
+        .adaptiveSheet(item: $detailModule) { module in
+            ModuleDetailSheet(module: module)
+                .environmentObject(moduleManager)
+        }
         #endif
         .sheet(item: $moduleManager.pendingRepo) { repo in
             ExtensionRepoSheet(repo: repo)
@@ -289,6 +294,23 @@ struct ModuleListView: View {
     private struct EditingScript: Identifiable {
         let module: ModuleDefinition
         var id: String { module.id }
+    }
+
+    // MARK: - Automation
+
+    /// The choices the player makes by itself, from the old Modules page: whether a module
+    /// reuses your last picks instead of asking every time.
+    private var automationMenu: some View {
+        Menu {
+            Toggle("settings.use_default_extension", isOn: $useDefaultExtension)
+                .disabled(moduleManager.activeModule == nil)
+            Toggle("settings.auto_pick_last_search_result", isOn: $autoPickLastSearchResult)
+            Toggle("settings.auto_pick_last_stream", isOn: $autoPickLastStream)
+        } label: {
+            IconView("gearshape")
+                .font(.system(size: 14, weight: .medium))
+        }
+        .accessibilityLabel("settings.automation")
     }
 
     private var brokenTitle: String {
@@ -537,87 +559,6 @@ struct ModuleListView: View {
         .padding(.vertical, 4)
     }
 
-    // MARK: - Built-in Provider Row
-    private func builtInProviderRow(_ type: ProviderType) -> some View {
-        // Simkl is the Home and Search source beside the AniList/MAL chain, not a link in it.
-        let isChosen = type == .simkl
-            ? discovery.usesSimkl
-            : !discovery.usesSimkl && providerManager.orderedProviders.first?.providerType == type
-        let isSelected = moduleManager.activeModule == nil
-        let isDown = isChosen && type != .simkl && providerManager.fallbackActive
-
-        return Button {
-            if moduleManager.activeModule != nil {
-                moduleManager.deselectModule()
-            }
-            if type == .simkl {
-                discovery.chooseSimkl()
-            } else {
-                discovery.chooseProvider(type)
-            }
-            #if os(iOS)
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            #endif
-        } label: {
-            HStack(spacing: 14) {
-                AsyncImage(url: URL(string: type.iconURL)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFit()
-                    case .failure, .empty:
-                        IconView("list.bullet")
-                            .font(.title2)
-                            .foregroundStyle(Color.primary)
-                    @unknown default:
-                        IconView("list.bullet")
-                            .font(.title2)
-                            .foregroundStyle(Color.primary)
-                    }
-                }
-                .frame(width: 44, height: 44)
-                // Simkl's icon is a dark tile with a see-through "S": on white, as elsewhere.
-                .background(type == .simkl ? Color.white : Color.clear)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .background(Color.primary.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(type.displayName).font(.headline)
-                    HStack(spacing: 6) {
-                        Text(type == .simkl ? String(localized: "modules.built_in_anime_shows_and") : String(localized: "modules.built_in_anime_metadata"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        if isDown {
-                            Text("modules.unavailable")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.red)
-                                .padding(.horizontal, 6).padding(.vertical, 2)
-                                .background(.red.opacity(0.12), in: Capsule())
-                        }
-                    }
-                }
-                Spacer()
-                if isSelected && isChosen && !isDown {
-                    IconView("checkmark.circle.fill")
-                        .foregroundStyle(Color.primary)
-                        .font(.title3)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .background(
-                (isSelected && isChosen) ? Color.primary.opacity(0.08) : Color.black.opacity(0.001),
-                in: RoundedRectangle(cornerRadius: 12)
-            )
-            .opacity(isDown ? 0.45 : 1.0)
-        }
-        .buttonStyle(.plain)
-        .contentShape(Rectangle())
-        .animation(.easeOut(duration: 0.2), value: isSelected)
-        .animation(.easeOut(duration: 0.2), value: providerManager.fallbackActive)
-    }
-
     // MARK: - Module Row
     private func moduleRow(_ module: ModuleDefinition) -> some View {
         let isActive = moduleManager.activeModule?.id == module.id
@@ -666,6 +607,17 @@ struct ModuleListView: View {
                         .foregroundStyle(Color.primary)
                         .font(.title3)
                 }
+                Button {
+                    detailModule = module
+                } label: {
+                    IconView("info.circle")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(String(localized: "modules.details"))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

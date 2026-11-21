@@ -1,5 +1,29 @@
 # Todo
 
+## 0. Ninth session (2026-11-21): what is done and what is next
+
+- DONE: profile system removed end to end (Settings card, picker, ProfileManager/Swap/
+  AppProfile, avatars, tests); Sources & Integrations created with AniList/MAL account
+  cards + Simkl + Discord + tracking + sync; Settings › Modules opens the manager directly
+  with automation in its toolbar menu and the built-in source rows moved off it; every
+  Settings subpage rebuilt (Player panes, pinned subtitle preview, reader tap-zone diagram,
+  library order card, download segments, storage meter, notifications status, customization
+  theme segments, backup action cards, advanced network diagnostics-first, Discord
+  status-first); descriptions shortened; Module Store rebuilt without the featured shelf,
+  monogram icon fallback + data-URI icons; module detail pages with a real Test (exact
+  label), Copy Link, Install/Update/Remove; Search source picker shows only anime sources;
+  gooey refresh state machine (one haptic, one refresh, no re-arm while held); schedule +
+  notifications buttons at 19 pt in 44 pt targets; 109 dead keys pruned, 39 new keys in 14
+  languages; version 1.3.0 (129).
+- NEXT ON DEVICE: every rebuilt subpage in light and dark on a small phone and a large one
+  (the Player's segmented panes and the storage meter especially); the module Test button
+  against a real module (passed, failed, needs-verification paths); the Search source
+  picker's re-search on switch; a long-held gooey pull past a fast refresh (no haptic
+  spam, no second refresh); Sources & Integrations drag-to-reorder with an editMode list
+  that also holds sign-in buttons.
+- NEXT IN PIPELINE: the Codemagic build for this arc; the four xcodebuild scheme builds
+  and the ShiroxTests suite still need a Mac.
+
 ## 0. Eighth session (2026-11-21): what is done and what is next
 
 - DONE: gooey refresh slowed and de-jittered (no native control under the gooey style);

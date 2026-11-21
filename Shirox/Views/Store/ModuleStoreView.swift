@@ -1,9 +1,8 @@
 import SwiftUI
 
-/// The Store tab: the Module Store's shelves on top, everything already installed below. The
-/// shelves are a skeleton — the bundled catalog is an empty placeholder until a real one is
-/// published at Settings › Sources — but every part is wired: entries install and update
-/// through the existing module manager, and the installed list is the modules themselves.
+/// The Module Store: the community catalogs' modules, searchable and shelved, over what's
+/// already installed. Every entry installs through the existing module manager; the detail
+/// page offers Install, Test and Copy Link — nothing decorative.
 struct ModuleStoreView: View {
     @ObservedObject private var store = ModuleStoreService.shared
     @ObservedObject private var moduleManager = ModuleManager.shared
@@ -12,184 +11,35 @@ struct ModuleStoreView: View {
     @State private var detail: ModuleStoreEntry?
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 22) {
-                    SettingsPageHero(icon: "bag.fill", title: "store.title", subtitle: "store.hero_sub", tint: .pink)
-                        .padding(.top, 4)
-                    if let error = store.errorMessage {
-                        errorBanner(error)
-                    } else {
-                        sourceNotes
-                    }
-
-                    if !featured.isEmpty {
-                        shelf(title: "store.featured", entries: featured)
-                    }
-
-                    if store.showingPlaceholder, store.catalog.entries.isEmpty {
-                        placeholderHeader
-                    } else {
-                        categoryChips
-                        shelf(title: selectedCategory?.displayName ?? String(localized: "store.all"),
-                              entries: selectedCategory.map { store.entries(in: $0, matching: search) }
-                                  ?? store.allEntries(matching: search))
-                    }
-
-                    installedSection
+        List {
+            if let error = store.errorMessage, store.catalog.entries.isEmpty {
+                Section {
+                    errorBanner(error)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
-            }
-            .softScrollEdges()
-            .navigationTitle("store.title")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            #if !os(tvOS)
-            .searchable(text: $search, prompt: Text("store.search_modules"))
-            #endif
-            .morphingRefreshable { await store.load() }
-            .adaptiveSheet(item: $detail) { entry in
-                ModuleStoreEntryDetail(entry: entry)
-            }
-        }
-    }
-
-    // MARK: - Shelves
-
-    private var featured: [ModuleStoreEntry] { store.featured(matching: search) }
-
-    private var selectedCategory: ModuleStoreCategory? {
-        guard let category, store.catalog.categories.contains(category) else { return nil }
-        return category
-    }
-
-    private var categoryChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                chip(nil, label: String(localized: "store.all"))
-                ForEach(store.catalog.categories) { category in
-                    chip(category, label: category.displayName)
-                }
-            }
-            .padding(.vertical, 2)
-        }
-    }
-
-    private func chip(_ category: ModuleStoreCategory?, label: String) -> some View {
-        let isSelected = selectedCategory?.id == category?.id
-        return Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                self.category = category
-            }
-        } label: {
-            Text(label)
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .background(
-                    Capsule().fill(isSelected ? Color.accentColor.opacity(0.18) : Color.secondary.opacity(0.1))
-                )
-                .overlay(Capsule().strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: 1))
-                .foregroundStyle(isSelected ? Color.accentColor : .primary)
-        }
-        .buttonStyle(.plain)
-    }
-
-    @ViewBuilder
-    private func shelf(title: String, entries: [ModuleStoreEntry]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.title3.weight(.bold))
-            if entries.isEmpty {
-                Text("store.nothing_here_yet")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 28)
             } else {
-                ForEach(entries) { entry in
-                    Button { detail = entry } label: {
-                        entryCard(entry)
-                    }
-                    .buttonStyle(.plain)
-                }
+                sourceNotes
+                categorySection
+                entriesSection
             }
+            installedSection
+        }
+        .softScrollEdges()
+        .navigationTitle("store.title")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        #endif
+        #if !os(tvOS)
+        .searchable(text: $search, prompt: Text("store.search_modules"))
+        #endif
+        .morphingRefreshable { await store.load() }
+        .adaptiveSheet(item: $detail) { entry in
+            ModuleStoreEntryDetail(entry: entry)
         }
     }
 
-    // MARK: - Cards
+    // MARK: - Source health
 
-    private func entryCard(_ entry: ModuleStoreEntry) -> some View {
-        HStack(spacing: 14) {
-            entryIcon(entry)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 8) {
-                    Text(entry.name)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                    stateBadge(entry)
-                }
-                Text(entry.tagline)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                if let author = entry.author {
-                    Text("store.by_author \(author)")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-            }
-            Spacer(minLength: 0)
-            IconView("chevron.right")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.tertiary)
-        }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.secondary.opacity(0.07)))
-        .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    @ViewBuilder
-    private func stateBadge(_ entry: ModuleStoreEntry) -> some View {
-        switch store.state(of: entry) {
-        case .installed:
-            Label("store.installed_badge", icon: "checkmark.circle.fill")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.green)
-        case .updateAvailable:
-            Text("store.update")
-                .font(.caption2.weight(.semibold))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(Color.orange.opacity(0.15), in: Capsule())
-                .foregroundStyle(.orange)
-        case .notInstalled:
-            EmptyView()
-        }
-    }
-
-    @ViewBuilder
-    private func entryIcon(_ entry: ModuleStoreEntry) -> some View {
-        Group {
-            if let url = entry.iconURL, !url.isEmpty {
-                CachedAsyncImage(urlString: url)
-                    .scaledToFill()
-            } else {
-                // A monogram stands in until a real catalog brings icons.
-                Text(String(entry.name.prefix(1)).uppercased())
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-            }
-        }
-        .frame(width: 52, height: 52)
-        .background(Color.accentColor.opacity(0.75), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-        .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
-        .accessibilityHidden(true)
-    }
-
-    /// The catalogs' health, one soft line per source that didn't answer — the shelves that
+    /// The catalogs' health, one quiet line per source that didn't answer — the shelves that
     /// did answer stay up, and the pull to refresh tries the failed ones again.
     @ViewBuilder
     private var sourceNotes: some View {
@@ -198,7 +48,7 @@ struct ModuleStoreView: View {
             return false
         }
         if !failed.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
+            Section {
                 ForEach(failed) { status in
                     HStack(spacing: 8) {
                         IconView("wifi.exclamationmark")
@@ -212,22 +62,140 @@ struct ModuleStoreView: View {
         }
     }
 
-    /// The placeholder catalog's own wording: this isn't "nothing found", it's "not yet".
-    private var placeholderHeader: some View {
-        VStack(spacing: 12) {
-            IconView("bag.fill")
-                .font(.system(size: 40, weight: .light))
-                .foregroundStyle(.tertiary)
-            Text("store.the_store_opens_soon")
-                .font(.headline)
-            Text("store.placeholder_hint")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 420)
+    // MARK: - Categories
+
+    private var selectedCategory: ModuleStoreCategory? {
+        guard let category, store.catalog.categories.contains(category) else { return nil }
+        return category
+    }
+
+    /// The shelves as a single row of plain chips. Selected is solid; the rest sit quiet.
+    private var categorySection: some View {
+        Section {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    chip(nil, label: String(localized: "store.all"))
+                    ForEach(store.catalog.categories) { category in
+                        chip(category, label: category.displayName)
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+            .listRowBackground(Color.clear)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 32)
+    }
+
+    private func chip(_ category: ModuleStoreCategory?, label: String) -> some View {
+        let isSelected = selectedCategory?.id == category?.id
+        return Button {
+            withAnimation(.easeOut(duration: 0.15)) {
+                self.category = category
+            }
+        } label: {
+            Text(label)
+                .font(.subheadline.weight(isSelected ? .semibold : .regular))
+                .padding(.horizontal, 13)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule().fill(isSelected ? Color.primary.opacity(0.1) : Color.primary.opacity(0.04))
+                )
+                .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Entries
+
+    @ViewBuilder
+    private var entriesSection: some View {
+        let entries = selectedCategory.map { store.entries(in: $0, matching: search) }
+            ?? store.allEntries(matching: search)
+        Section {
+            if store.showingPlaceholder && store.catalog.entries.isEmpty {
+                VStack(spacing: 10) {
+                    IconView("bag")
+                        .font(.system(size: 30, weight: .light))
+                        .foregroundStyle(.tertiary)
+                    Text("store.the_store_opens_soon")
+                        .font(.headline)
+                    Text("store.placeholder_hint")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 26)
+            } else if entries.isEmpty {
+                Text("store.nothing_here_yet")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 22)
+            } else {
+                ForEach(entries) { entry in
+                    Button { detail = entry } label: {
+                        entryRow(entry)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    /// One module: its icon, its name, one quiet line of what it is. No cards, no decoration.
+    private func entryRow(_ entry: ModuleStoreEntry) -> some View {
+        HStack(spacing: 12) {
+            StoreEntryIconView(entry: entry, side: 42)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.name)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                if let line = entryLine(entry) {
+                    Text(line)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 0)
+            stateBadge(entry)
+            IconView("chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.vertical, 3)
+        .contentShape(Rectangle())
+    }
+
+    /// The row's second line: the author when there is one, else the tagline, else nothing.
+    private func entryLine(_ entry: ModuleStoreEntry) -> String? {
+        if let author = entry.author, !author.isEmpty { return author }
+        let tagline = entry.tagline.trimmingCharacters(in: .whitespacesAndNewlines)
+        return tagline.isEmpty || tagline == "Community module" ? nil : tagline
+    }
+
+    @ViewBuilder
+    private func stateBadge(_ entry: ModuleStoreEntry) -> some View {
+        switch store.state(of: entry) {
+        case .installed:
+            Text("store.installed_badge")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.primary.opacity(0.07), in: Capsule())
+        case .updateAvailable:
+            Text("store.update")
+                .font(.caption2.weight(.semibold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.primary.opacity(0.07), in: Capsule())
+                .foregroundStyle(.primary)
+        case .notInstalled:
+            EmptyView()
+        }
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -238,32 +206,21 @@ struct ModuleStoreView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.08)))
+        .padding(4)
     }
 
     // MARK: - Installed
 
     /// The modules themselves, from the module manager: what the store's entries stand for.
+    @ViewBuilder
     private var installedSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("store.installed_section").font(.title3.weight(.bold))
-            if moduleManager.modules.isEmpty {
-                VStack(spacing: 8) {
-                    IconView("puzzlepiece.extension")
-                        .font(.system(size: 30, weight: .light))
-                        .foregroundStyle(.tertiary)
-                    Text("store.nothing_installed")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-            } else {
+        if !moduleManager.modules.isEmpty {
+            Section {
                 ForEach(moduleManager.modules) { module in
                     installedRow(module)
                 }
+            } header: {
+                Text("store.installed_section")
             }
         }
     }
@@ -278,49 +235,78 @@ struct ModuleStoreView: View {
                 #endif
             }
         } label: {
-            HStack(spacing: 14) {
-                CachedAsyncImage(urlString: module.iconUrl ?? "", base64String: module.iconData)
-                    .frame(width: 44, height: 44)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+            HStack(spacing: 12) {
+                ModuleIconView(module: module, side: 38, cornerRadius: 9)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(module.sourceName)
-                        .font(.body.weight(.semibold))
+                        .font(.body)
                         .foregroundStyle(.primary)
                         .lineLimit(1)
-                    Text("store.version \(module.version)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if !module.version.isEmpty {
+                        Text("store.version \(module.version)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Spacer(minLength: 0)
                 if isActive {
-                    Label("store.active", icon: "checkmark.circle.fill")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.green)
+                    IconView("checkmark")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.secondary)
                 }
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isActive ? Color.green.opacity(0.06) : Color.secondary.opacity(0.07))
-            )
+            .padding(.vertical, 3)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .contextMenu {
-            Button(role: .destructive) {
-                moduleManager.removeModule(module)
-            } label: {
-                Label("common.remove", icon: "trash")
+    }
+}
+
+// MARK: - Entry icon
+
+/// A store entry's icon: the catalog's image when there is one (a link or an inline `data:`
+/// URI), else the first letter on a quiet tile — never a broken-image box.
+struct StoreEntryIconView: View {
+    let entry: ModuleStoreEntry
+    var side: CGFloat = 42
+    var cornerRadius: CGFloat = 10
+
+    var body: some View {
+        Group {
+            if let base64 = Self.base64Payload(fromDataURI: entry.iconURL) {
+                CachedAsyncImage(urlString: "", base64String: base64, contentMode: .fit)
+                    .padding(3)
+            } else if let url = entry.iconURL, !url.isEmpty {
+                CachedAsyncImage(urlString: url, contentMode: .fit)
+                    .padding(3)
+            } else {
+                monogram
             }
         }
+        .frame(width: side, height: side)
+        .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .accessibilityHidden(true)
+    }
+
+    private static func base64Payload(fromDataURI uri: String?) -> String? {
+        guard let uri, uri.hasPrefix("data:") else { return nil }
+        guard let comma = uri.firstIndex(of: ",") else { return nil }
+        return String(uri[uri.index(after: comma)...])
+    }
+
+    private var monogram: some View {
+        Text(String(entry.name.prefix(1)).uppercased())
+            .font(.system(size: side * 0.42, weight: .semibold, design: .rounded))
+            .foregroundStyle(.secondary)
     }
 }
 
 // MARK: - Entry detail
 
-/// One store entry in full: icon, name, author and version, description, the screenshots a
-/// real catalog brings, and the install button wired to the module manager. Detented on a
-/// Mac-sized sheet so it opens as a half sheet on a phone.
+/// One store entry in full: what it is, and the three things to do — Install, Test, Copy
+/// Link. The Test runs the module the way playing runs it; on an entry that isn't installed
+/// yet it says so rather than pretending.
 private struct ModuleStoreEntryDetail: View {
     let entry: ModuleStoreEntry
 
@@ -328,125 +314,206 @@ private struct ModuleStoreEntryDetail: View {
     @ObservedObject private var moduleManager = ModuleManager.shared
     @Environment(\.dismiss) private var dismiss
 
+    @State private var testOutcome: ModuleDetailOutcome?
+    @State private var confirmingRemoval = false
+
+    private var installState: ModuleStoreService.InstallState { store.state(of: entry) }
+    private var installed: ModuleDefinition? { store.installedModule(for: entry) }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                header
-                if entry.screenshots?.isEmpty == false {
-                    screenshots
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    header
+                    actions
+                    if let testOutcome {
+                        ModuleTestResultView(outcome: testOutcome)
+                    }
+                    facts
                 }
-                Text(entry.description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                if let min = entry.minAppVersion,
-                   !ModuleStoreService.appVersion.isStoreVersion(atLeast: min) {
-                    Label("store.needs_app \(min)", icon: "exclamationmark.triangle")
-                        .font(.footnote)
-                        .foregroundStyle(.orange)
-                }
-                installButton
+                .padding(20)
+                .frame(maxWidth: 560)
+                .frame(maxWidth: .infinity)
             }
-            .padding(20)
-            .frame(maxWidth: 560)
-            .frame(maxWidth: .infinity)
+            .softScrollEdges()
+            .navigationTitle(entry.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("common.done") { dismiss() }
+                }
+            }
+            .confirmationDialog("modules.remove_module_title", isPresented: $confirmingRemoval, titleVisibility: .visible) {
+                Button("common.remove", role: .destructive) {
+                    Task {
+                        await store.remove(entry)
+                        dismiss()
+                    }
+                }
+                Button("common.cancel", role: .cancel) {}
+            } message: {
+                Text("modules.remove_module_message \(entry.name)")
+            }
         }
-        .softScrollEdges()
+        #if os(macOS)
+        .frame(minWidth: 420, minHeight: 480)
+        #endif
     }
 
     private var header: some View {
-        HStack(spacing: 16) {
-            Group {
-                if let url = entry.iconURL, !url.isEmpty {
-                    CachedAsyncImage(urlString: url)
-                        .scaledToFill()
-                } else {
-                    Text(String(entry.name.prefix(1)).uppercased())
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                }
-            }
-            .frame(width: 72, height: 72)
-            .background(Color.accentColor.opacity(0.75), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(entry.name).font(.title3.weight(.bold))
-                if let author = entry.author {
-                    Text("store.by_author \(author)")
+        HStack(spacing: 14) {
+            StoreEntryIconView(entry: entry, side: 64, cornerRadius: 14)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(entry.name)
+                    .font(.title3.weight(.semibold))
+                    .lineLimit(2)
+                if let author = entry.author, !author.isEmpty {
+                    Text(author)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                Text("store.version \(entry.version)")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+                if installState == .installed {
+                    Label("store.installed_badge", icon: "checkmark.circle.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.green)
+                }
             }
             Spacer(minLength: 0)
         }
     }
 
-    @ViewBuilder
-    private var screenshots: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(entry.screenshots ?? [], id: \.self) { url in
-                    CachedAsyncImage(urlString: url)
-                        .frame(width: 220, height: 140)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-            }
-        }
-    }
+    // MARK: - Actions
 
-    @ViewBuilder
-    private var installButton: some View {
+    private var actions: some View {
         VStack(spacing: 10) {
+            installButton
+
             Button {
-                Task {
-                    await store.install(entry)
-                    // A repo manifest opens the sheet listing its providers rather than installing
-                    // straight away, so the detail sheet stays up unless it's done.
-                    if case .installed = store.state(of: entry) { dismiss() }
-                }
+                runTest()
             } label: {
                 HStack(spacing: 8) {
-                    if moduleManager.isLoading {
+                    if testOutcome == .running {
                         ProgressView().controlSize(.small)
                     }
-                    Text(label(for: store.state(of: entry)))
+                    Text("modules.test")
                         .font(.body.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.accentColor))
-                .foregroundStyle(.white)
+                .padding(.vertical, 11)
+                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
             }
             .buttonStyle(.plain)
-            .disabled(moduleManager.isLoading)
+            .disabled(testOutcome == .running || installed == nil)
 
-            // Only once something of it is installed: the store removes what it put in.
-            if store.state(of: entry) != .notInstalled {
+            if installed == nil {
+                Text("store.install_to_test")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+
+            Button {
+                Clipboard.copy(entry.manifestURL)
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+                ToastManager.shared.show(message: String(localized: "store.link_copied"), type: .success, duration: 1.6)
+            } label: {
+                Label("modules.copy_link", icon: "doc.on.doc")
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 11)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+            }
+            .buttonStyle(.plain)
+
+            if installState != .notInstalled {
                 Button(role: .destructive) {
-                    Task {
-                        await store.remove(entry)
-                        dismiss()
-                    }
+                    confirmingRemoval = true
                 } label: {
-                    Text("common.remove")
-                        .font(.subheadline.weight(.semibold))
+                    Label("common.remove", icon: "trash")
+                        .font(.body.weight(.semibold))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
-                        .background(RoundedRectangle(cornerRadius: 14).fill(Color.red.opacity(0.08)))
+                        .padding(.vertical, 11)
+                        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.red.opacity(0.1)))
                 }
                 .buttonStyle(.plain)
             }
         }
     }
 
+    @ViewBuilder
+    private var installButton: some View {
+        Button {
+            Task {
+                await store.install(entry)
+                // A repo manifest opens the sheet listing its providers rather than installing
+                // straight away, so the detail sheet stays up unless it's done.
+                if case .installed = store.state(of: entry) { dismiss() }
+            }
+        } label: {
+            HStack(spacing: 8) {
+                if moduleManager.isLoading {
+                    ProgressView().controlSize(.small)
+                }
+                Text(label(for: installState))
+                    .font(.body.weight(.semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 11)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.accentColor))
+            .foregroundStyle(.white)
+        }
+        .buttonStyle(.plain)
+        .disabled(moduleManager.isLoading)
+    }
+
+    /// The real check: the installed module's script is loaded and run through a search, an
+    /// episode list and a stream. Whatever comes back is what this page shows.
+    private func runTest() {
+        guard let installed, testOutcome != .running else { return }
+        testOutcome = .running
+        Task {
+            let result = await moduleManager.check(installed)
+            testOutcome = ModuleDetailOutcome(result)
+        }
+    }
+
+    // MARK: - Facts
+
+    /// Version, compatibility and source — one quiet line each, nothing padded.
+    private var facts: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if !entry.version.isEmpty {
+                fact("modules.version", "v\(entry.version)")
+            }
+            if let min = entry.minAppVersion {
+                let ok = ModuleStoreService.appVersion.isStoreVersion(atLeast: min)
+                fact("store.compatibility",
+                     ok ? String(localized: "store.compatible") : String(localized: "store.needs_app \(min)"))
+            }
+            if let host = URL(string: entry.manifestURL)?.host {
+                fact("modules.source", host)
+            }
+        }
+    }
+
+    private func fact(_ key: LocalizedStringKey, _ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(key)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 12)
+            Text(value)
+                .font(.caption.weight(.medium))
+                .multilineTextAlignment(.trailing)
+        }
+    }
+
     private func label(for state: ModuleStoreService.InstallState) -> String {
         switch state {
         case .notInstalled: return String(localized: "store.install")
-        case .installed: return String(localized: "store.installed_badge")
+        case .installed: return String(localized: "store.reinstall")
         case .updateAvailable: return String(localized: "store.update")
         }
     }

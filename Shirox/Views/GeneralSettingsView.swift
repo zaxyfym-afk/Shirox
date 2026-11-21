@@ -33,9 +33,8 @@ struct GeneralSettingsView: View {
     }
 
     var body: some View {
-        SettingsList(tint: .gray, heroIcon: "gearshape", heroTitle: "settings.general", heroSubtitle: "settings.general_hero_sub") {
-            // Appearance — colour, app icon, icon packs — lives on the Customization page;
-            // this page is the app's behaviour.
+        SettingsList {
+            // Where the app starts and what the bar at the bottom offers.
             Section {
                 #if !os(tvOS)
                 NavigationLink {
@@ -69,14 +68,13 @@ struct GeneralSettingsView: View {
                     #endif
                 }
             } header: {
-                SettingsSectionHeader(icon: "square.stack.3d.up",
-                                      title: Self.hasTabBar ? "settings.tab_bar" : "settings.tabs")
+                SettingsSectionHeader(Self.hasTabBar ? "settings.tab_bar" : "settings.tabs")
             }
 
+            // The Home screen's cards and the button that opens Search.
             Section {
                 Toggle("settings.hide_titles_on_cards", isOn: $hideCardTitles)
                     .switchTint()
-                note(String(localized: "settings.posters_from_tvdb_carry_the"))
                 Picker("settings.search_button", selection: $providerMenuStyle) {
                     ForEach(ProviderMenuStyle.allCases, id: \.self) { style in
                         Text(style.title).tag(style)
@@ -84,9 +82,8 @@ struct GeneralSettingsView: View {
                 }
                 .pickerStyle(.menu)
                 .retinted(tint)
-                note(String(localized: "settings.search_button_note"))
             } header: {
-                SettingsSectionHeader(icon: "hand.tap", title: "settings.cards_and_buttons")
+                SettingsSectionHeader("settings.home_screen")
             }
 
             #if os(iOS)
@@ -99,7 +96,7 @@ struct GeneralSettingsView: View {
                 .pickerStyle(.menu)
                 .retinted(tint)
             } header: {
-                SettingsSectionHeader(icon: "arrow.clockwise", title: "settings.refreshing")
+                SettingsSectionHeader("settings.refreshing")
             } footer: {
                 Text(refreshNote)
             }
@@ -115,9 +112,7 @@ struct GeneralSettingsView: View {
                     }
                 }
             } header: {
-                SettingsSectionHeader(icon: "globe", title: "settings.language")
-            } footer: {
-                Text("settings.the_language_shirox_shows_itself")
+                SettingsSectionHeader("settings.language")
             }
         }
         .softScrollEdges()
@@ -125,13 +120,6 @@ struct GeneralSettingsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-    }
-
-    /// The explanation under a row, as the other settings pages have them.
-    private func note(_ text: String) -> some View {
-        Text(text)
-            .font(.caption)
-            .foregroundStyle(.secondary)
     }
 
     private var refreshNote: String {
@@ -167,7 +155,7 @@ struct IconPacksSettingsView: View {
     @State private var error: String?
 
     var body: some View {
-        SettingsList(tint: .teal, heroIcon: "shippingbox", heroTitle: "settings.icon_packs", heroSubtitle: "settings.customization_hero_sub") {
+        SettingsList {
             Section {
                 row(title: String(localized: "settings.sf_symbols"), subtitle: String(localized: "settings.built_in"),
                     selected: store.selectedURL.isEmpty) { store.select(nil) }
@@ -178,7 +166,7 @@ struct IconPacksSettingsView: View {
                     offsets.map { store.installed[$0] }.forEach(store.remove)
                 }
             } header: {
-                SettingsSectionHeader(icon: "square.grid.3x2", title: "settings.icon_packs")
+                SettingsSectionHeader("settings.icon_packs")
             } footer: {
                 Text("settings.icon_packs_note")
             }
@@ -199,7 +187,7 @@ struct IconPacksSettingsView: View {
                         .disabled(busy != nil)
                     }
                 } header: {
-                    SettingsSectionHeader(icon: "sparkles", title: "settings.suggested_icon_packs")
+                    SettingsSectionHeader("settings.suggested_icon_packs")
                 }
             }
 
@@ -220,7 +208,7 @@ struct IconPacksSettingsView: View {
                 }
                 .disabled(URL(string: link)?.host == nil || busy != nil)
             } header: {
-                SettingsSectionHeader(icon: "plus", title: "settings.add_icon_pack")
+                SettingsSectionHeader("settings.add_icon_pack")
             } footer: {
                 Text("settings.icon_pack_link_note")
             }
@@ -390,9 +378,6 @@ struct TabBarCustomizationView: View {
     var body: some View {
         List {
             Section {
-                SettingsPageHero(icon: "square.stack.3d.up", title: "settings.customize_tabs", subtitle: "settings.tabs_hero_sub", tint: .gray)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 6, trailing: 16))
                 ForEach(tabs) { tab in
                     row(tab)
                 }
@@ -482,7 +467,7 @@ struct LanguageSettingsView: View {
     private let running = AppLanguage.current
 
     var body: some View {
-        SettingsList(tint: .blue, heroIcon: "globe", heroTitle: "settings.language", heroSubtitle: "settings.language_hero_sub") {
+        SettingsList {
             Section {
                 row(code: nil, title: String(localized: "settings.system_default"),
                     subtitle: AppLanguage.localizedName(for: Locale.preferredLanguages.first ?? "en"))
