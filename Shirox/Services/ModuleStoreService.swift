@@ -39,7 +39,7 @@ final class ModuleStoreService: ObservableObject {
         case failed(reason: String)
     }
 
-    @Published private(set) var catalog: ModuleStoreCatalog = Self.builtInShelves
+    @Published private(set) var catalog: ModuleStoreCatalog = ModuleStoreService.builtInShelves
     @Published private(set) var isLoading = false
     @Published var errorMessage: String?
     @Published private(set) var sourceStatuses: [SourceStatus] = []
