@@ -34,16 +34,27 @@ struct GeneralSettingsView: View {
 
     var body: some View {
         SettingsList {
-            // Where the app starts and what the bar at the bottom offers.
+            // Where the app starts and what the bar at the bottom offers. The door into
+            // tab customization carries a miniature of the real bar — the tabs in their
+            // saved order, the first one active — so the state reads before the push.
             Section {
                 #if !os(tvOS)
                 NavigationLink {
                     TabBarCustomizationView()
                 } label: {
-                    LabeledContent(Self.isPhone ? "settings.customize_bottom_tabs" : "settings.customize_tabs") {
-                        Text(tabsSubtitle)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        tabBarMiniature
+                            .frame(width: 132)
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(Self.isPhone ? "settings.customize_bottom_tabs" : "settings.customize_tabs")
+                                .font(.body)
+                            Text(tabsSubtitle)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+                    .padding(.vertical, 5)
                 }
                 #endif
 
@@ -88,13 +99,13 @@ struct GeneralSettingsView: View {
 
             #if os(iOS)
             Section {
-                Picker("settings.pull_to_refresh", selection: $refreshStyle) {
-                    ForEach(PullToRefreshStyle.allCases) { style in
-                        Text(style.title).tag(style)
-                    }
+                // The pull's style as three preview tiles — a droplet, a ring, plain — the
+                // picked one filled. What the tile shows is what the pull does.
+                HStack(spacing: 10) {
+                    refreshTile(.gooey, symbol: "drop.fill")
+                    refreshTile(.glass, symbol: "circle")
+                    refreshTile(.none, symbol: "arrow.up.arrow.down")
                 }
-                .pickerStyle(.menu)
-                .retinted(tint)
             } header: {
                 SettingsSectionHeader("settings.refreshing")
             } footer: {
@@ -120,6 +131,73 @@ struct GeneralSettingsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+    }
+
+    /// A miniature of the bottom tab bar as it actually is: the visible tabs in their
+    /// order, the first one filled, labels only when the setting keeps them. Drawn from
+    /// the same function the real bar reads.
+    private var tabBarMiniature: some View {
+        let tabs = AppTab.visible(order: tabOrder, hidden: hiddenTabs)
+        return HStack(spacing: 0) {
+            ForEach(Array(tabs.enumerated()), id: \.element) { index, tab in
+                VStack(spacing: 2) {
+                    IconView(index == 0 ? tab.icon : tab.icon)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(index == 0 ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                    if !hideTabLabels {
+                        Text(verbatim: tab.title)
+                            .font(.system(size: 7, weight: .medium))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .foregroundStyle(index == 0 ? Color.primary : Color.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.primary.opacity(0.05))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+        )
+    }
+
+    /// One pull-style preview tile: the glyph, the name, the picked one outlined and filled.
+    private func refreshTile(_ style: PullToRefreshStyle, symbol: String) -> some View {
+        let isSelected = refreshStyle == style.rawValue
+        return Button {
+            refreshStyle = style.rawValue
+        } label: {
+            VStack(spacing: 6) {
+                IconView(symbol)
+                    .font(.system(size: 19, weight: .medium))
+                    .foregroundStyle(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                    .frame(height: 26)
+                Text(style.title)
+                    .font(.caption2.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 64)
+            .background(
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .fill(Color.primary.opacity(isSelected ? 0.08 : 0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(isSelected ? 0.35 : 0.07),
+                                  lineWidth: isSelected ? 1.5 : 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var refreshNote: String {

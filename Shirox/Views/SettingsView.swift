@@ -735,59 +735,105 @@ private struct SourceAccountCard: View {
     var onPrimary: (() -> Void)?
     let onAuth: () -> Void
 
-    var body: some View {
-        HStack(spacing: 14) {
-            CachedAsyncImage(urlString: icon)
-                .frame(width: 40, height: 40)
-                .background(iconOnWhite ? Color.white : Color.primary.opacity(0.06),
-                            in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+    /// The connection state as a colour, the way a status LED reads: green for connected,
+    /// amber for a session that needs re-authorizing, grey for not connected.
+    private var stateColor: Color {
+        if needsReauth { return .orange }
+        return isSignedIn ? .green : .secondary
+    }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(name)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-                Text(status)
-                    .font(.caption)
-                    .foregroundStyle(needsReauth ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
-                    .lineLimit(1)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 14) {
+                CachedAsyncImage(urlString: icon)
+                    .frame(width: 48, height: 48)
+                    .background(iconOnWhite ? Color.white : Color.primary.opacity(0.06),
+                                in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    )
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 7) {
+                        Text(name)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                        if isPrimary {
+                            IconView("star.fill")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.yellow)
+                                .accessibilityLabel(Text("settings.primary"))
+                        }
+                    }
+                    // The status as the LED plus the words, so the state reads at a glance
+                    // and in full for whoever needs the words.
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(stateColor)
+                            .frame(width: 8, height: 8)
+                        Text(status)
+                            .font(.caption)
+                            .foregroundStyle(needsReauth ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                Spacer(minLength: 4)
             }
 
-            Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 8) {
-                Button(isSignedIn ? String(localized: "settings.sign_out") : String(localized: "library.sign_in"),
-                       action: onAuth)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
-                    .fixedSize()
-                    .foregroundStyle(isSignedIn ? Color.red : Color.accentColor)
-                    .padding(.horizontal, 14).padding(.vertical, 7)
-                    .background((isSignedIn ? Color.red : Color.accentColor).opacity(0.12), in: Capsule())
-                    .buttonStyle(.plain)
+            HStack(spacing: 10) {
+                Button(action: onAuth) {
+                    Text(isSignedIn ? String(localized: "settings.sign_out") : String(localized: "library.sign_in"))
+                        .font(.subheadline.weight(.bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(
+                            Capsule().fill((isSignedIn ? Color.red : Color.accentColor).opacity(0.14))
+                        )
+                        .foregroundStyle(isSignedIn ? Color.red : Color.accentColor)
+                }
+                .buttonStyle(.plain)
 
                 if !isPrimary, let onPrimary {
-                    Button(String(localized: "settings.make_primary"), action: onPrimary)
-                        .font(.subheadline.weight(.semibold))
-                        .lineLimit(1)
-                        .fixedSize()
-                        .foregroundStyle(Color.accentColor)
-                        .padding(.horizontal, 14).padding(.vertical, 7)
-                        .background(Color.primary.opacity(0.08), in: Capsule())
-                        .buttonStyle(.plain)
+                    Button(action: onPrimary) {
+                        Text("settings.make_primary")
+                            .font(.subheadline.weight(.bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                            .background(
+                                Capsule().fill(Color.primary.opacity(0.08))
+                            )
+                            .overlay(
+                                Capsule().strokeBorder(Color.primary.opacity(0.10), lineWidth: 1)
+                            )
+                            .foregroundStyle(.primary)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
     }
 }
 
+
 // MARK: - Player Settings
 
-/// How the player plays, drives and moves through episodes, under three panes: Playback,
-/// Controls, Episodes. The panes keep every setting one tap from the top instead of one long
-/// scroll of groups.
+/// How the player plays, drives and moves through episodes — built as a console, not a
+/// settings list. Four zones, each with the control its decision actually wants: the
+/// engine as one wide card split in two halves, the picture quality as a six-slot ruler,
+/// the hold gesture as two icon cards, the skip lengths as chip rows, and the watched
+/// threshold as a dial with the number in the middle. No List, no repeated rows; every
+/// setting the page has ever had is still here, persisted the same way.
 struct PlayerSettingsView: View {
     fileprivate static var isMac: Bool {
         #if os(macOS)
@@ -795,18 +841,6 @@ struct PlayerSettingsView: View {
         #else
         false
         #endif
-    }
-
-    private enum Pane: String, CaseIterable, Identifiable {
-        case playback, controls, episodes
-        var id: String { rawValue }
-        var title: LocalizedStringKey {
-            switch self {
-            case .playback: return "settings.pane_playback"
-            case .controls: return "settings.pane_controls"
-            case .episodes: return "settings.pane_episodes"
-            }
-        }
     }
 
     @AppStorage("forceLandscape") private var forceLandscape = false
@@ -827,21 +861,23 @@ struct PlayerSettingsView: View {
     @AppStorage("watchedPercentage") private var watchedPercentage = 90.0
 
     private let shortOptions = [5, 10, 15, 30]
-    private let longOptions  = [30, 60, 85, 90, 120, 150, 180]
-
-    @State private var pane: Pane = .playback
+    private let longOptions: [Int] = [30, 60, 85, 90, 120, 150, 180]
 
     var body: some View {
-        SettingsList {
-            panePicker
-
-            switch pane {
-            case .playback: playbackPane
-            case .controls: controlsPane
-            case .episodes: episodesPane
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                engineZone
+                soundZone
+                gestureZone
+                episodesZone
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(maxWidth: 620)
+            .frame(maxWidth: .infinity)
         }
         .softScrollEdges()
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("settings.player")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -851,70 +887,49 @@ struct PlayerSettingsView: View {
         #endif
     }
 
-    private var panePicker: some View {
-        Section {
-            Picker("settings.pane", selection: $pane) {
-                ForEach(Pane.allCases) { pane in
-                    Text(pane.title).tag(pane)
-                }
-            }
-            .pickerStyle(.segmented)
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-        }
+    // MARK: Zone pieces
+
+    /// A zone's label: small, grey, the one piece of chrome every zone shares.
+    private func zoneLabel(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.leading, 4)
     }
 
-    /// One of the page's big choices, drawn as a card: the name, a checkmark when it's the
-    /// picked one, and a tap target wide enough for a thumb. The player's engine and the
-    /// hold gesture both pick this way — two options, one decision, no tiny menus.
-    private func choiceCard(_ isSelected: Bool, title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Text(title)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                Spacer(minLength: 0)
-                IconView("checkmark")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .opacity(isSelected ? 1 : 0)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 13)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.primary.opacity(isSelected ? 0.09 : 0.04))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(Color.primary.opacity(isSelected ? 0.35 : 0.08), lineWidth: isSelected ? 1.5 : 1)
-            )
-            .contentShape(Rectangle())
+    /// The rounded container the zones' controls sit in.
+    private func zone<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            content()
         }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .animation(.easeOut(duration: 0.15), value: isSelected)
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
     }
 
-    // MARK: Playback
+    private var zoneDivider: some View {
+        Divider()
+    }
 
-    /// The engine and the picture: what renders the video, at what quality, plus the
-    /// audio-and-surroundings settings. The engine is the page's headline decision, so it
-    /// gets the two big cards rather than a row with a menu in it.
-    private var playbackPane: some View {
-        SettingsSection(titleKey: "settings.pane_playback") {
+    // MARK: Engine
+
+    /// The page's headline decision: one card, two halves, the picked half carrying its
+    /// checkmark, and the mpv note only when mpv is the one picked.
+    private var engineZone: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.player_engine")
             #if !os(tvOS)
-            VStack(alignment: .leading, spacing: 10) {
-                Text("settings.player_engine")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            zone {
                 HStack(spacing: 10) {
-                    choiceCard(playerEngine == PlaybackEngineKind.native.rawValue, title: "settings.native") {
+                    engineHalf(title: "settings.native", symbol: "play.square.stack",
+                               isSelected: playerEngine == PlaybackEngineKind.native.rawValue) {
                         playerEngine = PlaybackEngineKind.native.rawValue
                     }
-                    choiceCard(playerEngine == PlaybackEngineKind.mpv.rawValue, title: "MPV") {
+                    engineHalf(title: "MPV", symbol: "movie.player",
+                               isSelected: playerEngine == PlaybackEngineKind.mpv.rawValue) {
                         playerEngine = PlaybackEngineKind.mpv.rawValue
                     }
                 }
@@ -926,161 +941,378 @@ struct PlayerSettingsView: View {
                         .transition(.opacity)
                 }
             }
-            .padding(.vertical, 2)
             #endif
+        }
+    }
 
-            #if !os(tvOS)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("settings.preferred_quality")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Picker("settings.preferred_quality", selection: $preferredQuality) {
-                    Text("player.auto").tag("auto")
-                    Text("settings.highest").tag("highest")
-                    Text("1080p").tag("1080")
-                    Text("720p").tag("720")
-                    Text("480p").tag("480")
-                    Text("settings.lowest").tag("lowest")
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+    /// One half of the engine card: the symbol, the name, the checkmark on the live one.
+    private func engineHalf(title: LocalizedStringKey, symbol: String, isSelected: Bool,
+                            action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                IconView(symbol)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                    .frame(width: 30)
+                Text(title)
+                    .font(.body.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer(minLength: 0)
+                IconView("checkmark")
+                    .font(.body.weight(.bold))
+                    .foregroundStyle(.primary)
+                    .opacity(isSelected ? 1 : 0)
             }
-            .padding(.vertical, 2)
-            #endif
+            .padding(.horizontal, 14)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.primary.opacity(isSelected ? 0.09 : 0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(isSelected ? 0.35 : 0.07),
+                                  lineWidth: isSelected ? 1.5 : 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.15), value: isSelected)
+    }
 
-            Toggle("settings.ambient_mode", isOn: $ambientMode)
-                .switchTint()
+    // MARK: Picture & sound
 
-            #if os(iOS)
-            if !Self.isMac {
-                Toggle("settings.play_in_background", isOn: $playInBackground)
+    /// The rendition the player starts at, as a ruler: six equal slots with tick marks
+    /// between them, the picked one filled. The labels are short by design, so nothing
+    /// truncates on the narrowest phone.
+    private var soundZone: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            #if !os(tvOS)
+            zoneLabel("settings.preferred_quality")
+            zone {
+                HStack(spacing: 4) {
+                    qualitySlot("player.auto", tag: "auto")
+                    qualitySlot("settings.highest", tag: "highest")
+                    qualitySlot(verbatim: "1080p", tag: "1080")
+                    qualitySlot(verbatim: "720p", tag: "720")
+                    qualitySlot(verbatim: "480p", tag: "480")
+                    qualitySlot("settings.lowest", tag: "lowest")
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            zone {
+                Toggle("settings.ambient_mode", isOn: $ambientMode)
                     .switchTint()
-                Toggle("settings.spatial_audio", isOn: $spatialAudio)
-                    .switchTint()
-                    .onChangeOf(spatialAudio) { _ in AppAudioSession.applySpatialAudioSetting() }
+                #if os(iOS)
+                if !Self.isMac {
+                    zoneDivider
+                    Toggle("settings.play_in_background", isOn: $playInBackground)
+                        .switchTint()
+                    zoneDivider
+                    Toggle("settings.spatial_audio", isOn: $spatialAudio)
+                        .switchTint()
+                        .onChangeOf(spatialAudio) { _ in AppAudioSession.applySpatialAudioSetting() }
+                }
+                #endif
             }
             #endif
         }
     }
 
-    // MARK: Controls
+    /// One ruler slot: the label centred, the picked slot filled dark with the light label.
+    private func qualitySlot(_ title: LocalizedStringKey, tag: String) -> some View {
+        let isSelected = preferredQuality == tag
+        return Button {
+            guard preferredQuality != tag else { return }
+            preferredQuality = tag
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+        } label: {
+            Text(title)
+                .font(.caption.weight(isSelected ? .bold : .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .padding(.horizontal, 3)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                )
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.12), value: isSelected)
+    }
 
-    /// The gestures and the chrome: what a hold does, how the page orients, the look of the
-    /// controls themselves. The hold is a physical gesture, so its two meanings sit as two
-    /// cards; the tolerance reads as the three plain steps it is.
-    private var controlsPane: some View {
-        SettingsSection(titleKey: "settings.pane_controls") {
-            // A phone's player rotates with the page; a Mac's is a window.
-            #if !os(macOS)
-            Toggle("settings.force_landscape_mode", isOn: $forceLandscape)
-                .switchTint()
+    private func qualitySlot(verbatim text: String, tag: String) -> some View {
+        let isSelected = preferredQuality == tag
+        return Button {
+            guard preferredQuality != tag else { return }
+            preferredQuality = tag
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+        } label: {
+            Text(verbatim: text)
+                .font(.caption.weight(isSelected ? .bold : .semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .padding(.horizontal, 3)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                )
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.12), value: isSelected)
+    }
+
+    // MARK: Gestures
+
+    /// What a finger does to the video: the hold's two meanings as icon cards, how strictly
+    /// the hold is read, the orientation, and the chrome's look on systems that offer one.
+    private var gestureZone: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.pane_controls")
+            zone {
+                #if !os(macOS)
+                orientationRow
+                zoneDivider
+                #endif
+
                 #if os(iOS)
-                .onChangeOf(forceLandscape) {
-                    PlayerPresenter.shared.resetToAppOrientation(shouldRotate: true)
+                if #available(iOS 26.0, *) {
+                    Toggle("settings.liquid_glass_controls", isOn: $playerLiquidGlass)
+                        .switchTint()
+                    zoneDivider
                 }
                 #endif
-            #endif
 
-            if forceLandscape, !Self.isMac {
-                Toggle("settings.auto_rotate_in_landscape", isOn: $autoRotateForcedLandscape)
-                    .switchTint()
-            }
-
-            if #available(iOS 26.0, macOS 26.0, *) {
-                Toggle("settings.liquid_glass_controls", isOn: $playerLiquidGlass)
-                    .switchTint()
-            }
-
-            // Holding a finger on the video; there's no such gesture with a pointer.
-            #if !os(macOS)
-            VStack(alignment: .leading, spacing: 10) {
-                Text("settings.hold_action")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                HStack(spacing: 10) {
-                    choiceCard(playerHoldAction == "speed", title: "player.2_speed") {
-                        playerHoldAction = "speed"
-                    }
-                    choiceCard(playerHoldAction == "saveFrame", title: "settings.save_frame_to_photos") {
-                        playerHoldAction = "saveFrame"
+                #if !os(macOS)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("settings.hold_action")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: 10) {
+                        holdCard(title: "player.2_speed", symbol: "speedometer",
+                                 isSelected: playerHoldAction == "speed") {
+                            playerHoldAction = "speed"
+                        }
+                        holdCard(title: "settings.save_frame_to_photos", symbol: "photo.on.rectangle.angled",
+                                 isSelected: playerHoldAction == "saveFrame") {
+                            playerHoldAction = "saveFrame"
+                        }
                     }
                 }
-            }
-            .padding(.vertical, 2)
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("settings.hold_tolerance")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Picker("settings.hold_tolerance", selection: $speedBoostTolerance) {
-                    Text("settings.strict").tag(10)
-                    Text("settings.relaxed").tag(30)
-                    Text("settings.very_relaxed").tag(60)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("settings.hold_tolerance")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Picker("settings.hold_tolerance", selection: $speedBoostTolerance) {
+                        Text("settings.strict").tag(10)
+                        Text("settings.relaxed").tag(30)
+                        Text("settings.very_relaxed").tag(60)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
-            .padding(.vertical, 2)
-            #endif
+                #endif
 
-            #if os(iOS)
-            Toggle("settings.pause_for_control_center", isOn: $pauseWhenInactive)
-                .switchTint()
-            #endif
+                #if os(iOS)
+                zoneDivider
+                Toggle("settings.pause_for_control_center", isOn: $pauseWhenInactive)
+                    .switchTint()
+                #endif
+            }
         }
+    }
+
+    /// The orientation switch and the auto-rotate that follows it, with glyphs that say
+    /// what each switch moves.
+    #if !os(macOS)
+    private var orientationRow: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                IconView("rotate.landscape")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(forceLandscape ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                    .frame(width: 26)
+                Toggle("settings.force_landscape_mode", isOn: $forceLandscape)
+                    .switchTint()
+                    #if os(iOS)
+                    .onChangeOf(forceLandscape) {
+                        PlayerPresenter.shared.resetToAppOrientation(shouldRotate: true)
+                    }
+                    #endif
+            }
+            if forceLandscape, !Self.isMac {
+                HStack(spacing: 12) {
+                    IconView("arrow.triangle.2.circlepath")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.tertiary)
+                        .frame(width: 26)
+                    Toggle("settings.auto_rotate_in_landscape", isOn: $autoRotateForcedLandscape)
+                        .switchTint()
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.15), value: forceLandscape)
+    }
+    #endif
+
+    /// One of the hold's meanings: icon over name, the picked one outlined.
+    private func holdCard(title: LocalizedStringKey, symbol: String, isSelected: Bool,
+                          action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 7) {
+                IconView(symbol)
+                    .font(.system(size: 21, weight: .medium))
+                    .foregroundStyle(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.8)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.primary.opacity(isSelected ? 0.09 : 0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(isSelected ? 0.35 : 0.07),
+                                  lineWidth: isSelected ? 1.5 : 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.15), value: isSelected)
     }
 
     // MARK: Episodes
 
-    /// Getting through episodes: the skip buttons' lengths, the segments skipped by
-    /// themselves, what happens at the end, and when an episode counts as watched. The
-    /// short skip is four plain steps; the long one is a menu, seven steps being too many
-    /// segments for a thumb's row.
-    private var episodesPane: some View {
-        SettingsSection(titleKey: "settings.pane_episodes") {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("settings.skip_duration")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Picker("settings.skip_duration", selection: $skipShort) {
-                    ForEach(shortOptions, id: \.self) { s in
-                        Text("common.seconds_short \(s)").tag(s)
+    /// Getting through episodes: the two skip lengths as chips, what skips itself, and the
+    /// watched threshold as a dial — the number in the middle, the ring showing the share.
+    private var episodesZone: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.pane_episodes")
+            zone {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("settings.skip_duration")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        ForEach(shortOptions, id: \.self) { value in
+                            skipChip(value, isSelected: skipShort == value) { skipShort = value }
+                        }
                     }
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
-            .padding(.vertical, 2)
 
-            Picker("settings.long_skip_duration", selection: $skipLong) {
-                ForEach(longOptions, id: \.self) { s in
-                    Text("common.seconds_short \(s)").tag(s)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("settings.long_skip_duration")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 74), spacing: 8)], spacing: 8) {
+                        ForEach(longOptions, id: \.self) { value in
+                            skipChip(value, isSelected: skipLong == value) { skipLong = value }
+                        }
+                    }
                 }
+
+                zoneDivider
+
+                Toggle("settings.auto_skip_segments", isOn: $autoSkipSegments)
+                    .switchTint()
+                zoneDivider
+                Toggle("settings.auto_next_episode", isOn: $autoNextEpisode)
+                    .switchTint()
+                zoneDivider
+                Toggle("settings.reverse_episode_list_by_default", isOn: EpisodeSortManager.shared.$defaultReverseSort)
+                    .switchTint()
+
+                zoneDivider
+
+                watchedDial
             }
+        }
+    }
 
-            Toggle("settings.auto_skip_segments", isOn: $autoSkipSegments)
-                .switchTint()
+    private func skipChip(_ value: Int, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text("common.seconds_short \(value)")
+                .font(.subheadline.weight(isSelected ? .bold : .semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity)
+                .frame(height: 42)
+                .background(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                )
+                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.12), value: isSelected)
+    }
 
-            Toggle("settings.auto_next_episode", isOn: $autoNextEpisode)
-                .switchTint()
-
-            Toggle("settings.reverse_episode_list_by_default", isOn: EpisodeSortManager.shared.$defaultReverseSort)
-                .switchTint()
-
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("settings.episode_progress_threshold")
-                    Spacer()
+    /// The watched threshold: a ring that fills to the share, the percentage in the middle,
+    /// and the slider under it for the fine setting.
+    private var watchedDial: some View {
+        VStack(spacing: 14) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .strokeBorder(Color.primary.opacity(0.10), lineWidth: 8)
+                    Circle()
+                        .trim(from: 0, to: watchedPercentage / 100)
+                        .strokeBorder(Color.primary.opacity(0.75), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.easeOut(duration: 0.2), value: watchedPercentage)
                     Text("common.percent \(Int(watchedPercentage))")
-                        .font(.title3.weight(.semibold))
+                        .font(.system(.title3, design: .rounded).weight(.bold))
                         .monospacedDigit()
-                        .foregroundStyle(.primary)
+                        .minimumScaleFactor(0.6)
+                        .padding(4)
                 }
-                #if !os(tvOS)
-                Slider(value: $watchedPercentage, in: 50...100, step: 1)
-                #endif
+                .frame(width: 74, height: 74)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text("settings.episode_progress_threshold"))
+                .accessibilityValue(Text("common.percent \(Int(watchedPercentage))"))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("settings.episode_progress_threshold")
+                        .font(.subheadline.weight(.semibold))
+                }
+                Spacer(minLength: 0)
             }
-            .padding(.vertical, 4)
+
+            #if !os(tvOS)
+            Slider(value: $watchedPercentage, in: 50...100, step: 1)
+            #endif
         }
     }
 }
@@ -1392,9 +1624,11 @@ struct ReaderSettingsView: View {
 
 // MARK: - Library Settings
 
-/// The library's own behaviour: how lists are ordered, how cards badge new episodes, how a
-/// module's titles match against your accounts, and what the on-device library keeps. The
-/// title-language order is a drag-to-reorder card of its own, front and centre.
+/// The library's own behaviour, set out the way the library itself reads: the tab order as
+/// its own door, the title languages as a numbered ladder you climb or descend with the
+/// arrows, the score format picked from five live previews of what a score actually looks
+/// like in each, and the on-device library's tracking and clear-out. Every setting keeps
+/// its key and its persistence.
 struct LibrarySettingsView: View {
     @AppStorage("titleLanguagePriority") private var titlePriority = "english,romaji,native"
     @AppStorage("localAutoTrackEnabled") private var localAutoTrackEnabled = true
@@ -1406,86 +1640,29 @@ struct LibrarySettingsView: View {
         titlePriority.components(separatedBy: ",").filter { !$0.isEmpty }
     }
 
+    private var scoreFormat: ScoreFormat {
+        ScoreFormat(rawValue: localScoreFormatRaw) ?? .point10Decimal
+    }
+
     var body: some View {
-        List {
-            orderSection
-            cardsSection
-            matchingSection
-            localSection
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                orderDoor
+                languageLadder
+                scoreShelf
+                localCard
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .frame(maxWidth: 620)
+            .frame(maxWidth: .infinity)
         }
         .softScrollEdges()
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("common.library")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-    }
-
-    // MARK: Sections
-
-    /// The lists: their tab order, as its own door.
-    private var orderSection: some View {
-        Section {
-            NavigationLink {
-                LibraryListOrderView()
-            } label: {
-                SettingsNavRow(icon: "list.bullet.indent",
-                               title: String(localized: "settings.list_order_and_custom_lists"),
-                               showsChevron: false)
-            }
-        }
-    }
-
-    private var cardsSection: some View {
-        Section {
-            Toggle("settings.new_episode_badges", isOn: $newEpisodeBadges)
-                .switchTint()
-        } header: {
-            SettingsSectionHeader("settings.cards")
-        }
-    }
-
-    /// Which language a title shows in first, dragged into order.
-    private var matchingSection: some View {
-        SettingsSection(titleKey: "settings.matching") {
-            ForEach(orderedLanguages, id: \.self) { lang in
-                HStack {
-                    IconView("line.3.horizontal")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    Text(lang.capitalized)
-                }
-            }
-            .onMove { from, to in
-                var langs = orderedLanguages
-                langs.move(fromOffsets: from, toOffset: to)
-                titlePriority = langs.joined(separator: ",")
-            }
-        }
-        #if os(iOS)
-        .environment(\.editMode, .constant(.active))
-        #endif
-    }
-
-    /// The on-device library: tracking, its score format, and the way out.
-    private var localSection: some View {
-        Section {
-            Toggle("settings.auto_track_what_you_watch", isOn: $localAutoTrackEnabled)
-                .switchTint()
-            Picker("settings.score_format", selection: $localScoreFormatRaw) {
-                Text("settings.100_point").tag(ScoreFormat.point100.rawValue)
-                Text("settings.10_point_decimal").tag(ScoreFormat.point10Decimal.rawValue)
-                Text("settings.10_point").tag(ScoreFormat.point10.rawValue)
-                Text("settings.5_star").tag(ScoreFormat.point5.rawValue)
-                Text("settings.3_point").tag(ScoreFormat.point3.rawValue)
-            }
-            Button(role: .destructive) {
-                showClearLocalLibrary = true
-            } label: {
-                Label("settings.clear_local_library", icon: "trash")
-            }
-        } header: {
-            SettingsSectionHeader("settings.local_library")
-        }
         .alert("settings.clear_local_library", isPresented: $showClearLocalLibrary) {
             Button("search.clear", role: .destructive) { LocalLibraryManager.shared.clearAll() }
             Button("common.cancel", role: .cancel) {}
@@ -1493,7 +1670,240 @@ struct LibrarySettingsView: View {
             Text("settings.this_permanently_removes_all_on")
         }
     }
+
+    // MARK: Pieces
+
+    private func zoneLabel(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.leading, 4)
+    }
+
+    private func card<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            content()
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+    }
+
+    // MARK: Tab order
+
+    /// The tabs' order and custom lists live one push away, as a full-width door.
+    private var orderDoor: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.list_order")
+            NavigationLink {
+                LibraryListOrderView()
+            } label: {
+                HStack(spacing: 12) {
+                    IconView("list.bullet.indent")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 30)
+                    Text("settings.list_order_and_custom_lists")
+                        .font(.body.weight(.semibold))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 8)
+                    IconView("chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(.horizontal, 14)
+                .frame(height: 54)
+                .background(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color(.secondarySystemGroupedBackground))
+                )
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(SettingsRowPressStyle())
+        }
+    }
+
+    // MARK: Title languages
+
+    /// Which language a title shows in first. Each rung shows its place, its name, and the
+    /// arrows that move it — a ladder you climb, not a hidden drag handle.
+    private var languageLadder: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.matching")
+            card {
+                ForEach(Array(orderedLanguages.enumerated()), id: \.element) { index, lang in
+                    if index > 0 {
+                        Divider()
+                    }
+                    HStack(spacing: 12) {
+                        Text("\(index + 1)")
+                            .font(.subheadline.weight(.bold))
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                            .frame(width: 24)
+                        Text(lang.capitalized)
+                            .font(.body.weight(.medium))
+                        Spacer(minLength: 8)
+                        VStack(spacing: 2) {
+                            Button {
+                                moveLanguage(from: index, to: index - 1)
+                            } label: {
+                                IconView("chevron.up")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(index == 0 ? AnyShapeStyle(Color.tertiary) : AnyShapeStyle(Color.primary))
+                                    .frame(width: 34, height: 22)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(index == 0)
+                            Button {
+                                moveLanguage(from: index, to: index + 1)
+                            } label: {
+                                IconView("chevron.down")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(index == orderedLanguages.count - 1 ? AnyShapeStyle(Color.tertiary) : AnyShapeStyle(Color.primary))
+                                    .frame(width: 34, height: 22)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(index == orderedLanguages.count - 1)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+    }
+
+    private func moveLanguage(from: Int, to: Int) {
+        var langs = orderedLanguages
+        guard langs.indices.contains(from), langs.indices.contains(to) else { return }
+        langs.swapAt(from, to)
+        titlePriority = langs.joined(separator: ",")
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
+    }
+
+    // MARK: Score format
+
+    /// The score scale, chosen from five live previews: each option shows what the same
+    /// series — rated 8.5 of 10 — would read as in that format, so the pick needs no
+    /// guessing.
+    private var scoreShelf: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.score_format")
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach([ScoreFormat.point100, .point10Decimal, .point10, .point5, .point3], id: \.rawValue) { format in
+                        scoreCard(format)
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+        }
+    }
+
+    private func scoreCard(_ format: ScoreFormat) -> some View {
+        let isSelected = scoreFormat == format
+        return Button {
+            guard localScoreFormatRaw != format.rawValue else { return }
+            localScoreFormatRaw = format.rawValue
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+        } label: {
+            VStack(spacing: 6) {
+                Text(verbatim: Self.sampleScore(in: format))
+                    .font(.system(.title3, design: .rounded).weight(.bold))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+                Text(Self.formatTitle(format))
+                    .font(.caption2.weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+            }
+            .frame(width: 108, height: 72)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.primary.opacity(isSelected ? 0.09 : 0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(isSelected ? 0.35 : 0.07),
+                                  lineWidth: isSelected ? 1.5 : 1)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .animation(.easeOut(duration: 0.15), value: isSelected)
+    }
+
+    /// What a rating of 8.5/10 reads as in the format — the 3-point scale rounds to its
+    /// thumbs-up, the 5-star to the nearest half. This is a preview, not a stored score.
+    static func sampleScore(in format: ScoreFormat) -> String {
+        let rating = 8.5 / 10.0
+        switch format {
+        case .point100:      return "85"
+        case .point10Decimal: return "8.5"
+        case .point10:       return "9"
+        case .point5:        return "4.5"
+        case .point3:        return "2/3"
+        }
+    }
+
+    /// The format's own name, from the same keys the old picker used.
+    static func formatTitle(_ format: ScoreFormat) -> String {
+        switch format {
+        case .point100:       return String(localized: "settings.100_point")
+        case .point10Decimal: return String(localized: "settings.10_point_decimal")
+        case .point10:        return String(localized: "settings.10_point")
+        case .point5:         return String(localized: "settings.5_star")
+        case .point3:         return String(localized: "settings.3_point")
+        }
+    }
+
+    // MARK: On-device library
+
+    /// Tracking, badges, and the way out — the on-device library's own behaviour.
+    private var localCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.local_library")
+            card {
+                Toggle("settings.auto_track_what_you_watch", isOn: $localAutoTrackEnabled)
+                    .switchTint()
+                Divider()
+                Toggle("settings.new_episode_badges", isOn: $newEpisodeBadges)
+                    .switchTint()
+                Divider()
+                Button(role: .destructive) {
+                    showClearLocalLibrary = true
+                } label: {
+                    HStack(spacing: 12) {
+                        IconView("trash")
+                            .font(.system(size: 15))
+                            .frame(width: 26)
+                        Text("settings.clear_local_library")
+                        Spacer(minLength: 0)
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 2)
+            }
+        }
+    }
 }
+
 // MARK: - Library List Order View
 
 struct LibraryListOrderView: View {
@@ -1559,8 +1969,10 @@ struct LibraryListOrderView: View {
 // MARK: - Downloads Settings
 
 /// How episodes and chapters come down, laid out the way a download manager reads: the
-/// quality as five big cards, the concurrency as tappable number chips, the automation as
-/// icon rows, and what's on disk as a gauge with the one button that clears it.
+/// quality as five label-only tiles — no description lines, nothing cut off, every option
+/// fully visible on every iPhone width — the concurrency as one big − / number / + stepper,
+/// the automation as icon rows, and what's on disk as a card with the one button that
+/// clears it. Every quality option and every setting the page had is preserved.
 struct DownloadsSettingsView: View {
     @AppStorage("maxConcurrentDownloads") private var maxConcurrentDownloads: Int = 3
     @AppStorage("backgroundDownloadsEnabled") private var backgroundDownloadsEnabled = true
@@ -1575,31 +1987,30 @@ struct DownloadsSettingsView: View {
     private struct QualityOption: Identifiable {
         let tag: String
         let titleKey: LocalizedStringKey
-        let detailKey: LocalizedStringKey
         let symbol: String
         var id: String { tag }
     }
 
     private let qualityOptions: [QualityOption] = [
-        .init(tag: "highest", titleKey: "settings.best", detailKey: "settings.best_quality_detail", symbol: "sparkles"),
-        .init(tag: "1080", titleKey: "1080p", detailKey: "settings.sharp_on_big_screens", symbol: "4k.tv"),
-        .init(tag: "720", titleKey: "720p", detailKey: "settings.the_everyday_choice", symbol: "tv"),
-        .init(tag: "480", titleKey: "480p", detailKey: "settings.light_on_data", symbol: "iphone.gen3"),
-        .init(tag: "lowest", titleKey: "settings.smallest", detailKey: "settings.smallest_files_detail", symbol: "arrow.down.circle")
+        .init(tag: "highest", titleKey: "settings.best", symbol: "sparkles"),
+        .init(tag: "1080", titleKey: "1080p", symbol: "4k.tv"),
+        .init(tag: "720", titleKey: "720p", symbol: "tv"),
+        .init(tag: "480", titleKey: "480p", symbol: "iphone.gen3"),
+        .init(tag: "lowest", titleKey: "settings.smallest", symbol: "arrow.down.circle")
     ]
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                qualityCards
-                concurrencyChips
+            VStack(alignment: .leading, spacing: 20) {
+                qualityLadder
+                concurrencyStepper
                 automationCard
                 #if !os(tvOS)
                 diskCard
                 #endif
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 16)
             .frame(maxWidth: 620)
             .frame(maxWidth: .infinity)
         }
@@ -1626,26 +2037,32 @@ struct DownloadsSettingsView: View {
         #endif
     }
 
+    // MARK: Pieces
+
+    private func zoneLabel(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.leading, 4)
+    }
+
     // MARK: Quality
 
-    /// The rendition new downloads ask for, five cards wide; the chosen one carries the
-    /// filled tile and its detail line.
-    private var qualityCards: some View {
+    /// The rendition new downloads ask for. Five tiles, each the icon over the label and
+    /// nothing else — the labels are short and scale down rather than truncate, so every
+    /// option reads in full from the narrowest phone to the widest tablet.
+    private var qualityLadder: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("settings.download_quality")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 4)
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 10)], spacing: 10) {
+            zoneLabel("settings.download_quality")
+            HStack(spacing: 8) {
                 ForEach(qualityOptions) { option in
-                    qualityCard(option)
+                    qualityTile(option)
                 }
             }
         }
     }
 
-    private func qualityCard(_ option: QualityOption) -> some View {
+    private func qualityTile(_ option: QualityOption) -> some View {
         let isSelected = downloadQuality == option.tag
         return Button {
             guard downloadQuality != option.tag else { return }
@@ -1654,88 +2071,90 @@ struct DownloadsSettingsView: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             #endif
         } label: {
-            VStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(isSelected ? Color.primary.opacity(0.10) : Color.primary.opacity(0.04))
-                        .frame(width: 42, height: 42)
-                    IconView(option.symbol)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
-                }
-                Text(option.titleKey)
-                    .font(.subheadline.weight(isSelected ? .semibold : .regular))
-                    .foregroundStyle(.primary)
-                Text(option.detailKey)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
+            VStack(spacing: 7) {
+                IconView(option.symbol)
+                    .font(.system(size: 19, weight: .medium))
+                    .foregroundStyle(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
                     .frame(height: 24)
+                Text(option.titleKey)
+                    .font(.caption.weight(isSelected ? .bold : .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .padding(.horizontal, 2)
+                    .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .padding(.horizontal, 6)
+            .frame(height: 72)
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
                     .fill(Color(.secondarySystemGroupedBackground))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
                     .strokeBorder(isSelected ? Color.primary.opacity(0.5) : Color.primary.opacity(0.06),
                                   lineWidth: isSelected ? 1.5 : 1)
             )
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityLabel(Text(option.titleKey))
+        .animation(.easeOut(duration: 0.15), value: isSelected)
     }
 
     // MARK: Concurrency
 
-    /// How many at once, as five large number chips — a tap, not a menu.
-    private var concurrencyChips: some View {
+    /// How many at once: one big stepper — the number carries the row, − and + on the
+    /// sides with full thumb targets.
+    private var concurrencyStepper: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("settings.concurrent_downloads")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 4)
-            HStack(spacing: 10) {
-                ForEach(1...5, id: \.self) { count in
-                    let isSelected = maxConcurrentDownloads == count
-                    Button {
-                        maxConcurrentDownloads = count
-                        #if os(iOS)
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        #endif
-                    } label: {
-                        Text("\(count)")
-                            .font(.title3.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 46)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
-                            )
-                            .foregroundStyle(isSelected ? Color.white : Color.primary)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(isSelected ? .isSelected : [])
-                }
+            zoneLabel("settings.concurrent_downloads")
+            HStack(spacing: 14) {
+                stepperButton("minus", action: { if maxConcurrentDownloads > 1 { maxConcurrentDownloads -= 1 } })
+                    .disabled(maxConcurrentDownloads <= 1)
+
+                Text("\(maxConcurrentDownloads)")
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+
+                stepperButton("plus", action: { if maxConcurrentDownloads < 5 { maxConcurrentDownloads += 1 } })
+                    .disabled(maxConcurrentDownloads >= 5)
             }
+            .animation(.easeOut(duration: 0.12), value: maxConcurrentDownloads)
         }
+    }
+
+    private func stepperButton(_ symbol: String, action: @escaping () -> Void) -> some View {
+        Button(action: {
+            action()
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+        }) {
+            IconView(symbol)
+                .font(.system(size: 18, weight: .bold))
+                .frame(width: 56, height: 52)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Automation
 
     /// What the downloader does by itself, one icon row each.
     private var automationCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("settings.automation")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 4)
-                .padding(.bottom, 8)
-
+        VStack(alignment: .leading, spacing: 10) {
+            zoneLabel("settings.automation")
             VStack(spacing: 0) {
                 #if os(iOS)
                 automationRow(icon: "arrow.down.circle.fill", titleKey: "settings.background_downloads", toggle: $backgroundDownloadsEnabled)
@@ -1745,8 +2164,10 @@ struct DownloadsSettingsView: View {
                 Divider().padding(.leading, 46)
                 automationRow(icon: "trash.circle.fill", titleKey: "settings.delete_after_watching", toggle: $autoDeleteWatched)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
             .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(Color(.secondarySystemGroupedBackground))
             )
         }
@@ -1765,54 +2186,48 @@ struct DownloadsSettingsView: View {
                 .labelsHidden()
                 .switchTint()
         }
-        .padding(.horizontal, 14)
         .padding(.vertical, 6)
     }
 
     // MARK: On disk
 
-    /// What downloads take on disk, as a gauge with the one button that clears it.
+    /// What downloads take on disk, with the one button that clears them. The confirmation
+    /// carries the explanation, so the card doesn't repeat it.
     #if !os(tvOS)
     private var diskCard: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color.primary.opacity(0.06))
-                        .frame(width: 42, height: 42)
-                    IconView("internaldrive")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(.primary)
-                }
-                .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("settings.on_disk")
-                        .font(.body.weight(.semibold))
-                    Text(SettingsView.formattedBytes(downloadsSize))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer(minLength: 8)
-
-                Button(role: .destructive) {
-                    showDeleteDownloadsConfirmation = true
-                } label: {
-                    Text("common.delete")
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.red.opacity(0.12), in: Capsule())
-                }
-                .buttonStyle(.plain)
-                .disabled(downloadsSize == 0)
-                .opacity(downloadsSize == 0 ? 0.5 : 1)
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.primary.opacity(0.06))
+                    .frame(width: 42, height: 42)
+                IconView("internaldrive")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(.primary)
             }
-            Text("settings.removes_every_downloaded_episode_and")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("settings.on_disk")
+                    .font(.body.weight(.semibold))
+                Text(SettingsView.formattedBytes(downloadsSize))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 8)
+
+            Button(role: .destructive) {
+                showDeleteDownloadsConfirmation = true
+            } label: {
+                Text("common.delete")
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color.red.opacity(0.12), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .disabled(downloadsSize == 0)
+            .opacity(downloadsSize == 0 ? 0.5 : 1)
         }
         .padding(16)
         .background(

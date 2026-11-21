@@ -122,10 +122,20 @@ struct ModuleListView: View {
                         .onMove(perform: moduleManager.moveModules)
                     }
                 } header: {
-                    Text("common.modules")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .textCase(.uppercase)
+                    // The shelf's label with the state of its contents: how many are in,
+                    // how many checked out fine, how many need a look.
+                    HStack(spacing: 6) {
+                        Text("common.modules")
+                        Text(verbatim: "· \(moduleManager.modules.count)")
+                            .monospacedDigit()
+                        if brokenCount > 0 {
+                            Text(verbatim: "· \(brokenCount) \(attentionTitle)")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
                 }
 
                 // Ways to bring more in, under the modules they arrive for: the two
@@ -311,6 +321,15 @@ struct ModuleListView: View {
                 .font(.system(size: 14, weight: .medium))
         }
         .accessibilityLabel("settings.automation")
+    }
+
+    private var brokenCount: Int {
+        moduleManager.brokenModules.count
+    }
+
+    /// The one-word tail of the header's attention note, localized like the rest.
+    private var attentionTitle: String {
+        String(localized: "modules.didnt_work")
     }
 
     private var brokenTitle: String {
@@ -608,12 +627,7 @@ struct ModuleListView: View {
             }
         } label: {
             HStack(spacing: 14) {
-                Group {
-                    CachedAsyncImage(urlString: module.iconUrl ?? "", base64String: module.iconData)
-                        .frame(width: 44, height: 44)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
-                }
+                ModuleIcon(module: module, size: 44)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(module.sourceName).font(.headline)
@@ -921,3 +935,35 @@ enum ModuleShareFiles {
     }
 }
 #endif
+
+
+/// A module's icon: the module's own image when it has one, and when it doesn't, a
+/// monogram tile — the source's first letter on the neutral tile — so no module row ever
+/// shows a blank box where its icon should be.
+struct ModuleIcon: View {
+    let module: ModuleDefinition
+    var size: CGFloat = 44
+
+    var body: some View {
+        if module.iconData != nil || !(module.iconUrl ?? "").isEmpty {
+            CachedAsyncImage(urlString: module.iconUrl ?? "", base64String: module.iconData)
+                .frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+        } else {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.primary.opacity(0.08))
+                Text(verbatim: monogram)
+                    .font(.system(size: size * 0.38, weight: .bold, design: .rounded))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(width: size, height: size)
+        }
+    }
+
+    private var monogram: String {
+        let name = module.sourceName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? "?" : String(name.prefix(1)).uppercased()
+    }
+}
