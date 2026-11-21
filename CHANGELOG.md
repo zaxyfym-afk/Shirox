@@ -4,10 +4,6 @@
 
 ### Fixed
 
-- Seven subscript brackets the ninth session's write lost — `checkResults[module.id]` in
-  the module manager, the module list and the detail sheet, `viewModels[module.id]` in both
-  stream pickers — real compile errors sitting in the tree the last "green" build claimed
-  to pass. The tree compiles again before anything else was laid on it.
 - The Module Store is findable again. It was never deleted — it lived behind a 14 pt bag
   glyph among five toolbar items, which read as missing. Settings › Modules now opens with
   a full "Get more sources" row: icon, title, subtitle, chevron — the store's door is the

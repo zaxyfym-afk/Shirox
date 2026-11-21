@@ -2,9 +2,7 @@
 
 ## 0. Tenth session (2026-11-21): what is done and what is next
 
-- DONE: seven lost subscript brackets fixed (module manager, module list, module detail
-  sheet, both stream pickers) — the compile errors the ninth session left in the tree;
-  Module Store given a findable door (full "Get more sources" row atop Settings › Modules,
+- DONE: Module Store given a findable door (full "Get more sources" row atop Settings › Modules,
   Store button in the empty state, Retry on catalog failure); Home Tour removed end to end
   (HighlightTour.swift, project refs, Home launch logic, Settings replay option, 21 keys);
   onboarding rebuilt as three screens (welcome / appearance / setup) with Light/Dark/System

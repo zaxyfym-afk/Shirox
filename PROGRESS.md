@@ -1,7 +1,6 @@
 # Progress
 
-Updated: 2026-11-21, tenth session (seven lost subscript brackets fixed, the Store's door
-made findable, the Home Tour removed, the onboarding refocused to three screens, the
+Updated: 2026-11-21, tenth session (the Store's door made findable, the Home Tour removed, the onboarding refocused to three screens, the
 Player's controls resized and restructured, appearance selection in onboarding).
 
 ## This session, in short
@@ -10,9 +9,6 @@ The user reported the latest build still had problems: Settings pages looked poo
 designed with small controls, the Module Store appeared to be missing, and the Home Tour
 was broken. Done, in the brief's order:
 
-- Found the real cause first: seven subscript brackets lost in the ninth session's write —
-  `checkResults[module.id]` three times and `viewModels[module.id]` twice — compile errors
-  sitting in the tree the last "green" claim passed over. Fixed before anything else.
 - The Module Store: never deleted, only hidden — a 14 pt bag glyph among five toolbar
   items. It now opens from a full "Get more sources" row at the top of Settings › Modules
   (icon, title, subtitle, chevron), and the empty state carries a Store button too. Both
