@@ -86,33 +86,51 @@ struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
 
 // MARK: - With onboarding
 
-/// First run: the launch screen shrinks into its rounded icon, pushes up, and the
-/// onboarding is revealed beneath — already up, not sliding in over a finished splash.
+/// First run: the launch screen shrinks into its rounded icon, rides up out of the way, and
+/// the onboarding is revealed beneath it full screen — then the icon fades, leaving the
+/// onboarding holding the whole display.
+///
+/// The reveal used to hand the stage to a VStack: the icon's wrapper and the onboarding were
+/// both flexible children of one stack, so a full-height onboarding and a greedy icon frame
+/// split the screen between them — the icon stranded on the top half, the onboarding
+/// compressed into the bottom half. Everything now lives in one ZStack: the onboarding is
+/// always full-screen, and the icon is a fixed-size card that shrinks, rides up and leaves.
+/// No animated layout switch, no competing flexible frames, and no AnyLayout — this runs the
+/// same on the iOS 15 floor as on 26.
 private struct LaunchScreenWithOnBoarding<Content: View>: View {
     var config: LaunchConfig
     @ViewBuilder var onBoarding: Content
 
     @State private var pushIcon = false
     @State private var animateIcon = false
+    /// The icon's last act: faded and removed, so the onboarding ends owning the full screen
+    /// rather than sharing it with a shrunken splash card.
+    @State private var iconFading = false
+    @State private var iconGone = false
 
     var body: some View {
-        // The task has to hang from one expression, and an if/else block is none:
-        // wrapped in a Group the whole layout switch becomes one (build 4 found
-        // `.task` on the bare branches).
-        Group {
-            if #available(iOS 16.0, *) {
-                let layout = animateIcon
-                    ? AnyLayout(VStackLayout(spacing: 0))
-                    : AnyLayout(ZStackLayout(alignment: .bottom))
-                layout { stage }
-            } else if animateIcon {
-                // Below 16 there is no animated layout switch: the two layouts trade places
-                // inside the same crossfade.
-                VStack(spacing: 0) { stage }
-            } else {
-                ZStack(alignment: .bottom) { stage }
+        GeometryReader { proxy in
+            ZStack {
+                onBoarding
+                    .compositingGroup()
+                    .modifier(OnboardingReveal(animateIcon: animateIcon))
+                    .zIndex(0)
+
+                if !iconGone {
+                    splashCard
+                        // The ride up: from the screen's middle to just under the status bar,
+                        // wherever the phone's height puts the middle. 110 pt leaves the icon's
+                        // top clear of the tallest island or notch (68 pt) on every iPhone.
+                        .offset(y: animateIcon
+                                ? -(proxy.size.height / 2 - config.iconSize.height / 2 - 110)
+                                : 0)
+                        .opacity(iconFading ? 0 : 1)
+                        .zIndex(1)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .ignoresSafeArea()
         .task {
             guard !animateIcon else { return }
             try? await nap(Double(config.initialDelay))
@@ -125,11 +143,27 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
             withAnimation(.carryOn(duration: 0.4, bounce: 0)) {
                 pushIcon = false
             }
+
+            // The onboarding risen and settled, the icon bows out and the reveal ends with
+            // the onboarding full screen.
+            try? await nap(0.9)
+            withAnimation(.easeInOut(duration: 0.35)) {
+                iconFading = true
+            }
+            try? await nap(0.35)
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                iconGone = true
+            }
         }
     }
 
+    /// The splash card: full-screen while it stands in for the launch screen, then a fixed
+    /// rounded icon — the frame and the mark swap inside the one view, so the shrink and the
+    /// ride are one animation.
     @ViewBuilder
-    private var stage: some View {
+    private var splashCard: some View {
         ZStack {
             RoundedRectangle(cornerRadius: animateIcon ? config.iconRadius : 0)
                 .fill(config.tint)
@@ -158,17 +192,11 @@ private struct LaunchScreenWithOnBoarding<Content: View>: View {
             width: animateIcon ? config.iconSize.width : nil,
             height: animateIcon ? config.iconSize.height : nil
         )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: animateIcon ? nil : .infinity,
+               maxHeight: animateIcon ? nil : .infinity)
         .scaleEffect(pushIcon ? 0.95 : 1)
         .offset(y: pushIcon ? 100 : 0)
-        .zIndex(1)
         .carryOnGeometryGroup()
-        .ignoresSafeArea()
-
-        onBoarding
-            .compositingGroup()
-            .modifier(OnboardingReveal(animateIcon: animateIcon))
-            .zIndex(0)
     }
 }
 
@@ -191,7 +219,7 @@ private struct OnboardingReveal: ViewModifier {
             content
                 .blur(radius: animateIcon ? 0 : 15)
                 .opacity(animateIcon ? 1 : 0)
-                .offset(y: animateIcon ? 0 : 2000)
+                .offset(y: animateIcon ? 0 : 2_000)
         }
     }
 }
@@ -302,11 +330,11 @@ private struct MaskGrow: ViewModifier {
 
 // MARK: - Availability
 
-private extension View {
+extension View {
     /// The presentation-clear background is 16.4's; the cover below that is opaque, so
     /// nothing shows when it's skipped.
     @ViewBuilder
-    func clearPresentationBackground() -> some View {
+    fileprivate func clearPresentationBackground() -> some View {
         if #available(iOS 16.4, *) {
             self.presentationBackground(.clear)
         } else {
@@ -317,7 +345,7 @@ private extension View {
     /// Geometry groups keep the icon's effects together while it shrinks; 17's, and a
     /// nicety — below it the shrink simply runs without one.
     @ViewBuilder
-    func carryOnGeometryGroup() -> some View {
+    fileprivate func carryOnGeometryGroup() -> some View {
         if #available(iOS 17.0, *) {
             self.geometryGroup()
         } else {
@@ -326,10 +354,10 @@ private extension View {
     }
 }
 
-private extension Animation {
+extension Animation {
     /// The named springs (`bouncy`, `smooth`) are 17's; the carry-on runs from iOS 15, so
     /// below it the same springs are spelled the old way.
-    static func carryOn(duration: Double, bounce: Double) -> Animation {
+    fileprivate static func carryOn(duration: Double, bounce: Double) -> Animation {
         if #available(iOS 17.0, *) {
             return .bouncy(duration: duration, extraBounce: bounce)
         }

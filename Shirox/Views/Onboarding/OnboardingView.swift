@@ -1,14 +1,15 @@
 import SwiftUI
 
-/// First-run setup, redesigned.
+/// First-run setup, redesigned around the Kavsoft pieces the project carries: the splash's
+/// own reveal hands this screen the stage, the TWTextEffect engine types the welcome page's
+/// promise, the AMSheets zoom transitions open the two setup sheets out of their rows, and
+/// the glass chrome the toasts use dresses the cards on iOS 26.
 ///
-/// The design premise is unchanged — Shirox ships with no content of its own, so a new
-/// user's real problem isn't "what is this app", it's "why is every screen empty". The
-/// presentation around that premise is new: a hero mark that floats over a soft accent
-/// wash, pages that carry themselves in from the direction they're read, a mark-shaped
-/// progress that grows instead of a row of dots, and a checklist whose rows tick with a
-/// spring the moment a source or an account exists, so the screen always describes the
-/// app as it currently is.
+/// The look is new: every page is its own lit scene — a slowly drifting aurora wash in the
+/// page's colour over the system background, a hero tile that arrives with an overshoot and
+/// floats while the page shows, and copy that carries itself in from the turn's direction.
+/// The checklist still ticks from real state, so the last page always describes the app as
+/// it currently is.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
@@ -27,24 +28,27 @@ struct OnboardingView: View {
     private let lastPage = 6
     /// Which way the last page turn went, so the arriving page enters from that side.
     @State private var turnDirection: Edge = .trailing
-    /// The welcome mark's slow float, running only where motion is allowed.
+    /// The hero's slow float, running only where motion is allowed.
     @State private var markFloats = false
 
     /// The one thing that has to be true before the app can show anything.
     private var hasSource: Bool { !moduleManager.modules.isEmpty }
     private var hasTracker: Bool { aniListAuth.isLoggedIn || malAuth.isLoggedIn }
 
-    /// The project's own red, from its release badge — the one accent this screen spends.
+    /// The project's own red, from its release badge — the welcome and setup pages' colour.
     private var accent: Color { Color(red: 0.937, green: 0.267, blue: 0.267) }
 
-    private var platformBackground: Color {
-        #if os(iOS)
-        Color(UIColor.systemBackground)
-        #elseif os(tvOS)
-        Color.clear
-        #else
-        Color(NSColor.windowBackgroundColor)
-        #endif
+    /// Each page its own colour, so the tour reads as six rooms rather than one white wall.
+    private var pageAccent: Color {
+        switch page {
+        case 0: return accent
+        case 1: return .purple
+        case 2: return .green
+        case 3: return .orange
+        case 4: return .blue
+        case 5: return .pink
+        default: return accent
+        }
     }
 
     private var motion: Animation? {
@@ -52,26 +56,30 @@ struct OnboardingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            topBar
+        ZStack {
+            aurora
 
-            Group {
-                switch page {
-                case 0: welcomePage
-                case 1: TourPage(icon: "books.vertical", title: "onboarding.tour_library_title", text: "onboarding.tour_library_body", accent: accent)
-                case 2: TourPage(icon: "puzzlepiece.extension", title: "onboarding.tour_modules_title", text: "onboarding.tour_modules_body", accent: accent)
-                case 3: TourPage(icon: "arrow.down.circle", title: "onboarding.tour_downloads_title", text: "onboarding.tour_downloads_body", accent: accent)
-                case 4: TourPage(icon: "bell", title: "onboarding.tour_notifications_title", text: "onboarding.tour_notifications_body", accent: accent)
-                case 5: TourPage(icon: "paintpalette", title: "onboarding.tour_customize_title", text: "onboarding.tour_customize_body", accent: accent)
-                default: setupPage
+            VStack(spacing: 0) {
+                topBar
+
+                Group {
+                    switch page {
+                    case 0: welcomePage
+                    case 1: TourPage(icon: "books.vertical", title: "onboarding.tour_library_title", text: "onboarding.tour_library_body", accent: pageAccent)
+                    case 2: TourPage(icon: "puzzlepiece.extension", title: "onboarding.tour_modules_title", text: "onboarding.tour_modules_body", accent: pageAccent)
+                    case 3: TourPage(icon: "arrow.down.circle", title: "onboarding.tour_downloads_title", text: "onboarding.tour_downloads_body", accent: pageAccent)
+                    case 4: TourPage(icon: "bell", title: "onboarding.tour_notifications_title", text: "onboarding.tour_notifications_body", accent: pageAccent)
+                    case 5: TourPage(icon: "paintpalette", title: "onboarding.tour_customize_title", text: "onboarding.tour_customize_body", accent: pageAccent)
+                    default: setupPage
+                    }
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .transition(pageTurn)
-            .id(page)
-            .animation(motion, value: page)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(pageTurn)
+                .id(page)
+                .animation(motion, value: page)
 
-            controls
+                controls
+            }
         }
         .background(platformBackground.ignoresSafeArea())
         .sheet(isPresented: $showSources) {
@@ -95,16 +103,49 @@ struct OnboardingView: View {
         }
     }
 
-    /// Pages carry themselves in from the direction the turn went, with a little blur on
-    /// the way, and leave by the other side.
+    /// The page's room: two blurred pools of the page's colour drifting slowly over the
+    /// system background. The wash shifts colour with the page, so a turn reads as moving
+    /// somewhere rather than swapping text.
+    private var aurora: some View {
+        ZStack {
+            platformBackground
+
+            Circle()
+                .fill(pageAccent.opacity(0.20))
+                .frame(width: 420, height: 420)
+                .blur(radius: 90)
+                .offset(x: markFloats ? -90 : 90, y: markFloats ? -160 : -60)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 5.5).repeatForever(autoreverses: true),
+                           value: markFloats)
+
+            Circle()
+                .fill(pageAccent.opacity(0.13))
+                .frame(width: 360, height: 360)
+                .blur(radius: 80)
+                .offset(x: markFloats ? 120 : -110, y: markFloats ? 210 : 130)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 6.5).repeatForever(autoreverses: true),
+                           value: markFloats)
+        }
+        .animation(motion, value: page)
+        .ignoresSafeArea()
+        .onAppear {
+            guard !reduceMotion else { return }
+            markFloats = true
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// Pages carry themselves in from the direction the turn went — a little scale on the
+    /// way in, a little blur — and leave by the other side.
     private var pageTurn: AnyTransition {
         if reduceMotion { return .opacity }
         return .asymmetric(
             insertion: .move(edge: turnDirection)
                 .combined(with: .opacity)
-                .combined(with: .offset(y: 12)),
+                .combined(with: .scale(scale: 0.96, anchor: .center)),
             removal: .move(edge: turnDirection == .trailing ? .leading : .trailing)
                 .combined(with: .opacity)
+                .combined(with: .scale(scale: 0.96, anchor: .center))
         )
     }
 
@@ -121,7 +162,8 @@ struct OnboardingView: View {
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .frame(width: 38, height: 38)
-                        .background(Color.secondary.opacity(0.1), in: Circle())
+                        .background(.ultraThinMaterial, in: Circle())
+                        .overlay(Circle().strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5))
                         .contentShape(Circle())
                 }
                 .buttonStyle(OnboardingPressStyle())
@@ -134,7 +176,8 @@ struct OnboardingView: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color.secondary.opacity(0.1), in: Capsule())
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5))
             }
         }
         .buttonStyle(OnboardingPressStyle())
@@ -147,7 +190,7 @@ struct OnboardingView: View {
     /// lighting a row of separate dots.
     private var controls: some View {
         HStack(spacing: 16) {
-            OnboardingProgress(page: page, lastPage: lastPage, accent: accent)
+            OnboardingProgress(page: page, lastPage: lastPage, accent: pageAccent)
 
             Spacer()
 
@@ -162,9 +205,15 @@ struct OnboardingView: View {
                     }
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 11)
-                    .background(Capsule().fill(accent))
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 12)
+                    .background(
+                        Capsule().fill(
+                            LinearGradient(colors: [pageAccent, pageAccent.opacity(0.75)],
+                                           startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
+                    )
+                    .shadow(color: pageAccent.opacity(0.4), radius: 10, y: 4)
                 }
                 .buttonStyle(OnboardingPressStyle())
                 .accessibilityHint("onboarding.next")
@@ -186,7 +235,7 @@ struct OnboardingView: View {
 
     // MARK: - Pages
 
-    /// The app in one poster frame: the floating mark over a soft accent wash, the typed
+    /// The app in one poster frame: the floating mark over the accent pool, the typed
     /// promise, and what the app doesn't host.
     private var welcomePage: some View {
         ScrollView {
@@ -207,12 +256,15 @@ struct OnboardingView: View {
                     // it in full. Below iOS 18, and on a Mac and Apple TV, the headline carries
                     // the page alone.
                     if #available(iOS 18.0, *) {
-                        TypeWriterHeadline(phrases: [
-                            String(localized: "onboarding.type_watch"),
-                            String(localized: "onboarding.type_read"),
-                            String(localized: "onboarding.type_track")
-                        ])
-                        .foregroundStyle(.secondary)
+                        TypeWriterHeadline(
+                            config: TypeWriterConfig(font: .system(size: 21, weight: .bold, design: .rounded)),
+                            phrases: [
+                                String(localized: "onboarding.type_watch"),
+                                String(localized: "onboarding.type_read"),
+                                String(localized: "onboarding.type_track")
+                            ]
+                        )
+                        .foregroundStyle(pageAccent)
                         .padding(.top, 6)
                     }
                     #endif
@@ -232,12 +284,6 @@ struct OnboardingView: View {
                 Spacer(minLength: 20)
             }
             .padding(.horizontal, 24)
-        }
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 2.6).repeatForever(autoreverses: true)) {
-                markFloats = true
-            }
         }
     }
 
@@ -286,9 +332,15 @@ struct OnboardingView: View {
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.15)))
+                                .fill(
+                                    hasSource
+                                        ? AnyShapeStyle(LinearGradient(colors: [accent, accent.opacity(0.75)],
+                                                                       startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        : AnyShapeStyle(Color.secondary.opacity(0.15))
+                                )
                         )
                         .foregroundStyle(hasSource ? .white : Color.primary)
+                        .shadow(color: hasSource ? accent.opacity(0.35) : .clear, radius: 12, y: 5)
                 }
                 .buttonStyle(OnboardingPressStyle())
                 .padding(.top, 28)
@@ -315,17 +367,17 @@ struct OnboardingView: View {
     // MARK: - The frame
 
     /// A poster-shaped outline holding the app's mark: empty and dashed until a source exists,
-    /// filled once one does. The same 2:3 as every poster elsewhere in the app, over a soft
-    /// wash of the accent, and floating slowly while the page shows.
+    /// filled once one does. The same 2:3 as every poster elsewhere in the app, floating
+    /// slowly over the accent pool while the page shows.
     private var frame: some View {
         ZStack {
             // The wash: the accent blurred into the poster's neighbourhood, so the hero
             // reads as lit rather than drawn.
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(accent.opacity(0.12))
+                .fill(accent.opacity(0.14))
                 .blur(radius: 24)
                 .padding(-14)
-                .opacity(markFloats ? 0.9 : 0.65)
+                .opacity(markFloats ? 0.95 : 0.6)
 
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(
@@ -346,9 +398,10 @@ struct OnboardingView: View {
                 .scaledToFit()
                 .frame(width: 86)
                 .foregroundStyle(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.35)))
-                .offset(y: markFloats ? -7 : 7)
+                .offset(y: markFloats ? -8 : 8)
         }
         .frame(width: 128, height: 192)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 2.6).repeatForever(autoreverses: true), value: markFloats)
         .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.8), value: hasSource)
         .accessibilityHidden(true)
     }
@@ -408,8 +461,13 @@ struct OnboardingView: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.secondary.opacity(0.09))
+                    .fill(.ultraThinMaterial)
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(isDone ? accent.opacity(0.35) : Color.primary.opacity(0.08), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 10, y: 4)
         }
         .buttonStyle(OnboardingPressStyle())
         .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: isDone)
@@ -420,6 +478,16 @@ struct OnboardingView: View {
     private func finish() {
         hasCompletedOnboarding = true
         dismiss()
+    }
+
+    private var platformBackground: Color {
+        #if os(iOS)
+        Color(UIColor.systemBackground)
+        #elseif os(tvOS)
+        Color.clear
+        #else
+        Color(NSColor.windowBackgroundColor)
+        #endif
     }
 }
 
@@ -458,9 +526,9 @@ private struct OnboardingProgress: View {
     }
 }
 
-/// One page of the tour: an icon in a tinted tile that arrives with a small overshoot, a
-/// headline, and a paragraph. All words, no fake screenshots — the app's real screens are
-/// a page-turn away.
+/// One page of the tour: a glass tile in the page's colour that arrives with an overshoot
+/// and floats while the page shows, a headline, and a paragraph. All words, no fake
+/// screenshots — the app's real screens are a page-turn away.
 private struct TourPage: View {
     let icon: String
     let title: LocalizedStringKey
@@ -475,19 +543,29 @@ private struct TourPage: View {
             VStack(spacing: 24) {
                 Spacer(minLength: 40)
                 IconView(icon)
-                    .font(.system(size: 42, weight: .medium))
+                    .font(.system(size: 46, weight: .medium))
                     .foregroundStyle(accent)
-                    .frame(width: 108, height: 108)
+                    .frame(width: 112, height: 112)
                     .background(
                         RoundedRectangle(cornerRadius: 30, style: .continuous)
-                            .fill(accent.opacity(0.12))
+                            .fill(accent.opacity(0.14))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 30, style: .continuous)
-                            .strokeBorder(accent.opacity(0.18), lineWidth: 1)
+                            .strokeBorder(accent.opacity(0.25), lineWidth: 1)
                     )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .fill(
+                                LinearGradient(colors: [.white.opacity(0.14), .clear],
+                                               startPoint: .topLeading, endPoint: .center)
+                            )
+                            .allowsHitTesting(false)
+                    )
+                    .shadow(color: accent.opacity(0.30), radius: 18, y: 8)
                     .scaleEffect(shown ? 1 : 0.7)
                     .opacity(shown ? 1 : 0)
+                    .offset(y: shown ? -6 : 0)
                 Text(title)
                     .font(.system(size: 27, weight: .heavy))
                     .multilineTextAlignment(.center)
@@ -496,6 +574,7 @@ private struct TourPage: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 6)
                 Spacer(minLength: 40)
             }
             .padding(.horizontal, 28)
