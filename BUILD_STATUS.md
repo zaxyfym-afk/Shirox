@@ -2,8 +2,15 @@
 
 ## Current state (2026-11-21, eighth session)
 
-- PENDING BUILD. The eighth session's work is committed and pushed; the Codemagic build
-  runs after the push, API-driven as always. What the build sees for the first time: the
+- GREEN EVERYWHERE. Codemagic build 10 (6b00efd93d7daa4b309f43c9, on 93bb3f26, 4m50s)
+  finished green: unsigned Shirox.ipa 27.2 MB, 1.2.0 (128), iPhoneOS, min iOS 15.0, built
+  SHA = pushed SHA, delivered as a file (workspace download/Shirox.ipa, sha256
+  19898cc7...f0f69, Payload/Shirox.app, unsigned, 511 files). Build 9 (6b00ef1e, 2m18s)
+  caught one real error the sandbox could not - a covariant-Self read in the store's
+  stored default - fixed in 93bb3f2 and build 10 took it. GitHub Actions' nightly also
+  finished GREEN on b94fa53 (the first green nightly since the redesign began): SwiftLint,
+  Semgrep, strings and icons, and the IPA build all success.
+- What was pending before this: What the build sees for the first time: the
   gooey blob's custom trigger path (no native control under the gooey style), the 110 pt
   pull and the smoothing, the schedule's recoloured selection, the settings hero and
   per-page accent system (SettingsDesign rebuilt), the single-ZStack launch reveal, the
