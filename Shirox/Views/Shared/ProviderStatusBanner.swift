@@ -48,46 +48,7 @@ private var bothProvidersSignedIn: Bool {
 
 /// Capsule-pill switcher for the global primary provider (used in the Library).
 /// Shown only when BOTH AniList and MyAnimeList are signed in.
-struct ProviderSwitcher: View {
-    @ObservedObject private var manager = ProviderManager.shared
-    @ObservedObject private var anilistAuth = AniListAuthManager.shared
-    @ObservedObject private var malAuth = MALAuthManager.shared
 
-    var body: some View {
-        if bothProvidersSignedIn {
-            HStack(spacing: 8) {
-                // Stable order so the pills don't reorder when selectProvider moves
-                // the chosen provider to the front of orderedProviders.
-                ForEach(ProviderType.userProviders, id: \.self) { type in
-                    let selected = manager.primary?.providerType == type
-                    Button {
-                        manager.selectProvider(type)
-                    } label: {
-                        HStack(spacing: 6) {
-                            CachedAsyncImage(urlString: type.iconURL)
-                                .frame(width: 16, height: 16)
-                                .clipShape(RoundedRectangle(cornerRadius: 4))
-                            Text(type.displayName)
-                                .font(.subheadline.weight(.semibold))
-                        }
-                        .padding(.horizontal, 12).padding(.vertical, 7)
-                        .background(
-                            Capsule().fill(selected ? Color.primary.opacity(0.12) : Color.secondary.opacity(0.08))
-                        )
-                        .overlay(
-                            Capsule().strokeBorder(selected ? Color.primary.opacity(0.3) : Color.clear, lineWidth: 1)
-                        )
-                        .foregroundStyle(selected ? Color.primary : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-        }
-    }
-}
 
 /// How Search's source button appears. Home's provider menu shared this once; the menu moved
 /// out of the bar, leaving Search's module button as the only reader.

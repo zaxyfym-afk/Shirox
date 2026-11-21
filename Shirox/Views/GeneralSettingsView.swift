@@ -375,8 +375,20 @@ struct TabBarCustomizationView: View {
     private var tabs: [AppTab] { AppTab.ordered(orderRaw) }
     private var hidden: Set<AppTab> { AppTab.hidden(hiddenRaw) }
 
+    /// What the bar actually shows — the exact function RootTabView renders from, so the
+    /// preview up top is the bar, not a mock of it.
+    private var visibleTabs: [AppTab] { AppTab.visible(order: orderRaw, hidden: hiddenRaw) }
+
     var body: some View {
         List {
+            Section {
+                livePreview
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+            } header: {
+                SettingsSectionHeader("settings.tabs_preview")
+            }
+
             Section {
                 ForEach(tabs) { tab in
                     row(tab)
@@ -404,6 +416,57 @@ struct TabBarCustomizationView: View {
         .navigationBarTitleDisplayMode(.inline)
         .environment(\.editMode, .constant(.active))
         #endif
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: visibleTabs)
+    }
+
+    // MARK: Live preview
+
+    /// The bottom bar, drawn from the same source of truth the real bar renders: visible
+    /// tabs in order, the first one active, labels per the hide-labels setting. Hidden tabs
+    /// vanish from it the moment their eye is tapped.
+    private var livePreview: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 6) {
+                Text("settings.tabs_preview_hint")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .padding(.top, 10)
+
+            HStack(spacing: 0) {
+                ForEach(visibleTabs) { tab in
+                    let isFirst = visibleTabs.first == tab
+                    VStack(spacing: 3) {
+                        IconView(isFirst ? tab.icon : tab.icon)
+                            .font(.system(size: 17, weight: isFirst ? .semibold : .regular))
+                            .foregroundStyle(isFirst ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                            .frame(height: 22)
+                        if !hideLabels {
+                            Text(tab.title)
+                                .font(.system(size: 9, weight: isFirst ? .semibold : .regular))
+                                .foregroundStyle(isFirst ? Color.primary : Color.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 7)
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
+                }
+            }
+            .padding(.horizontal, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.primary.opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+            )
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+        }
+        .accessibilityElement(children: .combine)
     }
 
     private var footer: String {
@@ -446,6 +509,8 @@ struct TabBarCustomizationView: View {
         .opacity(isHidden ? 0.45 : 1)
     }
 
+    /// Eye tap: flips the tab, unless that would leave Settings alone in the bar — the one
+    /// invalid configuration. Refused with a note, not silently.
     private func toggle(_ tab: AppTab) {
         var set = hidden
         if set.contains(tab) {
@@ -453,10 +518,19 @@ struct TabBarCustomizationView: View {
         } else {
             set.insert(tab)
         }
+        let wouldShow = AppTab.visible(order: orderRaw, hidden: AppTab.encode(AppTab.available.filter(set.contains)))
+        guard wouldShow.count >= 2 else {
+            ToastManager.shared.show(message: String(localized: "settings.tabs_keep_one"), type: .info, duration: 1.8)
+            #if os(iOS)
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+            #endif
+            return
+        }
         hiddenRaw = AppTab.encode(AppTab.available.filter(set.contains))
     }
 }
 #endif
+
 
 // MARK: - Language
 

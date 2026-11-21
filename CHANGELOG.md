@@ -1,5 +1,110 @@
 # Changelog
 
+## Unreleased: the eleventh session (2026-11-21)
+
+### Kavsoft components, the real ones
+
+- The appearance picker is the actual ATPicker port, inline where it's picked: the animated
+  sky (sun and moon trading places on a rotating path, stars and a shooting star at night,
+  clouds dissolving into blur at dawn, hills and a lit house below) under a segmented
+  Light/Dark/System control whose capsule slides with matched geometry. The pick applies the
+  instant it's tapped and writes the same `AppColorScheme` store Settings writes. It runs in
+  onboarding's appearance page and in Settings › Customization, replacing the old sheet-only
+  picker and the plain segmented control. Below iOS 17 the sun's continuous spin and the
+  shooting star sit still; iOS 26's glass and concentric shapes fall back gracefully.
+- The notification permission step is the CompactNotificationView port: three episode-alert
+  cards rise one by one into a stack, the whole stack blurs and lifts away, and the bell
+  beneath fills its badge — over one Enable button that asks iOS at the right moment and one
+  Maybe later that moves on. A permission already granted or refused in an earlier run is
+  honoured: no system prompt twice, and a refused answer gets the way back through system
+  settings.
+
+### Onboarding, rebuilt
+
+- Four screens: welcome, appearance (the Kavsoft picker), connect sources, notifications.
+  White and grey throughout — no coloured aurora pools, no gradients outside the picker's own
+  sky. No informational screens or popups.
+- The connect page gives AniList and MyAnimeList each their own card, logo, blurb and connect
+  button, with connected states that flip the moment the web session lands. One connected
+  shows the recommendation to connect both; both shows a confirmation; neither explains the
+  choice in one line. The add-a-source row ticks from real state, as before.
+- The duplicate back arrow is fixed: the flow was pushed into Settings' NavigationStack on
+  the replay path with its own custom chevron, so two arrows showed. The system bar's arrow
+  is now hidden on every path; the custom chevron is the only back control.
+
+### Functional fixes
+
+- Notification anime navigation: an AniList id went through the provider chain, so a MAL
+  first provider (or a reorder) answered an AniList id with the wrong title or a not-found
+  error. Detail loads now ask the provider that owns the id — AniList for AniList
+  notifications and follows, MAL for MAL titles — and `refresh` does the same.
+- Module Store Test button: for an installed module it runs the real pipeline (script load,
+  search, episodes, streams, 90 s timeout); for a not-yet-installed entry the button becomes
+  "Check manifest" — a fetch-and-parse of the manifest that honestly reports what it found
+  and never claims playback. Loading and busy states are drawn, double taps are refused.
+- Module Store catalog: the last good catalog is cached to disk, so a dead network shows
+  saved shelves with a "saved" note instead of a blank page; a genuinely empty store says
+  "Couldn't reach the module catalogs" with a Retry, not a promise.
+- Raw localization keys fixed everywhere they were found: seven interpolated keys
+  (`store.version`, `store.needs_app`, `store.no_manifest_for`, `modules.remove_module_message`,
+  `modules.test_needs_check_note`, `modules.test_failed`, `onboarding.signed_in_as`) had
+  catalog entries without the placeholder in the key, so every device showed the raw key plus
+  the value; all are renamed to their placeholder forms with every translation kept.
+  `settings.through` had no entry at all. A scripted audit of every interpolated literal in
+  the codebase found nothing else leaking.
+
+### Settings organization
+
+- Sources & Integrations no longer sits in its own top-level category: the row is now
+  "Sources" inside the existing Sources section, beside Modules, and the page's title matches.
+  AniList, MyAnimeList, Simkl, tracking toggles, sync and Discord all live in it unchanged.
+- The "This Device" section header is gone; the legal pages and platform rows close the list
+  with their TMDB footer, no decorative header.
+
+### Settings subpages, individually redesigned
+
+- Notifications: a delivery card (bell state, master switch, system-settings way back when
+  refused), a full-width check-now row with its last result, and the followed series as a
+  poster board with airing chips — not a list.
+- Downloads: quality as five cards (Best / 1080p / 720p / 480p / Smallest, each with a symbol
+  and a detail line), concurrency as five large number chips, automation as icon rows, and
+  what's on disk as a gauge card with the delete action.
+- Customize Tabs: a live preview bar drawn from the exact function the real tab bar renders —
+  visible tabs in order, first one active, labels per the hide-labels setting — updating the
+  moment an eye is tapped, and refusing the one invalid configuration (Settings alone in the
+  bar) with a note.
+- Customization (Appearance): the Kavsoft picker inline, as in onboarding.
+- Sources: the account cards keep their structure; the page is retitled.
+- Player (three panes with choice cards), Subtitles (pinned preview), Reader (tap-zone
+  diagram), Library (reorderable languages), Storage (usage meter), Backup (big actions),
+  Advanced network (tests first), Logs (searchable), General (its sections) keep their
+  existing purpose-built structures, reviewed; nothing is a generic card list.
+
+### Signed-out Notifications
+
+- The Notifications tab with no tracker connected shows a purpose-built connection screen:
+  bell, one line of why, and two service cards (AniList, MyAnimeList) side by side where
+  there is room, each with its own connect action wired to the real sign-in flow. One
+  connected, the tab shows the feed plus a slim invitation to connect the other — never a
+  block.
+
+### Search source selector
+
+- Rebuilt as a selector, not a settings list: the current source announced in a status card,
+  then the sources as tiles — AniList, MyAnimeList, Simkl when signed in, then the installed
+  modules that actually search anime (`searchBaseUrl` present, manga and local/Jellyfin
+  excluded). The chosen tile carries the checkmark badge; selection behaviour and dismissal
+  are as before.
+
+### Cleaned
+
+- Dead code: the unused `ProvidersSettingsSection`, the old `ThemePickerSheet` (replaced by
+  the inline port), the never-instantiated `ProviderSwitcher`, and `TrackerSignInView` (its
+  job moved into onboarding's connect page), with their project references.
+- Obsolete keys: the removed screens' strings (the tracker sign-in copy, the old store
+  placeholder copy, the device-section header) dropped from the catalog after a
+  used-in-code check.
+
 ## Unreleased: the tenth session (2026-11-21)
 
 ### Fixed

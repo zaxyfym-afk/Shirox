@@ -12,11 +12,18 @@ struct ModuleStoreView: View {
 
     var body: some View {
         List {
-            if let error = store.errorMessage, store.catalog.entries.isEmpty {
+            if store.state == .offline && store.catalog.entries.isEmpty {
                 Section {
-                    errorBanner(error)
+                    offlineState
                 }
             } else {
+                if store.state == .cached {
+                    Section {
+                        Label("store.showing_cached", icon: "clock.arrow.circlepath")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 sourceNotes
                 categorySection
                 entriesSection
@@ -35,6 +42,36 @@ struct ModuleStoreView: View {
         .adaptiveSheet(item: $detail) { entry in
             ModuleStoreEntryDetail(entry: entry)
         }
+    }
+
+    /// No catalog answered and nothing is saved: an honest outage state with a retry, not a
+    /// promise that shelves are coming.
+    private var offlineState: some View {
+        VStack(spacing: 10) {
+            IconView("wifi.slash")
+                .font(.system(size: 30, weight: .light))
+                .foregroundStyle(.tertiary)
+            Text("store.offline_title")
+                .font(.headline)
+            Text("store.offline_hint")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button {
+                Task { await store.load() }
+            } label: {
+                Label("common.retry", icon: "arrow.clockwise")
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color.primary.opacity(0.08), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .disabled(store.isLoading)
+            .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 26)
     }
 
     // MARK: - Source health
@@ -112,32 +149,7 @@ struct ModuleStoreView: View {
         let entries = selectedCategory.map { store.entries(in: $0, matching: search) }
             ?? store.allEntries(matching: search)
         Section {
-            if store.showingPlaceholder && store.catalog.entries.isEmpty {
-                VStack(spacing: 10) {
-                    IconView("bag")
-                        .font(.system(size: 30, weight: .light))
-                        .foregroundStyle(.tertiary)
-                    Text("store.the_store_opens_soon")
-                        .font(.headline)
-                    Text("store.placeholder_hint")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                    Button {
-                        Task { await store.load() }
-                    } label: {
-                        Label("common.retry", icon: "arrow.clockwise")
-                            .font(.subheadline.weight(.semibold))
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color.primary.opacity(0.08), in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.top, 4)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 26)
-            } else if entries.isEmpty {
+            if entries.isEmpty {
                 Text("store.nothing_here_yet")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -219,6 +231,10 @@ struct ModuleStoreView: View {
         }
         .padding(4)
     }
+    
+    // MARK: - Source notes preserved
+    
+    // (sourceNotes unchanged)
 
     // MARK: - Installed
 
@@ -327,9 +343,13 @@ private struct ModuleStoreEntryDetail: View {
 
     @State private var testOutcome: ModuleDetailOutcome?
     @State private var confirmingRemoval = false
+    /// True while the manifest check runs, so the button can't be tapped twice and the
+    /// label can say what's happening.
+    @State private var isCheckingManifest = false
 
     private var installState: ModuleStoreService.InstallState { store.state(of: entry) }
     private var installed: ModuleDefinition? { store.installedModule(for: entry) }
+    private var isBusy: Bool { testOutcome == .running || isCheckingManifest }
 
     var body: some View {
         NavigationStack {
@@ -403,21 +423,26 @@ private struct ModuleStoreEntryDetail: View {
                 runTest()
             } label: {
                 HStack(spacing: 8) {
-                    if testOutcome == .running {
+                    if isBusy {
                         ProgressView().controlSize(.small)
                     }
-                    Text("modules.test")
+                    Text(testButtonTitle)
                         .font(.body.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 11)
-                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.08)))
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.primary.opacity(isBusy ? 0.04 : 0.08))
+                )
+                .foregroundStyle(isBusy ? Color.secondary : Color.primary)
             }
             .buttonStyle(.plain)
-            .disabled(testOutcome == .running || installed == nil)
+            .disabled(isBusy)
+            .accessibilityHint(isInstalled ? Text("") : Text("store.manifest_check_note"))
 
-            if installed == nil {
-                Text("store.install_to_test")
+            if !isInstalled {
+                Text("store.manifest_check_note")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -479,15 +504,37 @@ private struct ModuleStoreEntryDetail: View {
         .disabled(moduleManager.isLoading)
     }
 
-    /// The real check: the installed module's script is loaded and run through a search, an
-    /// episode list and a stream. Whatever comes back is what this page shows.
+    /// The check the button runs: an installed module goes through the real pipeline —
+    /// script load, search, episodes, streams — and a not-installed entry gets a manifest
+    /// check, which reports what it found and never claims playback. Each guarded against
+    /// double taps by the busy flags.
     private func runTest() {
-        guard let installed, testOutcome != .running else { return }
-        testOutcome = .running
-        Task {
-            let result = await moduleManager.check(installed)
-            testOutcome = ModuleDetailOutcome(result)
+        guard !isBusy else { return }
+        if let installed {
+            testOutcome = .running
+            Task {
+                let result = await moduleManager.check(installed)
+                testOutcome = ModuleDetailOutcome(result)
+            }
+        } else {
+            isCheckingManifest = true
+            testOutcome = nil
+            Task {
+                let check = await ModuleStoreService.checkManifest(of: entry)
+                isCheckingManifest = false
+                switch check {
+                case .ok(_, _, let detail): testOutcome = .manifestOk(detail: detail)
+                case .failed(let reason): testOutcome = .manifestFailed(reason: reason)
+                }
+            }
         }
+    }
+
+    private var isInstalled: Bool { installed != nil }
+
+    private var testButtonTitle: String {
+        if testOutcome == .running || isCheckingManifest { return String(localized: "modules.testing") }
+        return isInstalled ? String(localized: "modules.test") : String(localized: "store.check_manifest")
     }
 
     // MARK: - Facts

@@ -44,9 +44,31 @@ final class ModuleStoreService: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var sourceStatuses: [SourceStatus] = []
 
-    /// Whether nothing real has answered yet — the empty state words itself differently
-    /// for the bundled placeholder than for a catalog with entries.
-    @Published private(set) var showingPlaceholder = true
+    /// Where the shelves stand after the last load: `live` when a catalog answered now,
+    /// `cached` when none answered but shelves from a previous visit are on disk, `offline`
+    /// when there is nothing to show but the three empty built-ins.
+    enum CatalogState: Equatable { case live, cached, offline }
+    @Published private(set) var state: CatalogState = .offline
+
+    /// Compatibility with older call sites: whether the shelves hold nothing real.
+    var showingPlaceholder: Bool { state != .live }
+
+    /// The last catalog that answered, kept on disk so a dead network shows shelves instead
+    /// of a blank page. Written whenever a load produces entries; read when none do.
+    private static var cacheURL: URL {
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        return caches.appendingPathComponent("module-store-catalog-cache.json")
+    }
+
+    private static func writeCache(_ catalog: ModuleStoreCatalog) {
+        guard let data = try? JSONEncoder().encode(catalog) else { return }
+        try? data.write(to: cacheURL, options: .atomic)
+    }
+
+    private static func readCache() -> ModuleStoreCatalog? {
+        guard let data = try? Data(contentsOf: cacheURL) else { return nil }
+        return try? JSONDecoder().decode(ModuleStoreCatalog.self, from: data)
+    }
 
     /// Install state is read on demand, so the view observing the module manager stays the
     /// one thing that refreshes it.
@@ -102,11 +124,21 @@ final class ModuleStoreService: ObservableObject {
         if answered {
             catalog = ModuleStoreCatalog(categories: Self.builtInShelves.categories,
                                          entries: Self.merged(entries))
-            showingPlaceholder = false
+            state = .live
             errorMessage = nil
+            Self.writeCache(catalog)
+        } else if let cached = Self.readCache(), !cached.entries.isEmpty {
+            // Nothing answered now, but shelves from a previous visit are on disk — show
+            // those rather than a blank page, and say they are saved, not fresh.
+            catalog = cached
+            state = .cached
+            errorMessage = statuses.compactMap { status in
+                if case .failed(let reason) = status.health { return "\(status.name): \(reason)" }
+                return nil
+            }.joined(separator: "\n")
         } else {
-            catalog = Self.bundledCatalog() ?? Self.builtInShelves
-            showingPlaceholder = true
+            catalog = Self.builtInShelves
+            state = .offline
             errorMessage = statuses.compactMap { status in
                 if case .failed(let reason) = status.health { return "\(status.name): \(reason)" }
                 return nil
@@ -317,7 +349,60 @@ final class ModuleStoreService: ObservableObject {
     /// Testing and previews: the catalog as it would be if a real one had been fetched.
     func adopt(_ catalog: ModuleStoreCatalog) {
         self.catalog = catalog
-        showingPlaceholder = false
+        state = .live
+    }
+
+    // MARK: - Manifest check
+
+    /// What checking a not-yet-installed entry's manifest found.
+    enum ManifestCheck: Equatable {
+        case ok(name: String?, version: String?, detail: String)
+        case failed(reason: String)
+    }
+
+    /// A real, honest check for an entry the user hasn't installed: the manifest is fetched
+    /// and parsed, and what was found is reported — never a playback claim. An entry that
+    /// hasn't been installed can only be checked this far; the store's detail page words it
+    /// that way.
+    static func checkManifest(of entry: ModuleStoreEntry) async -> ManifestCheck {
+        guard let url = URL(string: entry.manifestURL), url.scheme?.hasPrefix("http") == true else {
+            return .failed(reason: String(localized: "store.manifest_check_failed"))
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 20
+        request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1",
+                         forHTTPHeaderField: "User-Agent")
+        let data: Data
+        do {
+            let (fetched, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+                return .failed(reason: "HTTP \(code)")
+            }
+            data = fetched
+        } catch {
+            return .failed(reason: error.localizedDescription)
+        }
+
+        guard let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+            return .failed(reason: "Not valid JSON")
+        }
+        // Manifest shapes differ by ecosystem; what counts is that one of the fields the
+        // installer reads is present. Name what was found rather than promising playback.
+        let name = (object["name"] as? String) ?? (object["sourceName"] as? String)
+        let version = (object["version"] as? String)
+        var found: [String] = []
+        if object["name"] != nil || object["sourceName"] != nil { found.append("name") }
+        if let modules = object["modules"] as? [[String: Any]] {
+            found.append("modules (\(modules.count))")
+        }
+        if object["scriptUrl"] != nil || object["url"] != nil { found.append("script") }
+        if object["resources"] != nil { found.append("resources") }
+        guard !found.isEmpty else {
+            return .failed(reason: "JSON, but none of the fields the installer reads")
+        }
+        return .ok(name: name, version: version,
+                   detail: found.joined(separator: ", "))
     }
 
     // MARK: - Browsing

@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// Settings ▸ Customization: everything that shapes how Shirox looks. The theme leads as a
-/// three-way segment — System, Light, Dark — over the tint swatches, then the app's icon and
+/// Settings ▸ Customization: everything that shapes how Shirox looks. The theme leads as
+/// the real Kavsoft appearance picker — the animated sky preview and the sliding capsule,
+/// the same component onboarding uses — over the tint swatches, then the app's icon and
 /// icon packs, then the layout toggles. Appearance lives on this page alone; the pages that
 /// own the rest (player, subtitles, tabs) each have their one door on the root.
 struct CustomizationSettingsView: View {
@@ -15,7 +16,6 @@ struct CustomizationSettingsView: View {
     @State private var appIcon = UIApplication.shared.alternateIconName
     @State private var appIconError: String?
     #endif
-    @State private var showThemePicker = false
     @State private var showIconPicker = false
     @Environment(\.colorScheme) private var systemScheme
 
@@ -34,11 +34,6 @@ struct CustomizationSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         #if os(iOS) && !targetEnvironment(macCatalyst)
-        .sheet(isPresented: $showThemePicker) {
-            if #available(iOS 26, *) {
-                ThemePickerSheet(colorScheme: $colorScheme, initialDark: systemScheme == .dark)
-            }
-        }
         .sheet(isPresented: $showIconPicker, onDismiss: { appIcon = UIApplication.shared.alternateIconName }, content: {
             if #available(iOS 26, *) {
                 AppIconPickerSheet()
@@ -55,29 +50,24 @@ struct CustomizationSettingsView: View {
 
     // MARK: Theme
 
-    /// The theme as three plain segments; on iOS 26 the segment opens the full scene picker.
+    /// Appearance as the interactive Kavsoft picker, inline: the animated sky turns night
+    /// or day with the choice and the segmented capsule slides under it, exactly as
+    /// onboarding presents it. The pick applies the moment it's tapped. Below iOS 17 the
+    /// component's own availability ladder keeps it working; macOS and tvOS keep a menu.
     private var themeSection: some View {
         Section {
             #if os(iOS) && !targetEnvironment(macCatalyst)
-            if #available(iOS 26, *) {
-                Button {
-                    showThemePicker = true
-                } label: {
-                    LabeledContent("settings.appearance") {
-                        Text((AppColorScheme(rawValue: colorScheme) ?? .system).title)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .buttonStyle(.plain)
-            } else {
-                Picker("settings.appearance", selection: $colorScheme) {
-                    ForEach(AppColorScheme.allCases) { scheme in
-                        Text(scheme.title).tag(scheme.rawValue)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding(.vertical, 4)
-            }
+            KavsoftThemePicker(
+                value: Binding(
+                    get: { AppColorScheme(rawValue: colorScheme) ?? .system },
+                    set: { colorScheme = $0.rawValue }
+                ),
+                envColorScheme: systemScheme
+            )
+            .frame(maxWidth: 420)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .listRowBackground(Color.clear)
             #else
             Picker("settings.appearance", selection: $colorScheme) {
                 ForEach(AppColorScheme.allCases) { scheme in

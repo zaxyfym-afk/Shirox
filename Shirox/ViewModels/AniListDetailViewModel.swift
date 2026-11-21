@@ -38,19 +38,28 @@ final class AniListDetailViewModel: ObservableObject {
     var resumeWatchedSeconds: Double?
     var resumeEpisodeNumber: Int?
 
-    func load(id: Int, preloaded: Media? = nil) async {
+    func load(id: Int, preloaded: Media? = nil, providerHint: ProviderType? = nil) async {
         guard media == nil else { return }
         if let preloaded { media = preloaded }
         isLoading = true
         error = nil
         do {
-            media = try await ProviderManager.shared.call { try await $0.detail(id: id) }
-            // MAL/Jikan has no banner art; reuse the already-cached TVDB fanart.
-            if media?.provider == .mal, media?.bannerImage == nil {
-                let artwork = await TVDBMappingService.shared.getArtwork(for: id, provider: .mal)
-                if let fanart = artwork.fanart {
-                    media?.bannerImage = fanart
+            // The ID's owner decides who is asked, never the provider chain: an AniList
+            // notification carries an AniList id and a MAL search result a MAL id, and
+            // handing either to the other provider answers with the wrong title or a
+            // not-found that used to show as a random error. The hint comes from the caller
+            // when there's no preloaded record to read the provider off.
+            switch providerHint ?? preloaded?.provider {
+            case .mal:
+                var fetched = try await MALProvider.shared.detail(id: id)
+                // MAL/Jikan has no banner art; reuse the already-cached TVDB fanart.
+                if fetched.bannerImage == nil {
+                    let artwork = await TVDBMappingService.shared.getArtwork(for: id, provider: .mal)
+                    if let fanart = artwork.fanart { fetched.bannerImage = fanart }
                 }
+                media = fetched
+            default:
+                media = try await AniListProvider.shared.detail(id: id)
             }
             await fillMissingEpisodeCount()
         } catch {
@@ -60,13 +69,17 @@ final class AniListDetailViewModel: ObservableObject {
     }
 
     /// Pull to refresh: fetch the title's detail again, in place — the page keeps showing
-    /// what it has until the fresh record arrives.
+    /// what it has until the fresh record arrives. The provider that owns the ID is the one
+    /// asked, for the same reason `load` never routes through the provider chain.
     func refresh() async {
-        guard let id = media?.id else { return }
+        guard let current = media else { return }
         do {
-            media = try await ProviderManager.shared.call { try await $0.detail(id: id) }
+            let refreshed: Media = current.provider == .mal
+                ? try await MALProvider.shared.detail(id: current.id)
+                : try await AniListProvider.shared.detail(id: current.id)
+            media = refreshed
             if media?.provider == .mal, media?.bannerImage == nil {
-                let artwork = await TVDBMappingService.shared.getArtwork(for: id, provider: .mal)
+                let artwork = await TVDBMappingService.shared.getArtwork(for: current.id, provider: .mal)
                 if let fanart = artwork.fanart {
                     media?.bannerImage = fanart
                 }

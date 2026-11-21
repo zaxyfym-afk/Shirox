@@ -34,7 +34,7 @@ struct SettingsView: View {
     /// The introduction, again, for whoever wants a replay.
     @State private var showOnboardingReplay = false
 #endif
-    /// The services signed in, short, for the Sources & Integrations row.
+    /// The services signed in, short, for the Sources row.
     private var providersSubtitle: String {
         let services = [
             aniListAuth.isLoggedIn ? "AniList" : nil,
@@ -85,18 +85,9 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var sections: some View {
-            // Who's using the app, and the accounts that follow them.
+            // Accounts: notifications live here; the tracker and integration accounts
+            // moved under Sources, where the rest of what the app plays from already was.
             Section {
-                NavigationLink {
-                    SourcesIntegrationsView()
-                } label: {
-                    SettingsNavRow(
-                        icon: "person.2",
-                        title: String(localized: "settings.sources_integrations"),
-                        subtitle: providersSubtitle
-                    )
-                }
-
                 NavigationLink {
                     NotificationsSettingsView()
                 } label: {
@@ -182,9 +173,19 @@ struct SettingsView: View {
                 SettingsSectionHeader("settings.section_library_storage")
             }
 
-            // What the app plays from. Modules opens the full management interface directly —
-            // installed modules, add, check, and the store's door in its toolbar.
+            // What the app plays from — one Sources section: the tracker and integration
+            // accounts, and the modules. No separate Sources & Integrations category.
             Section {
+                NavigationLink {
+                    SourcesIntegrationsView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "person.2",
+                        title: String(localized: "settings.sources"),
+                        subtitle: providersSubtitle
+                    )
+                }
+
                 NavigationLink {
                     ModuleListView()
                         .environmentObject(moduleManager)
@@ -261,10 +262,9 @@ struct SettingsView: View {
                 SettingsSectionHeader("settings.section_app")
             }
 
-            // Legal pages live here with the device facts rather than under an About section:
-            // the About block was removed, and the imprint, privacy and licence pages stay
-            // reachable without a section of their own. TMDB's terms ask for its logo and
-            // notice in a credits context, so the footer carries it.
+            // Legal pages close the list, with the platform facts beside them and no section
+            // header of their own — the device block never needed a category name. TMDB's
+            // terms ask for its logo and notice in a credits context, so the footer carries it.
             Section {
                 ForEach([LegalPage.imprint, .privacy, .contributors, .licenses], id: \.title) { page in
                     NavigationLink {
@@ -278,8 +278,6 @@ struct SettingsView: View {
                         copying: Platform.summary, toast: String(localized: "settings.platform_copied"))
                 copyRow(SettingsNavRow(icon: "info.circle", title: String(localized: "modules.version"), subtitle: Self.appVersion),
                         copying: Self.appVersion, toast: String(localized: "settings.version_copied"))
-            } header: {
-                SettingsSectionHeader("settings.section_device")
             } footer: {
                 // TMDB's terms ask for its logo and this notice in a credits context; the
                 // section footer carries both now the About section is gone.
@@ -518,7 +516,7 @@ struct SourcesIntegrationsView: View {
             }
         }
         .softScrollEdges()
-        .navigationTitle("settings.sources_integrations")
+        .navigationTitle("settings.sources")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -1572,8 +1570,9 @@ struct LibraryListOrderView: View {
 
 // MARK: - Downloads Settings
 
-/// How episodes and chapters come down: the quality up front as segmented choices, the
-/// automation underneath it, and what's on disk with the one button that clears it.
+/// How episodes and chapters come down, laid out the way a download manager reads: the
+/// quality as five big cards, the concurrency as tappable number chips, the automation as
+/// icon rows, and what's on disk as a gauge with the one button that clears it.
 struct DownloadsSettingsView: View {
     @AppStorage("maxConcurrentDownloads") private var maxConcurrentDownloads: Int = 3
     @AppStorage("backgroundDownloadsEnabled") private var backgroundDownloadsEnabled = true
@@ -1585,15 +1584,39 @@ struct DownloadsSettingsView: View {
     @State private var showDeleteDownloadsConfirmation = false
     #endif
 
+    private struct QualityOption: Identifiable {
+        let tag: String
+        let titleKey: LocalizedStringKey
+        let detailKey: LocalizedStringKey
+        let symbol: String
+        var id: String { tag }
+    }
+
+    private let qualityOptions: [QualityOption] = [
+        .init(tag: "highest", titleKey: "settings.best", detailKey: "settings.best_quality_detail", symbol: "sparkles"),
+        .init(tag: "1080", titleKey: "1080p", detailKey: "settings.sharp_on_big_screens", symbol: "4k.tv"),
+        .init(tag: "720", titleKey: "720p", detailKey: "settings.the_everyday_choice", symbol: "tv"),
+        .init(tag: "480", titleKey: "480p", detailKey: "settings.light_on_data", symbol: "iphone.gen3"),
+        .init(tag: "lowest", titleKey: "settings.smallest", detailKey: "settings.smallest_files_detail", symbol: "arrow.down.circle")
+    ]
+
     var body: some View {
-        List {
-            qualitySection
-            automationSection
-            #if !os(tvOS)
-            storageSection
-            #endif
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                qualityCards
+                concurrencyChips
+                automationCard
+                #if !os(tvOS)
+                diskCard
+                #endif
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .frame(maxWidth: 620)
+            .frame(maxWidth: .infinity)
         }
         .softScrollEdges()
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("common.downloads")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -1615,87 +1638,203 @@ struct DownloadsSettingsView: View {
         #endif
     }
 
-    // MARK: Sections
+    // MARK: Quality
 
-    /// The rendition new downloads ask for, five plain segments.
-    private var qualitySection: some View {
-        Section {
-            Picker("settings.download_quality", selection: $downloadQuality) {
-                Text("settings.best").tag("highest")
-                Text("1080p").tag("1080")
-                Text("720p").tag("720")
-                Text("480p").tag("480")
-                Text("settings.smallest").tag("lowest")
+    /// The rendition new downloads ask for, five cards wide; the chosen one carries the
+    /// filled tile and its detail line.
+    private var qualityCards: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("settings.download_quality")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 10)], spacing: 10) {
+                ForEach(qualityOptions) { option in
+                    qualityCard(option)
+                }
             }
-            .pickerStyle(.segmented)
-            .padding(.vertical, 4)
-        } header: {
-            SettingsSectionHeader("settings.download_quality")
         }
     }
 
-    /// What the downloader does by itself: how many at once, whether background ones keep
-    /// going, whether an interrupted one resumes, whether a watched one clears out. The
-    /// concurrent count is five plain steps — segments, not a menu of numbers.
-    private var automationSection: some View {
-        Section {
-            #if !os(tvOS)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("settings.concurrent_downloads")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Picker("settings.concurrent_downloads", selection: $maxConcurrentDownloads) {
-                    ForEach(1...5, id: \.self) { count in
-                        Text("\(count)").tag(count)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-            }
-            .padding(.vertical, 2)
-            #else
-            Picker("settings.concurrent_downloads", selection: $maxConcurrentDownloads) {
-                ForEach(1...5, id: \.self) { count in
-                    Text("\(count)").tag(count)
-                }
-            }
-            #endif
-            // A Mac app keeps running in the background; only iOS has to ask to.
+    private func qualityCard(_ option: QualityOption) -> some View {
+        let isSelected = downloadQuality == option.tag
+        return Button {
+            guard downloadQuality != option.tag else { return }
+            downloadQuality = option.tag
             #if os(iOS)
-            Toggle("settings.background_downloads", isOn: $backgroundDownloadsEnabled)
-                .switchTint()
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             #endif
-            Toggle("settings.auto_resume_interrupted", isOn: $autoResumeDownloads)
-                .switchTint()
-            Toggle("settings.delete_after_watching", isOn: $autoDeleteWatched)
-                .switchTint()
-        } header: {
-            SettingsSectionHeader("settings.automation")
+        } label: {
+            VStack(spacing: 8) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(isSelected ? Color.primary.opacity(0.10) : Color.primary.opacity(0.04))
+                        .frame(width: 42, height: 42)
+                    IconView(option.symbol)
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(Color.secondary))
+                }
+                Text(option.titleKey)
+                    .font(.subheadline.weight(isSelected ? .semibold : .regular))
+                    .foregroundStyle(.primary)
+                Text(option.detailKey)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .frame(height: 24)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(isSelected ? Color.primary.opacity(0.5) : Color.primary.opacity(0.06),
+                                  lineWidth: isSelected ? 1.5 : 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    // MARK: Concurrency
+
+    /// How many at once, as five large number chips — a tap, not a menu.
+    private var concurrencyChips: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("settings.concurrent_downloads")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+            HStack(spacing: 10) {
+                ForEach(1...5, id: \.self) { count in
+                    let isSelected = maxConcurrentDownloads == count
+                    Button {
+                        maxConcurrentDownloads = count
+                        #if os(iOS)
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        #endif
+                    } label: {
+                        Text("\(count)")
+                            .font(.title3.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 46)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(isSelected ? Color.primary.opacity(0.85) : Color.primary.opacity(0.05))
+                            )
+                            .foregroundStyle(isSelected ? Color.white : Color.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
         }
     }
 
-    /// What downloads take on disk, and the one button that clears it.
+    // MARK: Automation
+
+    /// What the downloader does by itself, one icon row each.
+    private var automationCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("settings.automation")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
+                .padding(.bottom, 8)
+
+            VStack(spacing: 0) {
+                #if os(iOS)
+                automationRow(icon: "arrow.down.circle.fill", titleKey: "settings.background_downloads", toggle: $backgroundDownloadsEnabled)
+                Divider().padding(.leading, 46)
+                #endif
+                automationRow(icon: "arrow.clockwise.circle.fill", titleKey: "settings.auto_resume_interrupted", toggle: $autoResumeDownloads)
+                Divider().padding(.leading, 46)
+                automationRow(icon: "trash.circle.fill", titleKey: "settings.delete_after_watching", toggle: $autoDeleteWatched)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            )
+        }
+    }
+
+    private func automationRow(icon: String, titleKey: LocalizedStringKey, toggle: Binding<Bool>) -> some View {
+        HStack(spacing: 12) {
+            IconView(icon)
+                .font(.system(size: 15))
+                .foregroundStyle(.secondary)
+                .frame(width: 26)
+            Text(titleKey)
+                .font(.body)
+            Spacer(minLength: 8)
+            Toggle("", isOn: toggle)
+                .labelsHidden()
+                .switchTint()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 6)
+    }
+
+    // MARK: On disk
+
+    /// What downloads take on disk, as a gauge with the one button that clears it.
     #if !os(tvOS)
-    private var storageSection: some View {
-        Section {
-            Button(role: .destructive) {
-                showDeleteDownloadsConfirmation = true
-            } label: {
-                LabeledContent("settings.delete_all_downloads") {
+    private var diskCard: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.primary.opacity(0.06))
+                        .frame(width: 42, height: 42)
+                    IconView("internaldrive")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(.primary)
+                }
+                .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("settings.on_disk")
+                        .font(.body.weight(.semibold))
                     Text(SettingsView.formattedBytes(downloadsSize))
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+
+                Spacer(minLength: 8)
+
+                Button(role: .destructive) {
+                    showDeleteDownloadsConfirmation = true
+                } label: {
+                    Text("common.delete")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color.red.opacity(0.12), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(downloadsSize == 0)
+                .opacity(downloadsSize == 0 ? 0.5 : 1)
             }
-            .foregroundStyle(.red)
-            .disabled(downloadsSize == 0)
-        } header: {
-            SettingsSectionHeader("settings.on_disk")
-        } footer: {
             Text("settings.removes_every_downloaded_episode_and")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
     }
     #endif
 }
+
 // MARK: - Storage & Cache Settings
 
 /// What Shirox keeps on the device and how to get it back: a meter of where the space goes,
@@ -2555,141 +2694,6 @@ private struct DiscordSettingsRow: View {
 }
 #endif
 
-// MARK: - Providers Settings Section
-
-private struct ProvidersSettingsSection: View {
-    @ObservedObject private var manager = ProviderManager.shared
-    @ObservedObject private var malAuth = MALAuthManager.shared
-    @ObservedObject private var aniListAuth = AniListAuthManager.shared
-    #if os(iOS)
-    @State private var presentationWindow: UIWindow?
-    #endif
-
-    var body: some View {
-        Section {
-            ForEach(manager.orderedProviders, id: \.providerType) { provider in
-                HStack(spacing: 12) {
-                    IconView("line.3.horizontal")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    CachedAsyncImage(urlString: provider.providerType.iconURL)
-                        .frame(width: 28, height: 28)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                    VStack(alignment: .leading, spacing: 2) {
-                        // "MyAnimeList" next to two pills is wider than an iPhone row: the name
-                        // shrinks and the pills keep to one line.
-                        Text(provider.providerType.displayName)
-                            .font(.headline)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                        Text(providerStatus(provider))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    Spacer()
-                    HStack(spacing: 8) {
-                        if manager.orderedProviders.first?.providerType == provider.providerType {
-                            Text("settings.primary")
-                                .font(.caption.weight(.semibold))
-                                .lineLimit(1)
-                                .fixedSize()
-                                .foregroundStyle(Color.accentColor)
-                                .padding(.horizontal, 8).padding(.vertical, 3)
-                                .background(.primary.opacity(0.1), in: Capsule())
-                        } else if isSignedIn(provider.providerType) {
-                            Button("settings.make_primary") {
-                                manager.selectProvider(provider.providerType)
-                            }
-                            .font(.caption.weight(.semibold))
-                            .lineLimit(1)
-                            .fixedSize()
-                            .foregroundStyle(Color.accentColor)
-                            .padding(.horizontal, 8).padding(.vertical, 3)
-                            .background(Color.accentColor.opacity(0.1), in: Capsule())
-                            .buttonStyle(.plain)
-                        }
-                        #if !os(tvOS)
-                        providerAuthButton(for: provider.providerType)
-                        #endif
-                    }
-                }
-            }
-            .onMove { from, to in
-                manager.moveProvider(from: from, to: to)
-            }
-        } header: {
-            SettingsSectionHeader("settings.providers")
-        } footer: {
-            Text("settings.drag_to_reorder_the_first")
-        }
-        #if os(iOS)
-        .environment(\.editMode, .constant(.active))
-        .onAppear {
-            presentationWindow = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .first { $0.isKeyWindow }
-        }
-        #endif
-    }
-
-    #if !os(tvOS)
-    @ViewBuilder
-    private func providerAuthButton(for type: ProviderType) -> some View {
-        let isLoggedIn = type == .anilist ? aniListAuth.isLoggedIn : malAuth.isLoggedIn
-        Button(isLoggedIn ? String(localized: "settings.sign_out") : String(localized: "library.sign_in")) {
-            if isLoggedIn {
-                if type == .anilist { aniListAuth.logout() } else { malAuth.logout() }
-            } else {
-                #if os(iOS)
-                let anchor = presentationWindow
-                #else
-                let anchor = keyPresentationAnchor()
-                #endif
-                if let window = anchor {
-                    if type == .anilist {
-                        aniListAuth.login(presentationAnchor: window)
-                    } else {
-                        malAuth.login(presentationAnchor: window)
-                    }
-                }
-            }
-        }
-        .font(.caption.weight(.semibold))
-        .lineLimit(1)
-        .fixedSize()
-        .foregroundStyle(isLoggedIn ? .red : Color.accentColor)
-        .padding(.horizontal, 8).padding(.vertical, 3)
-        .background((isLoggedIn ? Color.red : Color.accentColor).opacity(0.1), in: Capsule())
-        .buttonStyle(.plain)
-    }
-    #endif
-
-    private func isSignedIn(_ type: ProviderType) -> Bool {
-        switch type {
-        case .anilist: return aniListAuth.isLoggedIn
-        case .mal:     return malAuth.isLoggedIn
-        case .simkl:   return SimklAuthManager.shared.isLoggedIn   // listed in its own section
-        case .local:   return false   // not a sign-in-able provider
-        }
-    }
-
-    private func providerStatus(_ provider: any MediaProvider) -> String {
-        switch provider.providerType {
-        case .anilist:
-            guard aniListAuth.isLoggedIn else { return String(localized: "settings.not_signed_in") }
-            // A token AniList has started refusing still has `isLoggedIn` true — the token is
-            // kept on purpose, since a revoked one and a failing auth backend are
-            // indistinguishable from here. Saying "Signed in" while every sync fails is the
-            // part that left people with no idea what to do about it.
-            return aniListAuth.needsReauthentication ? String(localized: "settings.sign_in_again") : String(localized: "settings.signed_in")
-        case .mal: return malAuth.isLoggedIn ? String(localized: "settings.signed_in") : String(localized: "settings.not_signed_in")
-        case .simkl: return SimklAuthManager.shared.isLoggedIn ? String(localized: "settings.signed_in") : String(localized: "settings.not_signed_in")
-        case .local: return String(localized: "settings.not_signed_in")
-        }
-    }
-}
 
 /// Shows exactly what an overwrite or mirror would do before it does any of it. These runs can't be
 /// undone, so the deletions are listed by name rather than just counted — a number is easy to

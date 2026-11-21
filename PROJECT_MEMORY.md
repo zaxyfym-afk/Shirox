@@ -5,6 +5,16 @@ session, then `git fetch origin` and compare local `main` with `origin/main`
 before touching any code. The repo is the source of truth for code; these
 files are the source of truth for state.
 
+## Session eleven (2026-11-21), in one line
+
+The real Kavsoft appearance picker and notification onboarding are in (ports live in
+`Shirox/Views/Onboarding/KavsoftThemePicker.swift` and
+`KavsoftNotificationPermission.swift`), onboarding is four screens with one back control,
+Sources absorbs Sources & Integrations, the Store Test button is real, notification
+navigation pins ids to their owning provider, the localization audit script found and fixed
+seven placeholder-less keys, and the sandbox display layer eats `[m` sequences in tool
+output — byte-check files before believing a "corruption" report.
+
 ## What Shirox is
 
 Shirox is a SwiftUI anime tracker (iOS, macOS, tvOS, Mac Catalyst), a fork of
@@ -17,7 +27,7 @@ at github.com/zaxyfym-afk/Shirox and is public.
   That box has no Swift toolchain: nothing is ever compiled there. All builds
   go through Codemagic (primary since 2026-11-20), GitHub Actions (backup) or
   the user's Mac.
-- The version lives in `apps.json` (1.2.0, build 128) and names the release.
+- The version lives in `apps.json` (1.5.0, build 131) and names the release.
 - Port scripts and generators live OUTSIDE the repo, in the sandbox workspace
   at `/home/z/my-project/scripts/` (`ws*_strings.py`, `pbx_edit.py`,
   `poll_build.sh`, avatar and icon scratch dirs). The repo's own tools are

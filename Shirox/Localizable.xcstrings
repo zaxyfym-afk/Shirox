@@ -43588,94 +43588,6 @@
         }
       }
     },
-    "modules.remove_module_message" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ und sein Skript werden aus Shirox entfernt."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ and its script will be removed from Shirox."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ y su script se quitarán de Shirox."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ et son script seront retirés de Shirox."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ dan skripnya akan dihapus dari Shirox."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ e il suo script saranno rimossi da Shirox."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ とそのスクリプトを Shirox から削除します。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ i jego skrypt zostaną usunięte z Shirox."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ e o script dele serão removidos do Shirox."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ и его скрипт будут удалены из Shirox."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ และสคริปต์ของมันจะถูกลบออกจาก Shirox"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ve betiği Shirox'tan kaldırılacak."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ và tập lệnh của nó sẽ bị gỡ khỏi Shirox."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 及其脚本将从 Shirox 中移除。"
-          }
-        }
-      }
-    },
     "modules.remove_module_title" : {
       "localizations" : {
         "de" : {
@@ -46077,94 +45989,6 @@
         }
       }
     },
-    "modules.test_failed" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gescheitert bei %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed at %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Falló en %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec à %@"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gagal saat %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fallito a %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ で失敗"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie powiodło się na etapie %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Falhou em %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сбой на этапе %@"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ล้มเหลวที่ %@"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ aşamasında başarısız"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thất bại ở %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在%@步骤失败"
-          }
-        }
-      }
-    },
     "modules.test_needs_check" : {
       "localizations" : {
         "de" : {
@@ -46249,94 +46073,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "网站要求浏览器人机验证"
-          }
-        }
-      }
-    },
-    "modules.test_needs_check_note" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öffne das Modul einmal und löse die Prüfung auf %@, dann teste erneut."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open the module once and pass the check at %@, then test again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre el módulo una vez y pasa la verificación en %@, luego prueba de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrez le module une fois et passez la vérification sur %@, puis retestez."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Buka modul sekali dan lewati verifikasi di %@, lalu uji lagi."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apri il modulo una volta e supera la verifica su %@, poi riprova il test."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モジュールを一度開いて %@ の認証を通し、再度テストしてください。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otwórz modul raz i przejdź weryfikację na %@, potem przetestuj ponownie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abra o módulo uma vez e passe na verificação em %@, depois teste novamente."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Откройте модуль один раз и пройдите проверку на %@, затем повторите тест."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "เปิดโมดูลหนึ่งครั้งและผ่านการตรวจสอบที่ %@ แล้วทดสอบอีกครั้ง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modülü bir kez açın ve %@ üzerindeki doğrulamayı geçin, sonra yeniden test edin."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở mô-đun một lần và vượt qua xác minh tại %@, rồi kiểm tra lại."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "先打开一次模块并在%@完成人机验证，然后重新测试。"
           }
         }
       }
@@ -50949,95 +50685,6 @@
         }
       }
     },
-    "onboarding.a_module_a_jellyfin_server" : {
-      "comment" : "OnboardingView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein Modul, ein Jellyfin-Server oder Dateien auf diesem Gerät"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A module, a Jellyfin server, or files on this device"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un módulo, un servidor Jellyfin o archivos de este dispositivo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un module, un serveur Jellyfin ou des fichiers sur cet appareil"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modul, server Jellyfin, atau file di perangkat ini"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un modulo, un server Jellyfin o file su questo dispositivo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モジュール、Jellyfinサーバ、またはこのデバイス上のファイル"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moduł, serwer Jellyfin lub pliki na tym urządzeniu"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um módulo, um servidor Jellyfin ou arquivos neste dispositivo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Модуль, сервер Jellyfin или файлы на этом устройстве"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "โมดูล เซิร์ฟเวอร์ Jellyfin หรือไฟล์ในอุปกรณ์นี้"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir modül, bir Jellyfin sunucusu veya bu aygıttaki dosyalar"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Một mô-đun, máy chủ Jellyfin hoặc tệp trên thiết bị này"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "模块、Jellyfin 服务器或此设备上的文件"
-          }
-        }
-      }
-    },
     "onboarding.add_a_source" : {
       "comment" : "OnboardingView",
       "localizations" : {
@@ -51123,95 +50770,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "添加来源"
-          }
-        }
-      }
-    },
-    "onboarding.anilist_and_myanimelist" : {
-      "comment" : "OnboardingView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList und MyAnimeList"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList and MyAnimeList"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList y MyAnimeList"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList et MyAnimeList"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList dan MyAnimeList"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList e MyAnimeList"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniListとMyAnimeList"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList i MyAnimeList"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList e MyAnimeList"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList и MyAnimeList"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList และ MyAnimeList"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList ve MyAnimeList"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList và MyAnimeList"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AniList 和 MyAnimeList"
           }
         }
       }
@@ -52293,184 +51851,6 @@
         }
       }
     },
-    "onboarding.sign_in_to_a_tracker" : {
-      "comment" : "OnboardingView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei einem Tracker anmelden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to a tracker"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inicia sesión en un servicio de seguimiento"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à un service de suivi"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masuk ke pelacak"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a un tracker"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "トラッカーにサインイン"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaloguj się do trackera"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrar em um tracker"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Войдите в трекер"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ลงชื่อเข้าบริการติดตาม"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir takipçiye giriş yapın"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào một trình theo dõi"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录追踪服务"
-          }
-        }
-      }
-    },
-    "onboarding.signed_in_as" : {
-      "comment" : "TrackerSignInView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Angemeldet als %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Signed in as %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sesión iniciada como %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connecté en tant que %@"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masuk sebagai %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connesso come %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ としてログイン中"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zalogowano jako %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conectado como %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вход выполнен как %@"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ลงชื่อเข้าใช้ในชื่อ %@"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ olarak giriş yapıldı"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã đăng nhập với tên %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已登录为 %@"
-          }
-        }
-      }
-    },
     "onboarding.skip" : {
       "localizations" : {
         "de" : {
@@ -52733,95 +52113,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "开始观看"
-          }
-        }
-      }
-    },
-    "onboarding.sync_your_progress_to_anilist" : {
-      "comment" : "OnboardingView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisiere deinen Fortschritt mit AniList oder MyAnimeList"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sync your progress to AniList or MyAnimeList"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincroniza tu progreso con AniList o MyAnimeList"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronisez votre progression avec AniList ou MyAnimeList"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinkronkan progres Anda ke AniList atau MyAnimeList"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza il tuo progresso con AniList o MyAnimeList"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "進捗をAniListまたはMyAnimeListに同期"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronizuj postęp z AniList lub MyAnimeList"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronize seu progresso com o AniList ou o MyAnimeList"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Синхронизируйте прогресс с AniList или MyAnimeList"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ซิงค์ความคืบหน้าไปยัง AniList หรือ MyAnimeList"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İlerlemenizi AniList veya MyAnimeList ile senkronlayın"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đồng bộ tiến độ của bạn với AniList hoặc MyAnimeList"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将你的进度同步到 AniList 或 MyAnimeList"
           }
         }
       }
@@ -53089,95 +52380,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "看任何想看的。"
-          }
-        }
-      }
-    },
-    "onboarding.what_syncing_does" : {
-      "comment" : "TrackerSignInView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beim Synchronisieren bleiben Fortschritt, Listen und Bewertungen auf deinem Gerät und beim Dienst aktuell."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Syncing keeps your progress, lists and scores up to date on your device and the service."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sincronización mantiene tu progreso, listas y puntuaciones al día en tu dispositivo y en el servicio."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La synchronisation garde votre progression, vos listes et vos notes à jour sur votre appareil et le service."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sinkronisasi menjaga kemajuan, daftar, dan skor tetap mutakhir di perangkat maupun di layanan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sincronizzazione tiene aggiornati progressi, liste e punteggi sul tuo dispositivo e sul servizio."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同期すると、進行状況、リスト、評価が端末とサービスの両方で最新に保たれます。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchronizacja utrzymuje postępy, listy i oceny aktualne na urządzeniu i w serwisie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A sincronização mantém seu progresso, listas e notas atualizados no seu dispositivo e no serviço."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Синхронизация держит прогресс, списки и оценки в актуальном виде на устройстве и в сервисе."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "การซิงก์ทำให้ความคืบหน้า รายการ และคะแนนของคุณเป็นปัจจุบันทั้งบนอุปกรณ์และบนบริการ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eşitleme, ilerlemenizi, listelerinizi ve puanlarınızı hem cihazınızda hem hizmette güncel tutar."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đồng bộ giữ cho tiến độ, danh sách và điểm số của bạn được cập nhật trên thiết bị và dịch vụ."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "同步让您的进度、列表和评分在设备与服务之间保持最新。"
           }
         }
       }
@@ -96731,95 +95933,6 @@
         }
       }
     },
-    "settings.section_device" : {
-      "comment" : "SettingsView, section header",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieses Gerät"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This Device"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este dispositivo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cet appareil"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Perangkat Ini"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questo dispositivo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このデバイス"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "To urządzenie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este dispositivo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Это устройство"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "อุปกรณ์นี้"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu Aygıt"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thiết bị này"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "本设备"
-          }
-        }
-      }
-    },
     "settings.section_library_storage" : {
       "comment" : "SettingsView, section header",
       "localizations" : {
@@ -99129,94 +98242,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "最小"
-          }
-        }
-      }
-    },
-    "settings.sources_integrations" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quellen & Integrationen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sources & Integrations"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fuentes e integraciones"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sources et intégrations"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sumber & Integrasi"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fonti e integrazioni"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ソースと連携"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Źródła i integracje"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fontes e integrações"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Источники и интеграции"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "แหล่งข้อมูลและการเชื่อมต่อ"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaynaklar ve Bütünleştirmeler"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nguồn & Tích hợp"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "来源与集成"
           }
         }
       }
@@ -128469,94 +127494,6 @@
         }
       }
     },
-    "store.install_to_test" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modul zuerst installieren, dann läuft der Test wirklich."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Install the module first, then Test runs it for real."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instala el módulo primero; después la prueba lo ejecuta de verdad."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Installez d'abord le module ; le test le lance ensuite réellement."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instal modulnya dulu; setelah itu uji benar-benar menjalankannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Installa prima il modulo; poi il test lo esegue davvero."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "先にモジュールをインストールすると、テストが実際に動作します。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Najpierw zainstaluj moduł, wtedy test naprawdę go uruchomi."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instale o módulo primeiro; o teste então o executa de verdade."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сначала установите модуль — тогда проверка запустит его по-настоящему."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ติดตั้งโมดูลก่อน แล้วการทดสอบจะรันจริง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Önce modülü yükleyin; Test onu gerçekten çalıştırır."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hãy cài mô-đun trước; kiểm tra sẽ chạy nó thật sau đó."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请先安装模块，之后“测试”会真实运行它。"
-          }
-        }
-      }
-    },
     "store.installed_badge" : {
       "comment" : "ModuleStoreView",
       "localizations" : {
@@ -128912,184 +127849,6 @@
         }
       }
     },
-    "store.needs_app" : {
-      "comment" : "ModuleStoreView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Braucht Shirox %@ oder neuer"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Needs Shirox %@ or later"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Necesita Shirox %@ o posterior"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nécessite Shirox %@ ou ultérieur"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Butuh Shirox %@ atau lebih baru"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Richiede Shirox %@ o successivo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox %@ 以降が必要です"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wymaga Shirox %@ lub nowszego"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Precisa do Shirox %@ ou posterior"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Требуется Shirox %@ или новее"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ต้องใช้ Shirox %@ ขึ้นไป"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shirox %@ veya üzerini gerektirir"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cần Shirox %@ trở lên"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "需要 Shirox %@ 或更高版本"
-          }
-        }
-      }
-    },
-    "store.no_manifest_for" : {
-      "comment" : "ModuleStoreView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kein Manifest zum Installieren für %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No manifest to install for %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay manifiesto que instalar para %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun manifeste à installer pour %@"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tidak ada manifes untuk dipasang dari %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessun manifesto da installare per %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ をインストールするマニフェストがありません"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brak manifestu do zainstalowania dla %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nenhum manifesto para instalar de %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет манифеста для установки: %@"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ไม่มีไฟล์ manifest ให้ติดตั้งสำหรับ %@"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ için yüklenecek manifest yok"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có manifest để cài cho %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "没有可用于安装 %@ 的清单"
-          }
-        }
-      }
-    },
     "store.nothing_here_yet" : {
       "comment" : "ModuleStoreView",
       "localizations" : {
@@ -129175,95 +127934,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "这里还没有内容"
-          }
-        }
-      }
-    },
-    "store.placeholder_hint" : {
-      "comment" : "ModuleStoreView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Regale füllen sich, sobald ein Katalog erscheint. Module, die du per Link hinzufügst, laufen weiter wie bisher."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The shelves fill when a catalog is published. The modules you add by link keep working as they are."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los estantes se llenan cuando se publique un catálogo. Los módulos que añadas por enlace siguen funcionando igual."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les rayons se remplissent quand un catalogue sera publié. Les modules ajoutés par lien continuent de fonctionner comme avant."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rak akan terisi saat katalog diterbitkan. Modul yang Anda tambahkan lewat tautan tetap berjalan seperti biasa."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli scaffali si riempiono quando verrà pubblicato un catalogo. I moduli aggiunti tramite link continuano a funzionare come prima."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "カタログが公開されると棚は埋まっていきます。リンクで追加したモジュールは今まで通り動き続けます。"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Półki zapełnią się, gdy pojawi się katalog. Moduły dodawane przez link działają dalej jak dotąd."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "As prateleiras se enchem quando um catálogo for publicado. Os módulos que você adicionar por link continuam funcionando como estão."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Полки заполнятся, когда появится каталог. Модули, добавленные по ссылке, продолжают работать как раньше."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ชั้นวางจะเต็มขึ้นเมื่อมีการเผยแพร่แคตตาล็อก โมดูลที่คุณเพิ่มด้วยลิงก์ยังทำงานเหมือนเดิม"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Raflar, bir katalog yayımlandığında dolar. Bağlantıyla eklediğiniz modüller olduğu gibi çalışmaya devam eder."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Các kệ sẽ được lấp đầy khi có danh mục được xuất bản. Các mô-đun bạn thêm bằng liên kết vẫn hoạt động như trước."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "目录发布后货架就会充实起来。通过链接添加的模块会照常运行。"
           }
         }
       }
@@ -129452,95 +128122,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ didn't answer. Pull to refresh to try it again; the shelves that did answer stay."
-          }
-        }
-      }
-    },
-    "store.the_store_opens_soon" : {
-      "comment" : "ModuleStoreView",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Store öffnet bald"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The store opens soon"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tienda abre pronto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La boutique ouvre bientôt"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toko akan segera dibuka"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lo store apre a breve"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ストアはまもなくオープンします"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sklep wkrótce zostanie otwarty"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A loja abre em breve"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Магазин скоро откроется"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ร้านค้าจะเปิดในเร็ว ๆ นี้"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mağaza yakında açılıyor"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cửa hàng sắp mở"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "商店即将开放"
           }
         }
       }
@@ -129812,7 +128393,627 @@
         }
       }
     },
-    "store.version" : {
+    "store.video" : {
+      "comment" : "ModuleStoreView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vídeo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vidéo"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動画"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wideo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vídeo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видео"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "วิดีโอ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "视频"
+          }
+        }
+      }
+    },
+    "modules.remove_module_message %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ und sein Skript werden aus Shirox entfernt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ and its script will be removed from Shirox."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ y su script se quitarán de Shirox."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ et son script seront retirés de Shirox."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ dan skripnya akan dihapus dari Shirox."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ e il suo script saranno rimossi da Shirox."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ とそのスクリプトを Shirox から削除します。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ i jego skrypt zostaną usunięte z Shirox."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ e o script dele serão removidos do Shirox."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ и его скрипт будут удалены из Shirox."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ และสคริปต์ของมันจะถูกลบออกจาก Shirox"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ve betiği Shirox'tan kaldırılacak."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ và tập lệnh của nó sẽ bị gỡ khỏi Shirox."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 及其脚本将从 Shirox 中移除。"
+          }
+        }
+      }
+    },
+    "modules.test_needs_check_note %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne das Modul einmal und löse die Prüfung auf %@, dann teste erneut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the module once and pass the check at %@, then test again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre el módulo una vez y pasa la verificación en %@, luego prueba de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrez le module une fois et passez la vérification sur %@, puis retestez."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka modul sekali dan lewati verifikasi di %@, lalu uji lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri il modulo una volta e supera la verifica su %@, poi riprova il test."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "モジュールを一度開いて %@ の認証を通し、再度テストしてください。"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz modul raz i przejdź weryfikację na %@, potem przetestuj ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abra o módulo uma vez e passe na verificação em %@, depois teste novamente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Откройте модуль один раз и пройдите проверку на %@, затем повторите тест."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิดโมดูลหนึ่งครั้งและผ่านการตรวจสอบที่ %@ แล้วทดสอบอีกครั้ง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modülü bir kez açın ve %@ üzerindeki doğrulamayı geçin, sonra yeniden test edin."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở mô-đun một lần và vượt qua xác minh tại %@, rồi kiểm tra lại."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先打开一次模块并在%@完成人机验证，然后重新测试。"
+          }
+        }
+      }
+    },
+    "modules.test_failed %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gescheitert bei %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed at %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falló en %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec à %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gagal saat %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallito a %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ で失敗"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie powiodło się na etapie %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falhou em %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбой на этапе %@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล้มเหลวที่ %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ aşamasında başarısız"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thất bại ở %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在%@步骤失败"
+          }
+        }
+      }
+    },
+    "onboarding.signed_in_as %@" : {
+      "comment" : "TrackerSignInView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angemeldet als %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signed in as %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión iniciada como %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecté en tant que %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masuk sebagai %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connesso come %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ としてログイン中"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zalogowano jako %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectado como %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вход выполнен как %@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลงชื่อเข้าใช้ในชื่อ %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ olarak giriş yapıldı"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã đăng nhập với tên %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已登录为 %@"
+          }
+        }
+      }
+    },
+    "store.needs_app %@" : {
+      "comment" : "ModuleStoreView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braucht Shirox %@ oder neuer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs Shirox %@ or later"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Necesita Shirox %@ o posterior"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite Shirox %@ ou ultérieur"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Butuh Shirox %@ atau lebih baru"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiede Shirox %@ o successivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shirox %@ 以降が必要です"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymaga Shirox %@ lub nowszego"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precisa do Shirox %@ ou posterior"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется Shirox %@ или новее"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ต้องใช้ Shirox %@ ขึ้นไป"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shirox %@ veya üzerini gerektirir"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cần Shirox %@ trở lên"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要 Shirox %@ 或更高版本"
+          }
+        }
+      }
+    },
+    "store.no_manifest_for %@" : {
+      "comment" : "ModuleStoreView",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Manifest zum Installieren für %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No manifest to install for %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay manifiesto que instalar para %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun manifeste à installer pour %@"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidak ada manifes untuk dipasang dari %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun manifesto da installare per %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ をインストールするマニフェストがありません"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak manifestu do zainstalowania dla %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum manifesto para instalar de %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет манифеста для установки: %@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ไม่มีไฟล์ manifest ให้ติดตั้งสำหรับ %@"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ için yüklenecek manifest yok"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có manifest để cài cho %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有可用于安装 %@ 的清单"
+          }
+        }
+      }
+    },
+    "store.version %@" : {
       "comment" : "ModuleStoreView",
       "localizations" : {
         "de" : {
@@ -129901,91 +129102,599 @@
         }
       }
     },
-    "store.video" : {
-      "comment" : "ModuleStoreView",
+    "settings.through %@ %@" : {
+      "comment" : "AdvancedNetwork proxy check",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Through %@:%@"
+          }
+        }
+      }
+    },
+    "store.offline_title" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t reach the module catalogs"
+          }
+        }
+      }
+    },
+    "store.offline_hint" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your connection and pull to refresh. Modules you installed keep working as they are."
+          }
+        }
+      }
+    },
+    "store.showing_cached" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved shelves from your last visit — pull to refresh for what’s current"
+          }
+        }
+      }
+    },
+    "store.check_manifest" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check manifest"
+          }
+        }
+      }
+    },
+    "store.manifest_check_passed" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manifest verified — install it, then Test runs it for real"
+          }
+        }
+      }
+    },
+    "store.manifest_check_failed" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t read the module manifest"
+          }
+        }
+      }
+    },
+    "store.manifest_check_note" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The module isn’t installed, so this checks its manifest, not playback."
+          }
+        }
+      }
+    },
+    "notifications.connect_title" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow your anime’s releases"
+          }
+        }
+      }
+    },
+    "notifications.connect_hint" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect a tracker and Shirox shows its activity here, plus the episodes you follow."
+          }
+        }
+      }
+    },
+    "notifications.connect_anilist" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect AniList"
+          }
+        }
+      }
+    },
+    "notifications.connect_mal" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect MyAnimeList"
+          }
+        }
+      }
+    },
+    "notifications.connected_as" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected as %@"
+          }
+        }
+      }
+    },
+    "notifications.one_more_thing" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is connected. For the best experience, connect %@ too."
+          }
+        }
+      }
+    },
+    "notifications.connect_second" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect %@"
+          }
+        }
+      }
+    },
+    "notifications.signin_failed" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t sign in. Try again."
+          }
+        }
+      }
+    },
+    "onboarding.connect_sources" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect your sources"
+          }
+        }
+      }
+    },
+    "onboarding.sources_body" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shirox plays from community modules and tracks with AniList or MyAnimeList. Connect what you use — skip what you don’t."
+          }
+        }
+      }
+    },
+    "onboarding.add_source" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a source"
+          }
+        }
+      }
+    },
+    "onboarding.add_source_hint" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick where your anime streams from"
+          }
+        }
+      }
+    },
+    "onboarding.connect_trackers" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect your trackers"
+          }
+        }
+      }
+    },
+    "onboarding.trackers_hint" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep progress, lists and scores in sync"
+          }
+        }
+      }
+    },
+    "onboarding.recommend_both" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For the best experience, we recommend connecting both AniList and MyAnimeList."
+          }
+        }
+      }
+    },
+    "onboarding.all_connected" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AniList and MyAnimeList are connected"
+          }
+        }
+      }
+    },
+    "onboarding.notifications_title" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Know when an episode drops"
+          }
+        }
+      }
+    },
+    "onboarding.notifications_body" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shirox can alert you when a followed series airs."
+          }
+        }
+      }
+    },
+    "onboarding.enable_notifications" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Notifications"
+          }
+        }
+      }
+    },
+    "onboarding.maybe_later" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maybe later"
+          }
+        }
+      }
+    },
+    "search.source_title" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search source"
+          }
+        }
+      }
+    },
+    "search.searches_anime" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searches anime"
+          }
+        }
+      }
+    },
+    "search.module_note" : {
+      "comment" : "Shirox",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modules search their own sites. Manage them in Settings › Modules."
+          }
+        }
+      }
+    },
+    "search.current_source" : {
+      "comment" : "SearchSourcePickerView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching with"
+          }
+        }
+      }
+    },
+    "search.builtin_sources" : {
+      "comment" : "SearchSourcePickerView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Built-in sources"
+          }
+        }
+      }
+    },
+    "onboarding.notifications_on" : {
+      "comment" : "OnboardingView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications are on for followed series"
+          }
+        }
+      }
+    },
+    "onboarding.notifications_off" : {
+      "comment" : "OnboardingView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications are turned off for Shirox"
+          }
+        }
+      }
+    },
+    "settings.sources" : {
+      "comment" : "SettingsView",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Video"
+            "value" : "Quellen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Video"
+            "value" : "Sources"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vídeo"
+            "value" : "Fuentes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vidéo"
+            "value" : "Sources"
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Video"
+            "value" : "Sumber & Integrasi"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Video"
+            "value" : "Fonti"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "動画"
+            "value" : "ソース"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wideo"
+            "value" : "Źródła i integracje"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vídeo"
+            "value" : "Fontes"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Видео"
+            "value" : "Источники"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "วิดีโอ"
+            "value" : "แหล่งข้อมูลและการเชื่อมต่อ"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Video"
+            "value" : "Kaynaklar"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Video"
+            "value" : "Nguồn & Tích hợp"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "视频"
+            "value" : "源"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Джерела"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "來源"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "소스"
+          }
+        },
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المصادر"
+          }
+        }
+      }
+    },
+    "notifications.turn_off_hint" : {
+      "comment" : "NotificationsSettingsView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off — episode alerts won't be delivered"
+          }
+        }
+      }
+    },
+    "settings.tabs_keep_one" : {
+      "comment" : "TabBarCustomizationView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings stays in the bar, and it can’t be the only thing there."
+          }
+        }
+      }
+    },
+    "settings.tabs_preview" : {
+      "comment" : "TabBarCustomizationView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The bar as it is now"
+          }
+        }
+      }
+    },
+    "settings.tabs_preview_hint" : {
+      "comment" : "TabBarCustomizationView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The real bottom bar, reflecting every change below"
+          }
+        }
+      }
+    },
+    "settings.best_quality_detail" : {
+      "comment" : "DownloadsSettingsView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Whatever the source offers"
+          }
+        }
+      }
+    },
+    "settings.sharp_on_big_screens" : {
+      "comment" : "DownloadsSettingsView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sharp on big screens"
+          }
+        }
+      }
+    },
+    "settings.the_everyday_choice" : {
+      "comment" : "DownloadsSettingsView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The everyday choice"
+          }
+        }
+      }
+    },
+    "settings.light_on_data" : {
+      "comment" : "DownloadsSettingsView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light on data"
+          }
+        }
+      }
+    },
+    "settings.smallest_files_detail" : {
+      "comment" : "DownloadsSettingsView",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smallest files, fastest"
           }
         }
       }

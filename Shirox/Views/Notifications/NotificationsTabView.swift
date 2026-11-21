@@ -1,3 +1,4 @@
+import AuthenticationServices
 import SwiftUI
 import UserNotifications
 
@@ -23,30 +24,106 @@ struct NotificationsTabView: View {
     @StateObject private var notificationsVM = ProfileViewModel()
     @ObservedObject private var store = FollowedSeriesStore.shared
     @ObservedObject private var notifier = EpisodeReleaseNotifier.shared
+    @ObservedObject private var aniListAuth = AniListAuthManager.shared
+    @ObservedObject private var malAuth = MALAuthManager.shared
     @State private var permission: UNAuthorizationStatus?
+    #if os(iOS)
+    @State private var presentationWindow: UIWindow?
+    #endif
+
+    /// How many of the two trackers are connected; the tab's first screen is a connection
+    /// interface when the answer is none.
+    private var connectedCount: Int {
+        [aniListAuth.isLoggedIn, malAuth.isLoggedIn].filter { $0 }.count
+    }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Picker("profile.notifications", selection: $segment) {
-                    ForEach(Segment.allCases) { segment in
-                        Text(segment.title).tag(segment)
+            if connectedCount == 0 {
+                NotificationsConnectView()
+            } else {
+                VStack(spacing: 0) {
+                    if connectedCount == 1 {
+                        secondConnectionBanner
+                    }
+                    Picker("profile.notifications", selection: $segment) {
+                        ForEach(Segment.allCases) { segment in
+                            Text(segment.title).tag(segment)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+
+                    switch segment {
+                    case .activity: NotificationsView(vm: notificationsVM)
+                    case .episodes: episodesSegment
                     }
                 }
-                .pickerStyle(.segmented)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-
-                switch segment {
-                case .activity: NotificationsView(vm: notificationsVM)
-                case .episodes: episodesSegment
-                }
             }
-            .navigationTitle("profile.notifications")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
         }
+        .navigationTitle("profile.notifications")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        #if os(iOS)
+        .onAppear {
+            presentationWindow = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+        }
+        #endif
+    }
+
+    /// One tracker connected, one not: a slim invitation, never a block.
+    @ViewBuilder
+    private var secondConnectionBanner: some View {
+        let connected = aniListAuth.isLoggedIn ? "AniList" : "MyAnimeList"
+        let other = aniListAuth.isLoggedIn ? "MyAnimeList" : "AniList"
+        HStack(spacing: 10) {
+            IconView("personalhotspot")
+                .font(.body)
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("notifications.one_more_thing \(connected) \(other)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 8)
+            Button {
+                signIn(aniListAuth.isLoggedIn ? .mal : .anilist)
+            } label: {
+                Text("notifications.connect_second \(other)")
+                    .font(.caption.weight(.semibold))
+                    .lineLimit(1)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(Color.primary.opacity(0.08), in: Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
+    private func signIn(_ type: ProviderType) {
+        #if os(iOS)
+        guard let presentationWindow else { return }
+        if type == .anilist {
+            aniListAuth.login(presentationAnchor: presentationWindow)
+        } else {
+            malAuth.login(presentationAnchor: presentationWindow)
+        }
+        #else
+        let anchor: ASPresentationAnchor = ASPresentationAnchor()
+        if type == .anilist {
+            aniListAuth.login(presentationAnchor: anchor)
+        } else {
+            malAuth.login(presentationAnchor: anchor)
+        }
+        #endif
     }
 
     // MARK: - Episodes
@@ -219,6 +296,151 @@ struct NotificationsTabView: View {
         #elseif os(macOS)
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
             NSWorkspace.shared.open(url)
+        }
+        #endif
+    }
+}
+
+// MARK: - Signed-out connection interface
+
+/// The Notifications tab with no tracker connected: a purpose-built connection screen, not a
+/// recycled empty state. White and grey, one card per service, each with its own connect
+/// action; the tab switches to the feed the moment the first connection lands.
+struct NotificationsConnectView: View {
+    @Environment(\.horizontalSizeClass) private var hClass
+    @ObservedObject private var aniListAuth = AniListAuthManager.shared
+    @ObservedObject private var malAuth = MALAuthManager.shared
+    #if os(iOS)
+    @State private var presentationWindow: UIWindow?
+    #endif
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 26) {
+                Spacer(minLength: 12)
+
+                ZStack {
+                    Circle()
+                        .fill(Color.primary.opacity(0.05))
+                        .frame(width: 96, height: 96)
+                    IconView("bell")
+                        .font(.system(size: 36, weight: .light))
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityHidden(true)
+
+                VStack(spacing: 6) {
+                    Text("notifications.connect_title")
+                        .font(.title2.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                    Text("notifications.connect_hint")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
+
+                serviceCards
+                    .padding(.horizontal, 20)
+            }
+            .frame(maxWidth: 520)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 32)
+        }
+        .softScrollEdges()
+        #if os(iOS)
+        .onAppear {
+            presentationWindow = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+        }
+        #endif
+    }
+
+    /// The two services side by side when there is room, stacked when there isn't.
+    @ViewBuilder
+    private var serviceCards: some View {
+        if hClass == .regular {
+            HStack(spacing: 14) {
+                serviceCard(.anilist)
+                serviceCard(.mal)
+            }
+        } else {
+            VStack(spacing: 14) {
+                serviceCard(.anilist)
+                serviceCard(.mal)
+            }
+        }
+    }
+
+    /// One service: its icon and name, one connect action. While the web session runs the
+    /// button sits disabled; the parent view takes over the moment `isLoggedIn` flips.
+    private func serviceCard(_ type: ProviderType) -> some View {
+        let isLoggedIn = type == .anilist ? aniListAuth.isLoggedIn : malAuth.isLoggedIn
+        let username = type == .anilist ? aniListAuth.username : malAuth.username
+        return VStack(spacing: 12) {
+            CachedAsyncImage(urlString: type.iconURL)
+                .frame(width: 44, height: 44)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                )
+                .accessibilityHidden(true)
+
+            Text(type.displayName)
+                .font(.headline)
+
+            if isLoggedIn {
+                Label(username.map { "notifications.connected_as \($0)" } ?? "settings.signed_in",
+                      icon: "checkmark.circle.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.green)
+            } else {
+                Button {
+                    signIn(type)
+                } label: {
+                    Text(type == .anilist ? "notifications.connect_anilist" : "notifications.connect_mal")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 9)
+                        .background(Color.accentColor, in: Capsule())
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 14)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 22)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.primary.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.07), lineWidth: 1)
+        )
+        .accessibilityElement(children: .contain)
+    }
+
+    private func signIn(_ type: ProviderType) {
+        #if os(iOS)
+        guard let presentationWindow else { return }
+        if type == .anilist {
+            aniListAuth.login(presentationAnchor: presentationWindow)
+        } else {
+            malAuth.login(presentationAnchor: presentationWindow)
+        }
+        #else
+        let anchor: ASPresentationAnchor = ASPresentationAnchor()
+        if type == .anilist {
+            aniListAuth.login(presentationAnchor: anchor)
+        } else {
+            malAuth.login(presentationAnchor: anchor)
         }
         #endif
     }

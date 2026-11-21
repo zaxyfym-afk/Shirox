@@ -1,15 +1,18 @@
+import AuthenticationServices
 import SwiftUI
+import UserNotifications
 
-/// First-run setup, redesigned around the Kavsoft pieces the project carries: the splash's
-/// own reveal hands this screen the stage, the TWTextEffect engine types the welcome page's
-/// promise, the AMSheets zoom transitions open the two setup sheets out of their rows, and
-/// the glass chrome the toasts use dresses the cards on iOS 26.
+/// First-run setup, rebuilt around the two Kavsoft pieces the project carries: the
+/// appearance pick is the real ATPicker port — the animated sky, the sliding capsule, the
+/// pick applying the instant it's tapped — and the notifications page is the
+/// CompactNotificationView port, its keyframed notification stack standing in for a wall of
+/// text. The rest is white and grey on purpose: nothing between the user and the two things
+/// the app needs (a source, and whatever tracking they want).
 ///
-/// The flow is three screens, each one a thing to do: the welcome, the appearance pick, and
-/// the setup checklist. No tour pages between them — the app itself is the explanation, and
-/// the checklist ticks from real state, so the last page always describes the app as it
-/// currently is. The appearance pick applies the moment a card is tapped and persists like
-/// any other setting.
+/// The flow is four screens: the welcome, the appearance pick, connecting sources, then
+/// notification permission. No informational pages between them, and one back control —
+/// the system bar's arrow is hidden where this screen is pushed, so the custom chevron is
+/// the only one there is.
 struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage(AppColorScheme.key) private var colorScheme = AppColorScheme.system.rawValue
@@ -17,36 +20,33 @@ struct OnboardingView: View {
     @EnvironmentObject private var moduleManager: ModuleManager
     @ObservedObject private var aniListAuth = AniListAuthManager.shared
     @ObservedObject private var malAuth = MALAuthManager.shared
+    @ObservedObject private var notifier = EpisodeReleaseNotifier.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var envColorScheme
 
     @State private var showSources = false
     /// The step the sources screen grows out of.
     @Namespace private var sourcesZoom
-    @State private var showTracker = false
-    /// The page being shown: welcome, appearance, then the setup checklist.
+    /// The page being shown: welcome, appearance, connect, notifications.
     @State private var page = 0
-    private let lastPage = 2
+    private let lastPage = 3
     /// Which way the last page turn went, so the arriving page enters from that side.
     @State private var turnDirection: Edge = .trailing
     /// The hero's slow float, running only where motion is allowed.
     @State private var markFloats = false
+    #if os(iOS)
+    @State private var presentationWindow: UIWindow?
+    #endif
+    /// The notifications page's state: permission read on entry, so a previously determined
+    /// answer (granted in an earlier run, or refused) is honoured and the system prompt is
+    /// never shown twice.
+    @State private var permissionStatus: UNAuthorizationStatus?
 
     /// The one thing that has to be true before the app can show anything.
     private var hasSource: Bool { !moduleManager.modules.isEmpty }
     private var hasTracker: Bool { aniListAuth.isLoggedIn || malAuth.isLoggedIn }
-
-    /// The project's own red, from its release badge — the welcome and setup pages' colour.
-    private var accent: Color { Color(red: 0.937, green: 0.267, blue: 0.267) }
-
-    /// Each page its own colour, so the flow reads as rooms rather than one white wall.
-    private var pageAccent: Color {
-        switch page {
-        case 0: return accent
-        case 1: return .indigo
-        default: return accent
-        }
-    }
+    private var hasBothTrackers: Bool { aniListAuth.isLoggedIn && malAuth.isLoggedIn }
 
     private var motion: Animation? {
         reduceMotion ? nil : Animation.spring(response: 0.5, dampingFraction: 0.85)
@@ -54,8 +54,6 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            aurora
-
             VStack(spacing: 0) {
                 topBar
 
@@ -63,7 +61,8 @@ struct OnboardingView: View {
                     switch page {
                     case 0: welcomePage
                     case 1: appearancePage
-                    default: setupPage
+                    case 2: connectPage
+                    default: notificationsPage
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -74,7 +73,9 @@ struct OnboardingView: View {
                 controls
             }
         }
-        .background(platformBackground.ignoresSafeArea())
+        .background(Color(.systemBackground).ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
+        .modifier(OnboardingNavBarHider())
         .sheet(isPresented: $showSources) {
             // The real sources screen, not a copy of it: whatever it gains later, onboarding
             // gains too, and there's one code path to keep correct.
@@ -85,47 +86,14 @@ struct OnboardingView: View {
             .macSheetFrame()
             .zoomingOut(of: "sources", in: sourcesZoom)
         }
-        .sheet(isPresented: $showTracker) {
-            // Both services with their own logos, rather than a button that only ever
-            // offered one of them while the copy promised two.
-            NavigationStack {
-                TrackerSignInView()
-            }
-            .macSheetFrame()
-            .zoomingOut(of: "tracker", in: sourcesZoom)
-        }
-    }
-
-    /// The page's room: two blurred pools of the page's colour drifting slowly over the
-    /// system background. The wash shifts colour with the page, so a turn reads as moving
-    /// somewhere rather than swapping text.
-    private var aurora: some View {
-        ZStack {
-            platformBackground
-
-            Circle()
-                .fill(pageAccent.opacity(0.20))
-                .frame(width: 420, height: 420)
-                .blur(radius: 90)
-                .offset(x: markFloats ? -90 : 90, y: markFloats ? -160 : -60)
-                .animation(reduceMotion ? nil : .easeInOut(duration: 5.5).repeatForever(autoreverses: true),
-                           value: markFloats)
-
-            Circle()
-                .fill(pageAccent.opacity(0.13))
-                .frame(width: 360, height: 360)
-                .blur(radius: 80)
-                .offset(x: markFloats ? 120 : -110, y: markFloats ? 210 : 130)
-                .animation(reduceMotion ? nil : .easeInOut(duration: 6.5).repeatForever(autoreverses: true),
-                           value: markFloats)
-        }
-        .animation(motion, value: page)
-        .ignoresSafeArea()
+        #if os(iOS)
         .onAppear {
-            guard !reduceMotion else { return }
-            markFloats = true
+            presentationWindow = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
         }
-        .accessibilityHidden(true)
+        #endif
     }
 
     /// Pages carry themselves in from the direction the turn went — a little scale on the
@@ -144,7 +112,9 @@ struct OnboardingView: View {
 
     // MARK: - Chrome
 
-    /// Back when there's a page behind, Skip until the checklist.
+    /// Back when there's a page behind, Skip until the last page. The only back control on
+    /// the flow: the system bar's arrow is hidden, so nothing doubles up when Settings
+    /// replays this screen inside its own stack.
     private var topBar: some View {
         HStack {
             if page > 0 {
@@ -155,7 +125,7 @@ struct OnboardingView: View {
                         .font(.body.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .frame(width: 38, height: 38)
-                        .background(.ultraThinMaterial, in: Circle())
+                        .background(Color.primary.opacity(0.06), in: Circle())
                         .overlay(Circle().strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5))
                         .contentShape(Circle())
                 }
@@ -169,7 +139,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(.ultraThinMaterial, in: Capsule())
+                    .background(Color.primary.opacity(0.05), in: Capsule())
                     .overlay(Capsule().strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5))
             }
         }
@@ -178,12 +148,10 @@ struct OnboardingView: View {
         .padding(.top, 8)
     }
 
-    /// The mark-shaped progress and the next button; the checklist page carries its own
-    /// call to action. The progress grows a rounded tail on the page it's on rather than
-    /// lighting a row of separate dots.
+    /// The progress line and the next button; the last page carries its own call to action.
     private var controls: some View {
         HStack(spacing: 16) {
-            OnboardingProgress(page: page, lastPage: lastPage, accent: pageAccent)
+            OnboardingProgress(page: page, lastPage: lastPage)
 
             Spacer()
 
@@ -201,12 +169,8 @@ struct OnboardingView: View {
                     .padding(.horizontal, 22)
                     .padding(.vertical, 12)
                     .background(
-                        Capsule().fill(
-                            LinearGradient(colors: [pageAccent, pageAccent.opacity(0.75)],
-                                           startPoint: .topLeading, endPoint: .bottomTrailing)
-                        )
+                        Capsule().fill(Color.primary.opacity(0.85))
                     )
-                    .shadow(color: pageAccent.opacity(0.4), radius: 10, y: 4)
                 }
                 .buttonStyle(OnboardingPressStyle())
                 .accessibilityHint("onboarding.next")
@@ -226,10 +190,10 @@ struct OnboardingView: View {
         withAnimation(motion) { page -= 1 }
     }
 
-    // MARK: - Pages
+    // MARK: - Welcome
 
-    /// The app in one poster frame: the floating mark over the accent pool, the typed
-    /// promise, and what the app doesn't host.
+    /// The app in one poster frame: the floating mark, the typed promise, and what the app
+    /// doesn't host. Grey ink on white; the colour lives in the mark itself.
     private var welcomePage: some View {
         ScrollView {
             VStack(spacing: 0) {
@@ -242,7 +206,7 @@ struct OnboardingView: View {
                     Text("onboarding.set_up_shirox")
                         .font(.caption.weight(.semibold))
                         .tracking(2.2)
-                        .foregroundStyle(accent)
+                        .foregroundStyle(.secondary)
 
                     #if os(iOS)
                     // The promise, typed out one phrase at a time above the headline that says
@@ -257,7 +221,7 @@ struct OnboardingView: View {
                                 String(localized: "onboarding.type_track")
                             ]
                         )
-                        .foregroundStyle(pageAccent)
+                        .foregroundStyle(.primary)
                         .padding(.top, 6)
                     }
                     #endif
@@ -280,18 +244,18 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: Appearance
+    // MARK: - Appearance
 
-    /// Light, Dark or System, as three big cards that preview themselves: each one drawn
-    /// the way its scheme looks. The pick applies the moment it's tapped and lands in the
-    /// same store every other appearance control writes, so Settings can change it later.
+    /// The Kavsoft picker, inline: the animated sky that turns night when dark is chosen and
+    /// day when light is, the capsule sliding under the scheme it's on. The pick applies to
+    /// the whole app the moment it's tapped — the sky's own change is the app's change.
     private var appearancePage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 Text("onboarding.set_up_shirox")
                     .font(.caption.weight(.semibold))
                     .tracking(2.2)
-                    .foregroundStyle(accent)
+                    .foregroundStyle(.secondary)
 
                 Text("onboarding.appearance_title")
                     .font(.system(size: 30, weight: .heavy))
@@ -304,11 +268,15 @@ struct OnboardingView: View {
                     .padding(.top, 10)
                     .fixedSize(horizontal: false, vertical: true)
 
-                VStack(spacing: 12) {
-                    appearanceCard(.light)
-                    appearanceCard(.dark)
-                    appearanceCard(.system)
-                }
+                KavsoftThemePicker(
+                    value: Binding(
+                        get: { AppColorScheme(rawValue: colorScheme) ?? .system },
+                        set: { colorScheme = $0.rawValue }
+                    ),
+                    envColorScheme: envColorScheme
+                )
+                .frame(maxWidth: 420)
+                .frame(maxWidth: .infinity)
                 .padding(.top, 24)
                 .padding(.bottom, 24)
             }
@@ -317,206 +285,71 @@ struct OnboardingView: View {
         }
     }
 
-    /// One appearance card: the scheme's own symbol on a tile, its name, and — behind it —
-    /// a miniature of how the app draws in that scheme. Selected carries the accent ring
-    /// and checkmark; tapping applies the scheme at once.
-    private func appearanceCard(_ scheme: AppColorScheme) -> some View {
-        let isSelected = colorScheme == scheme.rawValue
-        return Button {
-            guard colorScheme != scheme.rawValue else { return }
-            colorScheme = scheme.rawValue
-            AppColorScheme.apply()
-            #if os(iOS)
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            #endif
-        } label: {
-            HStack(spacing: 14) {
-                IconView(scheme.symbol)
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundStyle(.primary)
-                    .frame(width: 48, height: 48)
-                    .background(scheme == .dark ? Color.black : Color.primary.opacity(0.06),
-                                in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
-                    )
-                    .environment(\.colorScheme, scheme == .system ? .light : scheme.environmentScheme)
+    // MARK: - Connect
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(scheme.title)
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text(scheme.blurb)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 0)
-
-                if isSelected {
-                    IconView("checkmark.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(accent)
-                        .transition(reduceMotion ? .opacity : .scale(scale: 0.5).combined(with: .opacity))
-                }
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(.ultraThinMaterial)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(isSelected ? accent.opacity(0.5) : Color.primary.opacity(0.08), lineWidth: isSelected ? 1.5 : 1)
-            )
-            .shadow(color: Color.black.opacity(0.08), radius: 10, y: 4)
-        }
-        .buttonStyle(OnboardingPressStyle())
-        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    // MARK: Setup
-
-    /// The checklist the flow ends on: the two things that make the app work, and the start
-    /// button. Rows tick themselves from real state, so this page always describes the app
-    /// as it currently is.
-    private var setupPage: some View {
+    /// The two things the app needs connected, each its own action: a source to play from,
+    /// and whichever trackers the user keeps their lists on. AniList and MyAnimeList each
+    /// get their own connect button and their own state; one of them is fine, both are
+    /// better, and neither blocks the flow.
+    private var connectPage: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 Text("onboarding.set_up_shirox")
                     .font(.caption.weight(.semibold))
                     .tracking(2.2)
-                    .foregroundStyle(accent)
+                    .foregroundStyle(.secondary)
 
-                Text("onboarding.bring_your_own_nlibrary")
+                Text("onboarding.connect_sources")
                     .font(.system(size: 30, weight: .heavy))
                     .lineSpacing(-2)
                     .padding(.top, 8)
 
-                VStack(spacing: 12) {
-                    stepRow(
-                        title: String(localized: "onboarding.add_a_source"),
-                        detail: hasSource
-                            ? "\(moduleManager.modules.count) connected"
-                            : String(localized: "onboarding.a_module_a_jellyfin_server"),
-                        isDone: hasSource,
-                        isRequired: true
-                    ) { showSources = true }
-                    .zoomSource("sources", in: sourcesZoom, cornerRadius: 16)
+                Text("onboarding.sources_body")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 10)
+                    .fixedSize(horizontal: false, vertical: true)
 
-                    stepRow(
-                        title: String(localized: "onboarding.sign_in_to_a_tracker"),
-                        detail: trackerDetail,
-                        isDone: hasTracker,
-                        isRequired: false,
-                        action: { showTracker = true }
-                    )
-                    .zoomSource("tracker", in: sourcesZoom, cornerRadius: 16)
+                VStack(spacing: 12) {
+                    sourceRow
+                        .zoomSource("sources", in: sourcesZoom, cornerRadius: 16)
+
+                    trackerCard(.anilist)
+                    trackerCard(.mal)
+
+                    trackerRecommendation
                 }
                 .padding(.top, 24)
-
-                Button(action: finish) {
-                    Text(hasSource ? String(localized: "onboarding.start_watching") : String(localized: "onboarding.skip_for_now"))
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(
-                                    hasSource
-                                        ? AnyShapeStyle(LinearGradient(colors: [accent, accent.opacity(0.75)],
-                                                                       startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        : AnyShapeStyle(Color.secondary.opacity(0.15))
-                                )
-                        )
-                        .foregroundStyle(hasSource ? .white : Color.primary)
-                        .shadow(color: hasSource ? accent.opacity(0.35) : .clear, radius: 12, y: 5)
-                }
-                .buttonStyle(OnboardingPressStyle())
-                .padding(.top, 28)
-
-                Text("onboarding.you_can_change_any_of")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 14)
-                    .padding(.bottom, 32)
+                .padding(.bottom, 24)
             }
             .padding(.horizontal, 24)
-            .frame(maxWidth: 560)
+            .frame(maxWidth: 560, alignment: .leading)
         }
-    }
-
-    private var trackerDetail: String {
-        if aniListAuth.isLoggedIn && malAuth.isLoggedIn { return String(localized: "onboarding.anilist_and_myanimelist") }
-        if aniListAuth.isLoggedIn { return "AniList" }
-        if malAuth.isLoggedIn { return "MyAnimeList" }
-        return String(localized: "onboarding.sync_your_progress_to_anilist")
-    }
-
-    // MARK: - The frame
-
-    /// A poster-shaped outline holding the app's mark: empty and dashed until a source exists,
-    /// filled once one does. The same 2:3 as every poster elsewhere in the app, floating
-    /// slowly over the accent pool while the page shows.
-    private var frame: some View {
-        ZStack {
-            // The wash: the accent blurred into the poster's neighbourhood, so the hero
-            // reads as lit rather than drawn.
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(accent.opacity(0.14))
-                .blur(radius: 24)
-                .padding(-14)
-                .opacity(markFloats ? 0.95 : 0.6)
-
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(
-                    hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.4)),
-                    style: StrokeStyle(lineWidth: 2, dash: hasSource ? [] : [7, 6])
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(hasSource ? accent.opacity(0.10) : Color.clear)
-                )
-
-            // The app's own mark, not the 白 typeface glyph — the logo has squared terminals
-            // and its own angled top stroke, and a system font can't stand in for it. Shipped
-            // as a template image so it takes the same grey/accent treatment as the frame.
-            Image("ShiroMark")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 86)
-                .foregroundStyle(hasSource ? AnyShapeStyle(accent) : AnyShapeStyle(Color.secondary.opacity(0.35)))
-                .offset(y: markFloats ? -8 : 8)
+        #if os(iOS)
+        .onAppear {
+            if presentationWindow == nil {
+                presentationWindow = UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap { $0.windows }
+                    .first { $0.isKeyWindow }
+            }
         }
-        .frame(width: 128, height: 192)
-        .animation(reduceMotion ? nil : .easeInOut(duration: 2.6).repeatForever(autoreverses: true), value: markFloats)
-        .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.8), value: hasSource)
-        .accessibilityHidden(true)
+        #endif
     }
 
-    // MARK: - Steps
-
-    @ViewBuilder
-    private func stepRow(
-        title: String,
-        detail: String,
-        isDone: Bool,
-        isRequired: Bool,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
+    /// The source row: the one thing the app can't open without. Ticking comes from real
+    /// state — the count of installed modules is the row's detail once one is in.
+    private var sourceRow: some View {
+        Button {
+            showSources = true
+        } label: {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()
-                        .strokeBorder(isDone ? Color.clear : Color.secondary.opacity(0.35), lineWidth: 1.5)
-                        .background(Circle().fill(isDone ? accent : Color.clear))
+                        .strokeBorder(hasSource ? Color.clear : Color.secondary.opacity(0.35), lineWidth: 1.5)
+                        .background(Circle().fill(hasSource ? Color.primary.opacity(0.85) : Color.clear))
                         .frame(width: 28, height: 28)
-                    if isDone {
+                    if hasSource {
                         IconView("checkmark")
                             .font(.caption2.weight(.bold))
                             .foregroundStyle(.white)
@@ -525,24 +358,14 @@ struct OnboardingView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(title)
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.primary)
-                        if !isRequired && !isDone {
-                            Text("settings.optional")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.12), in: Capsule())
-                        }
-                    }
-                    Text(detail)
+                    Text("onboarding.add_source")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text(hasSource
+                         ? "\(moduleManager.modules.count) connected"
+                         : String(localized: "onboarding.add_source_hint"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 Spacer(minLength: 0)
@@ -554,16 +377,257 @@ struct OnboardingView: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(.ultraThinMaterial)
+                    .fill(Color.primary.opacity(0.04))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(isDone ? accent.opacity(0.35) : Color.primary.opacity(0.08), lineWidth: 1)
+                    .strokeBorder(hasSource ? Color.primary.opacity(0.25) : Color.primary.opacity(0.08), lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.08), radius: 10, y: 4)
         }
         .buttonStyle(OnboardingPressStyle())
-        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: isDone)
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: hasSource)
+    }
+
+    /// One tracker card: the service's own logo on its tile, its name, and its own connect
+    /// button that becomes a signed-in line the moment the web session lands.
+    private func trackerCard(_ type: ProviderType) -> some View {
+        let isLoggedIn = type == .anilist ? aniListAuth.isLoggedIn : malAuth.isLoggedIn
+        let username = type == .anilist ? aniListAuth.username : malAuth.username
+        return HStack(spacing: 14) {
+            CachedAsyncImage(urlString: type.iconURL)
+                .frame(width: 44, height: 44)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.1), lineWidth: 1)
+                )
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(type.displayName)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text(type == .anilist
+                     ? String(localized: "onboarding.anilist_blurb")
+                     : String(localized: "onboarding.mal_blurb"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            if isLoggedIn {
+                Label(username.map { "onboarding.signed_in_as \($0)" } ?? "settings.signed_in",
+                      icon: "checkmark.circle.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.green)
+            } else {
+                Button {
+                    signIn(type)
+                } label: {
+                    Text("library.sign_in")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color.primary.opacity(0.85), in: Capsule())
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(OnboardingPressStyle())
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.primary.opacity(0.04))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.7), value: isLoggedIn)
+    }
+
+    /// One line under the cards: neither connected says what the choice is, one connected
+    /// recommends the other, both connected confirms. Never a wall of text, never a block.
+    @ViewBuilder
+    private var trackerRecommendation: some View {
+        if hasBothTrackers {
+            Label("onboarding.all_connected", icon: "checkmark.seal.fill")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.green)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+        } else if hasTracker {
+            Label("onboarding.recommend_both", icon: "personalhotspot")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+        }
+    }
+
+    private func signIn(_ type: ProviderType) {
+        #if os(iOS)
+        guard let presentationWindow else { return }
+        if type == .anilist {
+            aniListAuth.login(presentationAnchor: presentationWindow)
+        } else {
+            malAuth.login(presentationAnchor: presentationWindow)
+        }
+        #else
+        let anchor: ASPresentationAnchor = ASPresentationAnchor()
+        if type == .anilist {
+            aniListAuth.login(presentationAnchor: anchor)
+        } else {
+            malAuth.login(presentationAnchor: anchor)
+        }
+        #endif
+    }
+
+    // MARK: - Notifications
+
+    /// The Kavsoft notification permission experience, inline: the keyframed stack of
+    /// episode alerts rising and dissolving over the bell, then one button that asks iOS
+    /// for permission and one that moves on. A permission already decided (granted, or
+    /// refused in an earlier run) is honoured — no system prompt re-appears, and the page
+    /// says where things stand.
+    private var notificationsPage: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                switch notificationState {
+                case .undetermined:
+                    KavsoftNotificationPermissionView(
+                        primaryAction: {
+                            Task {
+                                _ = await notifier.requestPermissionIfNeeded()
+                                permissionStatus = await notifier.authorizationStatus
+                            }
+                        },
+                        secondaryAction: finish
+                    )
+                    .frame(maxWidth: 440)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 16)
+                case .granted:
+                    permissionLine(key: "onboarding.notifications_on", symbol: "bell.badge.fill")
+                case .denied:
+                    permissionLine(key: "onboarding.notifications_off", symbol: "bell.slash")
+                }
+
+                Button {
+                    finish()
+                } label: {
+                    Text(hasSource ? String(localized: "onboarding.start_watching")
+                                   : String(localized: "onboarding.skip_for_now"))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(Color.primary.opacity(0.85))
+                        )
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(OnboardingPressStyle())
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+                .padding(.bottom, 28)
+            }
+            .frame(maxWidth: 560)
+            .frame(maxWidth: .infinity)
+        }
+        .task { permissionStatus = await notifier.authorizationStatus }
+    }
+
+    private enum NotificationAskState { case undetermined, granted, denied }
+
+    private var notificationState: NotificationAskState {
+        switch permissionStatus {
+        case .authorized, .provisional, .ephemeral: return .granted
+        case .denied: return .denied
+        default: return .undetermined
+        }
+    }
+
+    /// What the page says when iOS has already answered for this app: granted, or refused —
+    /// with the way back through system settings for the second.
+    private func permissionLine(key: String, symbol: String) -> some View {
+        VStack(spacing: 10) {
+            Label {
+                Text(LocalizedStringKey(key))
+            } icon: {
+                IconView(symbol)
+            }
+            .font(.body.weight(.semibold))
+            .padding(.vertical, 30)
+
+            if notificationState == .denied {
+                Button {
+                    #if os(iOS)
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                    #elseif os(macOS)
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") {
+                        NSWorkspace.shared.open(url)
+                    }
+                    #endif
+                } label: {
+                    Text("notifications.open_system_settings")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color.primary.opacity(0.08), in: Capsule())
+                }
+                .buttonStyle(OnboardingPressStyle())
+                .padding(.bottom, 16)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - The frame
+
+    /// A poster-shaped outline holding the app's mark: empty and dashed until a source exists,
+    /// filled once one does. The same 2:3 as every poster elsewhere in the app, floating
+    /// slowly while the page shows.
+    private var frame: some View {
+        ZStack {
+            // The wash: neutral grey blurred into the poster's neighbourhood, so the hero
+            // reads as lit rather than drawn.
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color.primary.opacity(0.06))
+                .blur(radius: 24)
+                .padding(-14)
+                .opacity(markFloats ? 0.95 : 0.6)
+
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(
+                    hasSource ? AnyShapeStyle(Color.primary.opacity(0.8)) : AnyShapeStyle(Color.secondary.opacity(0.4)),
+                    style: StrokeStyle(lineWidth: 2, dash: hasSource ? [] : [7, 6])
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(hasSource ? Color.primary.opacity(0.05) : Color.clear)
+                )
+
+            // The app's own mark, not the 白 typeface glyph — the logo has squared terminals
+            // and its own angled top stroke, and a system font can't stand in for it. Shipped
+            // as a template image so it takes the same grey treatment as the frame.
+            Image("ShiroMark")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 86)
+                .foregroundStyle(hasSource ? AnyShapeStyle(Color.primary.opacity(0.85)) : AnyShapeStyle(Color.secondary.opacity(0.35)))
+                .offset(y: markFloats ? -8 : 8)
+        }
+        .frame(width: 128, height: 192)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 2.6).repeatForever(autoreverses: true), value: markFloats)
+        .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.8), value: hasSource)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Actions
@@ -572,34 +636,27 @@ struct OnboardingView: View {
         hasCompletedOnboarding = true
         dismiss()
     }
-
-    private var platformBackground: Color {
-        #if os(iOS)
-        Color(UIColor.systemBackground)
-        #elseif os(tvOS)
-        Color.clear
-        #else
-        Color(NSColor.windowBackgroundColor)
-        #endif
-    }
 }
 
 extension AppColorScheme {
-    /// How a card previews the scheme behind its own content: System previews as light here,
-    /// where the card itself already sits on either side of the system.
-    var environmentScheme: ColorScheme {
-        switch self {
-        case .light, .system: return .light
-        case .dark: return .dark
-        }
-    }
-
     /// One line under the scheme's name, saying what it does.
     var blurb: String {
         switch self {
         case .light:  return String(localized: "onboarding.appearance_light_blurb")
         case .dark:   return String(localized: "onboarding.appearance_dark_blurb")
         case .system: return String(localized: "onboarding.appearance_system_blurb")
+        }
+    }
+}
+
+/// Hides the navigation bar on the pushed (Settings replay) path, iOS 16 style API on top
+/// of the deprecated form below. This is what keeps the flow to one back control.
+private struct OnboardingNavBarHider: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, *) {
+            content.toolbar(.hidden, for: .navigationBar)
+        } else {
+            content.navigationBarHidden(true)
         }
     }
 }
@@ -620,7 +677,6 @@ private struct OnboardingPressStyle: ButtonStyle {
 private struct OnboardingProgress: View {
     let page: Int
     let lastPage: Int
-    let accent: Color
 
     private let dotSize: CGFloat = 7
     private let spacing: CGFloat = 6
@@ -629,7 +685,7 @@ private struct OnboardingProgress: View {
         HStack(spacing: spacing) {
             ForEach(0...lastPage, id: \.self) { index in
                 Capsule()
-                    .fill(index == page ? accent : Color.secondary.opacity(0.30))
+                    .fill(index == page ? Color.primary.opacity(0.85) : Color.secondary.opacity(0.30))
                     .frame(width: index == page ? 20 : dotSize, height: dotSize)
             }
         }

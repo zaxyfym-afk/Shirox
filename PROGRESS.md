@@ -1,7 +1,47 @@
-# Progress
+Updated: 2026-11-21, eleventh session (the real Kavsoft appearance picker and notification
+onboarding, onboarding rebuilt to four white/grey screens with one back control, Sources
+consolidated, the Store Test button made real, signed-out Notifications given a connection
+screen, notification navigation fixed, raw localization keys fixed app-wide, Downloads and
+Notifications settings rebuilt, Customize Tabs given a live preview).
 
-Updated: 2026-11-21, tenth session (the Store's door made findable, the Home Tour removed, the onboarding refocused to three screens, the
-Player's controls resized and restructured, appearance selection in onboarding).
+## This session, in short
+
+The user reported the latest build still had untranslated keys, a Test button that did
+nothing, generic-looking Settings layouts, and the missing Kavsoft onboarding pieces. Done,
+in the brief's order:
+
+- The `everything` folder was found in the sandbox; both Kavsoft components were ported
+  faithfully: ATPicker's ThemePicker (the animated day/night sky, stars, shooting star,
+  hills, sliding capsule) and CompactNotificationView's NotificationPermissionView (the
+  keyframed notification stack over the filling bell). Both inline, both with availability
+  ladders to iOS 15, and both wired to the app's real state (`AppColorScheme`,
+  `EpisodeReleaseNotifier.requestPermissionIfNeeded`).
+- Onboarding: four screens (welcome, appearance, connect, notifications), white and grey,
+  one back control — the pushed-path system arrow that doubled the custom one is hidden.
+- AniList/MAL connection page in onboarding with per-service cards and the one-connected
+  recommendation; the old TrackerSignInView sheet is gone (dead code removed).
+- Localization: a scripted audit of every interpolated literal found seven keys whose
+  catalog entries lacked the placeholder in the key (every translation showed raw keys) —
+  all renamed with translations kept; `settings.through` added; ten obsolete keys removed.
+- Sources & Integrations folded into the existing Sources section; the page retitled
+  "Sources"; the decorative "This Device" header removed.
+- The Store Test button now runs the real check pipeline for installed modules and an honest
+  manifest fetch-and-parse for uninstalled ones, with drawn busy states and double-tap
+  refusal; the catalog caches its last good shelves to disk and the empty state says the
+  truth about what failed.
+- Notification taps resolve ids against the provider that owns them (the old provider-chain
+  lookup was serving AniList ids to MAL and showing random errors).
+- Signed-out Notifications is a purpose-built connection screen (two service cards, real
+  sign-in, immediate state flip); one-connected shows a slim invitation for the other.
+- Search's source selector rebuilt as a tile picker: AniList, MAL, Simkl when signed in, and
+  only the modules that actually search anime.
+- Settings: Notifications (delivery card + check row + poster board), Downloads (quality
+  cards, concurrency chips, icon rows, disk gauge), Customize Tabs (live bar preview drawn
+  from the exact function the real bar uses, invalid config refused), Customization (the
+  Kavsoft picker inline). Player, Subtitles, Reader, Library, Storage, Backup, Advanced
+  network, Logs and General keep their purpose-built structures, reviewed.
+- Dead code removed: ProvidersSettingsSection, ThemePickerSheet, ProviderSwitcher,
+  TrackerSignInView, and their project references.
 
 ## This session, in short
 

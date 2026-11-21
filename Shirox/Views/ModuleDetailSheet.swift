@@ -1,12 +1,16 @@
 import SwiftUI
 
 /// What a Test came back with, shared by the store's detail page and an installed module's.
+/// Two cases belong to the manifest check the store runs on entries that aren't installed:
+/// a fetch-and-parse of the manifest, which honestly reports what it found — never playback.
 enum ModuleDetailOutcome: Equatable {
     case running
     case passed
     case failed(step: ModuleCheckStep, reason: String)
     case needsVerification(host: String)
     case skipped(reason: String)
+    case manifestOk(detail: String)
+    case manifestFailed(reason: String)
 
     init(_ result: ModuleCheckResult) {
         switch result {
@@ -57,6 +61,28 @@ struct ModuleTestResultView: View {
                 Label(reason, icon: "info.circle")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+            case .manifestOk(let detail):
+                VStack(alignment: .leading, spacing: 3) {
+                    Label("store.manifest_check_passed", icon: "checkmark.seal.fill")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.green)
+                    Text("store.manifest_check_note")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(detail)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            case .manifestFailed(let reason):
+                VStack(alignment: .leading, spacing: 3) {
+                    Label("store.manifest_check_failed", icon: "xmark.circle.fill")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.orange)
+                    Text(reason)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
