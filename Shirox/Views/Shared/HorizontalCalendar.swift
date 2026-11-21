@@ -52,6 +52,9 @@ struct HorizontalCalendar<Content: View>: View {
     @State private var lockedID: CalendarWeek.ID?
     /// The view starts on the middle week.
     @State private var weekIndex = 1
+    /// True while the window is recentring on an outside date change, so the week-follow
+    /// doesn't rewrite the just-set selection in that frame.
+    @State private var isRecentering = false
     private let calendar = Calendar.current
 
     init(updatesDateOnScroll: Bool = true,
@@ -143,12 +146,38 @@ struct HorizontalCalendar<Content: View>: View {
         }
         .onChange(of: weekIndex) { _, newValue in
             // Paging lands on the same weekday of the week paged to.
-            guard updatesDateOnScroll, weeks.indices.contains(newValue) else { return }
+            guard !isRecentering, updatesDateOnScroll, weeks.indices.contains(newValue) else { return }
             let symbolIndex = calendar.component(.weekday, from: date) - 1
             if weeks[newValue].days.indices.contains(symbolIndex) {
                 date = weeks[newValue].days[symbolIndex].date
             }
         }
+        .onChange(of: date) { _, newDate in
+            // The date changed from outside the calendar — the schedule's SceneStorage
+            // restoring a picked day, another control moving the selection. If the new day
+            // sits in a week the window isn't showing, the window recentres on it and the
+            // visible week follows the day again — the list and the selector stay one
+            // state. A day within the shown week changes nothing: the cells read the
+            // selection straight from the binding.
+            guard let shownWeek = weeks.indices.contains(weekIndex) ? weeks[weekIndex].days.first?.date : nil,
+                  Self.weekStart(of: newDate) != Self.weekStart(of: shownWeek) else { return }
+            isRecentering = true
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                weeks = (-1...1).map { CalendarWeek.containing(newDate, offsetBy: $0) }
+                weekIndex = 1
+                if weeks.indices.contains(1) {
+                    scrollPosition.scrollTo(id: weeks[1].id)
+                }
+            }
+            DispatchQueue.main.async { isRecentering = false }
+        }
+    }
+
+    /// The week a day belongs to, for comparing windows without their times.
+    private static func weekStart(of date: Date, calendar: Calendar = .current) -> Date {
+        calendar.dateInterval(of: .weekOfMonth, for: date)?.start ?? calendar.startOfDay(for: date)
     }
 }
 #endif

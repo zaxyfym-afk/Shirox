@@ -260,16 +260,19 @@ struct AnimeContextMenuItems: View {
                 } label: {
                     Label("shared.copy_link", icon: "link")
                 }
-            } else {
-                Button {
-                    Clipboard.copy(media.title.displayTitle)
-                    #if os(iOS)
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    #endif
-                    ToastManager.shared.show(message: String(localized: "shared.title_copied"), type: .success, duration: 1.6)
-                } label: {
-                    Label("shared.copy_title", icon: "doc.on.doc")
-                }
+            }
+
+            // Copy Name: always, whatever links the title has. It used to sit in the
+            // else-branch of the link check, so any title with an AniList or MAL page
+            // offered copy link but not copy name.
+            Button {
+                Clipboard.copy(media.title.displayTitle)
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+                ToastManager.shared.show(message: String(localized: "shared.title_copied"), type: .success, duration: 1.6)
+            } label: {
+                Label("shared.copy_title", icon: "doc.on.doc")
             }
         }
 

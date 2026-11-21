@@ -1172,7 +1172,10 @@ struct LibraryView: View {
         }
         #if os(iOS)
         .navigationTitle("common.library")
-        .navigationBarTitleDisplayMode(.large)
+        // Inline, not large: a large title collapses into the bar on scroll, which read as
+        // the title chasing the list. The inline title sits still in the bar, once, and the
+        // search field keeps its drawer.
+        .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: String(localized: "library.search_library"))
         #elseif os(macOS)
         .navigationTitle("common.library")

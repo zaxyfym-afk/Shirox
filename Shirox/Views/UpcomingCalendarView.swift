@@ -408,7 +408,6 @@ struct UpcomingCalendarView: View {
                 }
                 .padding(.top, 6)
                 .padding(.bottom, 8)
-                todayButton
                 Divider().opacity(0.5)
             } else {
                 weekdayBar
@@ -427,28 +426,6 @@ struct UpcomingCalendarView: View {
             effectiveDay
         } set: { day in
             storedDay = day.timeIntervalSince1970
-        }
-    }
-
-    /// Back to today from wherever the browsing has gone; hidden while it's already here.
-    @ViewBuilder
-    private var todayButton: some View {
-        if !Calendar.current.isDateInToday(effectiveDay) {
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    storedDay = Date().timeIntervalSince1970
-                }
-            } label: {
-                Label("shared.today", icon: "calendar")
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Capsule().fill(Color.secondary.opacity(0.12)))
-                    .overlay(Capsule().strokeBorder(Color.primary.opacity(0.08), lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .padding(.bottom, 10)
-            .transition(.opacity.combined(with: .move(edge: .top)))
         }
     }
 
