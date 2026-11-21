@@ -242,6 +242,15 @@ struct SettingsView: View {
                     )
                 }
 
+                NavigationLink {
+                    ChangelogView()
+                } label: {
+                    SettingsNavRow(
+                        icon: "clock.arrow.circlepath",
+                        title: String(localized: "settings.changelog")
+                    )
+                }
+
                 // Expert settings for blocked regions, deliberately last.
                 NavigationLink { AdvancedNetworkSettingsView() } label: { SettingsNavRow(icon: "network", title: String(localized: "settings.advanced_network")) }
 
@@ -262,36 +271,15 @@ struct SettingsView: View {
                 SettingsSectionHeader("settings.section_app")
             }
 
-            // Legal pages close the list, with the platform facts beside them and no section
-            // header of their own — the device block never needed a category name. TMDB's
-            // terms ask for its logo and notice in a credits context, so the footer carries it.
+            // Device facts close the list, with no section header of their own — the block
+            // never needed a category name. The legal pages (imprint, privacy, contributors,
+            // licences) live on the project's website; TMDB's attribution sits with the
+            // changelog's credits, the unobtrusive place its terms still require.
             Section {
-                ForEach([LegalPage.imprint, .privacy, .contributors, .licenses], id: \.title) { page in
-                    NavigationLink {
-                        LegalWebView(page: page)
-                    } label: {
-                        SettingsNavRow(icon: page.icon, title: page.title)
-                    }
-                }
-
                 copyRow(SettingsNavRow(icon: Platform.icon, title: String(localized: "settings.platform"), subtitle: Platform.summary),
                         copying: Platform.summary, toast: String(localized: "settings.platform_copied"))
                 copyRow(SettingsNavRow(icon: "info.circle", title: String(localized: "modules.version"), subtitle: Self.appVersion),
                         copying: Self.appVersion, toast: String(localized: "settings.version_copied"))
-            } footer: {
-                // TMDB's terms ask for its logo and this notice in a credits context; the
-                // section footer carries both now the About section is gone.
-                VStack(alignment: .leading, spacing: 8) {
-                    Image("TMDBLogo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 12)
-                        .accessibilityLabel("TMDB")
-                    Text("settings.this_application_uses_tmdb_and")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.top, 4)
             }
     }
 

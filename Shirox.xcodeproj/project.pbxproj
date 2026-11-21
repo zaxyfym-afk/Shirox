@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		94013CAFA7ACF9ED5FBA495F /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA19D27F2CD9E531E7B7F4C /* ChangelogView.swift */; };
+		14D116A2FF27DB20084F37AD /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA19D27F2CD9E531E7B7F4C /* ChangelogView.swift */; };
+		52BC27253A2C444B252473AD /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA19D27F2CD9E531E7B7F4C /* ChangelogView.swift */; };
+		A757A7D2A3BB625DCCE4AD5E /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA19D27F2CD9E531E7B7F4C /* ChangelogView.swift */; };
+		78411C7836AD70B0F10883C9 /* ReleaseNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C767300FF5AB4EB74020C3ED /* ReleaseNotes.swift */; };
+		AD04CA36A1E58EC03223D03E /* ReleaseNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C767300FF5AB4EB74020C3ED /* ReleaseNotes.swift */; };
+		86FB0CBC5F059E2F28C073B0 /* ReleaseNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C767300FF5AB4EB74020C3ED /* ReleaseNotes.swift */; };
+		4A4F4AA4390E53D29BC7AB5C /* ReleaseNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C767300FF5AB4EB74020C3ED /* ReleaseNotes.swift */; };
 		61EF9C9531BD5886950465DE /* KavsoftNotificationPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = F952148BCDF2C320987C7065 /* KavsoftNotificationPermission.swift */; };
 		062F26196EBAAE7A973E517C /* KavsoftNotificationPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = F952148BCDF2C320987C7065 /* KavsoftNotificationPermission.swift */; };
 		4C1EDEDB86D3424337FCB4C9 /* KavsoftNotificationPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = F952148BCDF2C320987C7065 /* KavsoftNotificationPermission.swift */; };
@@ -204,9 +212,6 @@
 		121D9BBF2FCA5642000FF9B4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA000003000000000000BB01 /* Assets.xcassets */; };
 		121D9BC02FCA564F000FF9B4 /* ShiroxApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE8F22DF8EF4BBAC15BAB79 /* ShiroxApp.swift */; };
 		1251C4572FCAD62E002AD0B2 /* GoogleCastDynamicCore in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 1251C4562FCAD62E002AD0B2 /* GoogleCastDynamicCore */; };
-		1251C4592FCAE1AA002AD0B2 /* LegalWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1251C4582FCAE1AA002AD0B2 /* LegalWebView.swift */; };
-		1251C45A2FCAE1AA002AD0B2 /* LegalWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1251C4582FCAE1AA002AD0B2 /* LegalWebView.swift */; };
-		1251C45B2FCAE1AA002AD0B2 /* LegalWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1251C4582FCAE1AA002AD0B2 /* LegalWebView.swift */; };
 		12742EDE8085EA00D79C9E12 /* JSEngine+Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15FDAB330588459FA8A0714 /* JSEngine+Manga.swift */; };
 		1279E4E82FCA397700C9BA56 /* PlayerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4982FCA397700C9BA56 /* PlayerPresenter.swift */; };
 		1279E4E92FCA397700C9BA56 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1279E4842FCA397700C9BA56 /* DownloadManager.swift */; };
@@ -1298,6 +1303,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DAA19D27F2CD9E531E7B7F4C /* ChangelogView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
+		C767300FF5AB4EB74020C3ED /* ReleaseNotes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReleaseNotes.swift; sourceTree = "<group>"; };
 		F952148BCDF2C320987C7065 /* KavsoftNotificationPermission.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KavsoftNotificationPermission.swift; sourceTree = "<group>"; };
 		1B92497B8C94C167B8164A3C /* KavsoftThemePicker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KavsoftThemePicker.swift; sourceTree = "<group>"; };
 		62ACA824EDB7D9DD5D22B9BD /* SearchSourcePickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SearchSourcePickerView.swift; sourceTree = "<group>"; };
@@ -1340,7 +1347,6 @@
 		10FBCEF93F0BA1C04D772600 /* ModuleWebURLTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModuleWebURLTests.swift; sourceTree = "<group>"; };
 		11EBA9BEE694E9966F4A8FEF /* AdultModuleCheck.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdultModuleCheck.swift; sourceTree = "<group>"; };
 		121D9B382FCA5378000FF9B4 /* Shirox_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shirox_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1251C4582FCAE1AA002AD0B2 /* LegalWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalWebView.swift; sourceTree = "<group>"; };
 		1279E4652FCA397700C9BA56 /* AniListActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AniListActivity.swift; sourceTree = "<group>"; };
 		1279E4662FCA397700C9BA56 /* AniListMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AniListMedia.swift; sourceTree = "<group>"; };
 		1279E4672FCA397700C9BA56 /* AniListNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AniListNotification.swift; sourceTree = "<group>"; };
@@ -1941,6 +1947,7 @@
 		1279E4782FCA397700C9BA56 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C767300FF5AB4EB74020C3ED /* ReleaseNotes.swift */,
 				BA0000000000000000000E01 /* BackupEnvelope.swift */,
 				1279E4652FCA397700C9BA56 /* AniListActivity.swift */,
 				6D192C896CE949CC6820D710 /* ModuleStoreEntry.swift */,
@@ -2239,7 +2246,6 @@
 		1279E4D72FCA397700C9BA56 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				1251C4582FCAE1AA002AD0B2 /* LegalWebView.swift */,
 				1279E4CC2FCA397700C9BA56 /* CachedAsyncImage.swift */,
 				21201D48C8E94395977F4564 /* ScoreInputView.swift */,
 				1279E4CD2FCA397700C9BA56 /* CloudflareBypassSheetView.swift */,
@@ -2282,6 +2288,7 @@
 		1279E4E72FCA397700C9BA56 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DAA19D27F2CD9E531E7B7F4C /* ChangelogView.swift */,
 				1279E4AE2FCA397700C9BA56 /* Downloads */,
 				1279E4B02FCA397700C9BA56 /* Library */,
 				1279E4C12FCA397700C9BA56 /* Player */,
@@ -2939,6 +2946,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94013CAFA7ACF9ED5FBA495F /* ChangelogView.swift in Sources */,
+				78411C7836AD70B0F10883C9 /* ReleaseNotes.swift in Sources */,
 				61EF9C9531BD5886950465DE /* KavsoftNotificationPermission.swift in Sources */,
 				CC46B12E2AD4EDAE482C5A42 /* KavsoftThemePicker.swift in Sources */,
 				8E30856D432822719BFBA68B /* SearchSourcePickerView.swift in Sources */,
@@ -3147,6 +3156,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14D116A2FF27DB20084F37AD /* ChangelogView.swift in Sources */,
+				AD04CA36A1E58EC03223D03E /* ReleaseNotes.swift in Sources */,
 				062F26196EBAAE7A973E517C /* KavsoftNotificationPermission.swift in Sources */,
 				F95001C906DBF776464F035F /* KavsoftThemePicker.swift in Sources */,
 				B6692A7B39E66ED0CCC068F6 /* SearchSourcePickerView.swift in Sources */,
@@ -3257,7 +3268,6 @@
 				BA0000000000000000000E02 /* BackupEnvelope.swift in Sources */,
 				121D9B4D2FCA5603000FF9B4 /* StreamResult.swift in Sources */,
 				121D9BC02FCA564F000FF9B4 /* ShiroxApp.swift in Sources */,
-				1251C45A2FCAE1AA002AD0B2 /* LegalWebView.swift in Sources */,
 				121D9B4E2FCA5603000FF9B4 /* SkipSegments.swift in Sources */,
 				121D9B4F2FCA5603000FF9B4 /* MarkContext.swift in Sources */,
 				121D9BA52FCA563E000FF9B4 /* ThumbnailEpisodeRow.swift in Sources */,
@@ -3497,6 +3507,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				52BC27253A2C444B252473AD /* ChangelogView.swift in Sources */,
+				86FB0CBC5F059E2F28C073B0 /* ReleaseNotes.swift in Sources */,
 				4C1EDEDB86D3424337FCB4C9 /* KavsoftNotificationPermission.swift in Sources */,
 				6B30CFB78E0EEDD97D7FCF43 /* KavsoftThemePicker.swift in Sources */,
 				2947188D3EBCA4DEEEB3D43F /* SearchSourcePickerView.swift in Sources */,
@@ -3599,7 +3611,6 @@
 				1279E5372FCA397700C9BA56 /* HomeView.swift in Sources */,
 				1279E5382FCA397700C9BA56 /* PlayerTimeFormat.swift in Sources */,
 				1279E5392FCA397700C9BA56 /* LikesSheetView.swift in Sources */,
-				1251C45B2FCAE1AA002AD0B2 /* LegalWebView.swift in Sources */,
 				1279E53A2FCA397700C9BA56 /* StreamResult.swift in Sources */,
 				1279E53B2FCA397700C9BA56 /* HLSQualityParser.swift in Sources */,
 				1279E53C2FCA397700C9BA56 /* SkipTimestampsService.swift in Sources */,
@@ -3849,6 +3860,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A757A7D2A3BB625DCCE4AD5E /* ChangelogView.swift in Sources */,
+				4A4F4AA4390E53D29BC7AB5C /* ReleaseNotes.swift in Sources */,
 				8DC5F75F81978AA807198AEB /* KavsoftNotificationPermission.swift in Sources */,
 				DAF6421E1CB150DDDEB18884 /* KavsoftThemePicker.swift in Sources */,
 				A4C6ABD4FA28095886B9A967 /* SearchSourcePickerView.swift in Sources */,
@@ -3951,7 +3964,6 @@
 				1279E5B02FCA397700C9BA56 /* HomeView.swift in Sources */,
 				1279E5B12FCA397700C9BA56 /* PlayerTimeFormat.swift in Sources */,
 				1279E5B22FCA397700C9BA56 /* LikesSheetView.swift in Sources */,
-				1251C4592FCAE1AA002AD0B2 /* LegalWebView.swift in Sources */,
 				1279E5B32FCA397700C9BA56 /* StreamResult.swift in Sources */,
 				1279E5B42FCA397700C9BA56 /* HLSQualityParser.swift in Sources */,
 				1279E5B52FCA397700C9BA56 /* SkipTimestampsService.swift in Sources */,
