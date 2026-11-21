@@ -1,5 +1,40 @@
 # Progress
 
+Updated: 2026-11-21, eighth session (gooey, schedule, settings everywhere, onboarding, store, CI).
+
+## This session, in short
+
+The user listed twelve problems, most of them regressions the seventh session's work had
+left behind or half-finished. Done, in the order requested:
+
+- Gooey refresh slowed (110 pt pull, smoothed growth) and de-jittered: the gooey style no
+  longer sits on the native `.refreshable` control, whose begin-refreshing content shift
+  was the downward jump of every image at the trigger. The pull reads straight off the
+  scroll geometry; one crossing, one refresh, one haptic. Shared by Home, Browse, Library,
+  Schedule, Store and both detail pages, since they all wear the one modifier.
+- Schedule: the under-number dots removed from both day cell styles; the selected circle is
+  now label-colour on background-colour text, readable in every appearance and tint.
+- The About section is gone from Settings; legal pages live under the device section and
+  the TMDB notice is that section's footer.
+- The Profile tab: none exists to remove. The bar has been Home, Library, Downloads,
+  Settings and Search since 6ded1c8, verified back through history and in the current
+  tree; account management stays in Settings' You section, as the brief asked. Nothing
+  was deleted.
+- Settings redesigned on every page through a rebuilt SettingsDesign: page heroes with
+  gradient tiles, a per-page accent carried through headers, tiles and background, the
+  doubled chevrons removed, the profile card gradient-ringed. Nineteen subpages restyled.
+- Intro split-screen fixed: one ZStack, icon rides up and fades, onboarding full screen.
+- Onboarding redesigned again on the Kavsoft engines (splash reveal, typewriter, zoom
+  sheets, glass): per-page aurora scenes, gradient controls, material cards.
+- Module Store: both catalog links implemented (Cufiy + xdfkenny), merged, filtered to
+  anime, de-duplicated; failures per source, non-fatal.
+- Dead code: the About strings and the AnyLayout era of the launch screen are gone; the
+  unused catalog keys removed; nothing unreferenced beyond that was touched.
+- Version 1.2.0 (128) everywhere.
+- CI: SwiftLint's sixteen violations fixed; strings and icons checks green; the nightly's
+  Xcode 26.3 pin replaced with pick-newest-at-runtime, and the three 26.3-only errors
+  fixed at the source. Codemagic stays primary.
+
 Updated: 2026-11-21, seventh session (navigation restoration + the repair arc).
 
 ## This session, in short

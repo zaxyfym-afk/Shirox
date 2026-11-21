@@ -1,5 +1,23 @@
 # Todo
 
+## 0. Eighth session (2026-11-21): what is done and what is next
+
+- DONE: gooey refresh slowed and de-jittered (no native control under the gooey style);
+  schedule dots removed and the selected date readable; About removed; Profile tab verified
+  absent (nothing to remove, account management stays in Settings); Settings redesigned on
+  the root and all nineteen subpages with the doubled arrows gone; intro split-screen
+  fixed; onboarding rebuilt on the Kavsoft engines; both Module Store catalog links wired
+  (Cufiy and xdfkenny); dead code and unused strings removed; version 1.2.0 (128);
+  SwiftLint, strings and icons green; nightly Xcode pin replaced.
+- NEXT ON DEVICE: the gooey pull's new 110 pt feel; the gooey trigger without a native
+  control (pull, hold, release); schedule selection in light and dark; every Settings page
+  on a phone; the intro reveal on a Dynamic Island phone and a notched one; onboarding
+  page turns with Reduce Motion on; the store with both catalogs live and the Cufiy
+  source's Cloudflare behaviour from a phone.
+- NEXT IN PIPELINE: the Codemagic build for this arc; the four xcodebuild scheme builds
+  and the ShiroxTests suite still need a Mac (iOS floor 15.0 untouched; tests updated for
+  the new pull distance and smoothing).
+
 ## 0. Restoration arc (2026-11-21): what is done and what is next
 
 - DONE: original five-tab bar restored; notifications/store removed from

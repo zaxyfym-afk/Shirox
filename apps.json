@@ -27,12 +27,13 @@
       },
       "versions": [
         {
-          "version": "1.1.0",
-          "buildVersion": "127",
+          "version": "1.2.0",
+          "buildVersion": "128",
           "date": "2026-11-20",
           "localizedDescription": "The Settings tab, reworked: every page opens with what it's for, sections carry icons, and a new Customization page gathers appearance, layout, episodes and the schedule's starting point. Profiles go Netflix: rounded tiles and anime artwork as pictures. The schedule is browsed one day at a time on a weekday bar, with artwork, airing times and what's already out. Anime pages gain an airing card (status, countdown, weekday slot, studio, duration), a Seasons row that steps through a franchise, and More Like This recommendations. Follow a title with the bell to get a notification when its next episode airs. Onboarding is a skippable tour, replayable from Settings, and filler episodes can be hidden from a title's list.",
           "size": 27549548,
-          "downloadURL": "https://github.com/xibrox/Shirox/releases/download/latest/Shirox.ipa"
+          "downloadURL": "https://github.com/xibrox/Shirox/releases/download/latest/Shirox.ipa",
+          "updateDescription": "The gooey refresh slowed and steadied, schedule dates readable, About and the About screen gone, every Settings page redesigned, the intro fixed full-screen, the onboarding rebuilt on the Kavsoft engines, both module catalogs in the store, and the backup builder repaired."
         },
         {
           "version": "1.0.6",

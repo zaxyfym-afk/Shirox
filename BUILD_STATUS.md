@@ -1,5 +1,23 @@
 # Build status
 
+## Current state (2026-11-21, eighth session)
+
+- PENDING BUILD. The eighth session's work is committed and pushed; the Codemagic build
+  runs after the push, API-driven as always. What the build sees for the first time: the
+  gooey blob's custom trigger path (no native control under the gooey style), the 110 pt
+  pull and the smoothing, the schedule's recoloured selection, the settings hero and
+  per-page accent system (SettingsDesign rebuilt), the single-ZStack launch reveal, the
+  aurora onboarding, both module catalogs in the store, and version 1.2.0 (128).
+- Static checks on the sandbox are green: SwiftLint 0.65.1 strict (sixteen violations
+  fixed, the repo's first green lint since a2d832c), the strings check, the icons check
+  (three symbols registered), the i18n catalog clean of dead keys, brace and paren balance
+  on every changed file. The Swift toolchain on the sandbox cannot build iOS; compile
+  verdicts come from Codemagic only, as always.
+- GitHub backup nightly: the Xcode 26.3 pin is gone (pick newest at run time), and the
+  three errors the pinned run hit are fixed at the source - HLSManifestParser's audio
+  chain decomposed (its type-check timeout), PosterViewer's and SettingsPickers' ambiguous
+  literal arithmetic typed out. SwiftLint and the strings/icons workflows are green again.
+
 ## Current state (2026-11-21, restoration arc)
 
 - GREEN. Codemagic build 8 (6b00df36af3f9fe6fe8e9fa2, on 0eb80a65, 4m52s,

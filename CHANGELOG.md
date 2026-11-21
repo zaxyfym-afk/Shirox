@@ -1,5 +1,79 @@
 # Changelog
 
+## Unreleased: the eighth session (2026-11-21)
+
+### Fixed
+
+- Gooey refresh: the pull now runs its whole length over 110 pt (near twice the native
+  control's own scale) and the blob's growth is smoothed (slow start, gathering middle,
+  eased end), so the gooey materialises gradually and stretches as the finger drags.
+- Gooey refresh jitter: the gooey style no longer sits on the native `.refreshable` control.
+  Beginning that control at the list's rest offset shifted the whole page downward by the
+  control's height - the trigger jitter, worst on full-bleed pages where every image jumps.
+  The pull is read straight off the scroll geometry now: crossing the threshold fires one
+  refresh, one haptic, and the list never moves. The position is stable from pull to
+  completion, and the refresh stays repeatable.
+- Schedule: the episode-count dot under the date numbers is gone (both the paged calendar
+  and the weekday chips); it read as a stray dot.
+- Schedule: the selected date's circle is the label colour with the number in the background
+  colour - solid and readable in light and dark and under every tint, instead of an accent
+  that can sit against a number the same colour as itself.
+- Intro split-screen: the reveal no longer hands the stage to a VStack where the icon's
+  greedy frame and the full-height onboarding split the screen between them. Everything
+  lives in one ZStack now: the icon shrinks, rides up under the status bar and fades, and
+  the onboarding owns the full screen from the first frame to the last. No AnyLayout, so
+  iOS 15 through 26 run the same code.
+- Settings: the doubled arrows are gone. Navigation rows drew their own chevron beside the
+  system NavigationLink's; the custom one only shows on rows that navigate without a
+  NavigationLink (the Store button, the replay menu).
+- The About section is removed from Settings. The imprint, privacy, contributors and
+  licences pages stay reachable under the device section, and the TMDB logo and notice
+  moved into that section's footer, where the attribution still lives.
+- The backup builder: SwiftLint, the strings check and the icons check are green again, and
+  the nightly no longer pins an Xcode version the runner may not carry.
+
+### Changed
+
+- Settings redesigned, every page: a hero header opens each subpage (the page's icon in a
+  gradient tile, its name, and one line on what the page decides), each page carries its
+  own accent (players blue, sources green, library mint, and so on) that tints its section
+  headers, row tiles and background, and the whole list sits on that tinted grouped
+  background. Pages: Providers, Notifications, Player, Subtitles, Reader, Library,
+  Downloads, Storage, Modules, Store, General, Customization, Backup, Advanced network,
+  Logs, Log filters, Icon packs, Tab bar, Language and Discord. Every control, binding and
+  saved preference is untouched.
+- Settings root: the profile card is a floating gradient-ringed card, sections carry their
+  own colours, and the App section wears the release badge's red.
+- Onboarding redesigned: every page is its own lit scene (two slowly drifting pools of the
+  page's colour over the system background), the welcome's typewriter runs larger in the
+  page's colour, page turns arrive with a scale, the hero tiles are glass with a coloured
+  shadow, the checklist rows sit on ultra-thin material with an accent ring once done, and
+  the next button is a gradient capsule. The splash reveal, the typewriter engine, the
+  zoom-out sheets and the glass chrome are the Kavsoft pieces, unchanged underneath.
+- Module Store: the shelves fill from the two community catalogs - the Cufiy library
+  (https://library.cufiy.net/api/modules.json) and the xdfkenny index
+  (https://sora-modules.xdfke.me/modules.json) - fetched fresh on every load, mapped to
+  store entries, filtered to the anime and anime-bearing multi modules, and de-duplicated
+  by manifest. A source that fails (Cloudflare in front of Cufiy can challenge) reports
+  itself in a soft line while the other's shelves stay up; pull to refresh tries again.
+  The hand-set catalog URL keeps working as a third source.
+- Version 1.2.0 (128), up from 1.1.0 (127), across apps.json and every target.
+
+### Fixed (build system)
+
+- SwiftLint green again: the violations a2d832c onward had left were fixed by hand (a
+  force unwrap in the store, nested decoder types, an optional initialised `= nil`, a
+  private extension, a blank line before a brace, a multiple-closures-with-trailing-
+  closure call in the cinematic page, and a 2000 the separator rule wants written 2_000).
+- The three strings-check and icons-check failures are fixed: one mistyped catalog key,
+  and three SF Symbols (arrow.left.arrow.right.square, forward.end,
+  text.badge.checkmark) registered in iconpacks/icons.json.
+- The nightly's Xcode pin (26.3) is gone: the runner picks its newest Xcode at run time.
+  Under the old pin the same code hit three of its own errors; two are fixed at the source
+  (the HLS audio-rendition chain decomposed so no checker times out, and the ambiguous
+  literal arithmetic in PosterViewer and SettingsPickers written with typed literals), and
+  the newest-toolchain pick keeps the pin from rotting again.
+
 ## Unreleased: the restoration arc (2026-11-21)
 
 ### Fixed
