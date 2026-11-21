@@ -1912,7 +1912,7 @@ struct UsageBar: View {
         let usable = width - CGFloat(shares.count - 1) * 2
         return shares.map { share in
             (name: share.label, color: share.color,
-             width: max(4, usable * CGFloat(share.size / total)))
+             width: max(4 as CGFloat, usable * CGFloat(Double(share.size) / total)))
         }
     }
 }

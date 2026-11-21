@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// What a Test came back with, shared by the store's detail page and an installed module's.
-enum ModuleDetailOutcome {
+enum ModuleDetailOutcome: Equatable {
     case running
     case passed
     case failed(step: ModuleCheckStep, reason: String)
@@ -123,7 +123,7 @@ struct ModuleDetailSheet: View {
         .onAppear {
             // The last check's answer, shown before anything is re-run.
             if outcome == nil, let saved = moduleManager.checkResults[module.id] {
-                outcome = Self.outcome(of: saved)
+                outcome = ModuleDetailOutcome(saved)
             }
         }
     }
