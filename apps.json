@@ -31,7 +31,7 @@
           "buildVersion": "130",
           "date": "2026-11-21",
           "localizedDescription": "The Module Store is reachable again (Settings > Modules opens on a Get more sources row that opens it, the empty state carries a Store button), the Home Tour and every overlay it carried are removed, the onboarding is three screens with Light/Dark/System appearance cards applied on tap, the schedule and notifications icons grew to tab-bar size, and the Player, Downloads, Sources and Modules pages got bigger, better-placed controls.",
-          "size": 27784935,
+          "size": 27784949,
           "downloadURL": "https://github.com/xibrox/Shirox/releases/download/latest/Shirox.ipa",
           "updateDescription": "The Module Store has its door back, the broken Home Tour is gone for good, onboarding picks your look, and the Settings subpages carry properly sized controls."
         },
