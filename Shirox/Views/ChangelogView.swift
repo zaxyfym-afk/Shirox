@@ -63,6 +63,16 @@ private struct TimelineList: View {
     }
 }
 
+extension ReleaseRow {
+    /// The stored ISO date as a formatted day; an unparseable date shows as stored.
+    static func displayDate(_ iso: String) -> String {
+        if let date = try? Date(iso, strategy: .iso8601) {
+            return date.formatted(.dateTime.day().month(.wide).year())
+        }
+        return iso
+    }
+}
+
 /// One version on the timeline: the dot on the line, the version headline, the date, and
 /// the note groups. The current build's dot is filled; older ones are rings.
 private struct ReleaseRow: View {
@@ -114,7 +124,7 @@ private struct ReleaseRow: View {
                     Spacer(minLength: 0)
                 }
 
-                Text(release.date, format: .dateTime.day().month(.wide).year())
+                Text(Self.displayDate(release.date))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 

@@ -1289,7 +1289,7 @@ struct PlayerSettingsView: View {
                         .strokeBorder(Color.primary.opacity(0.10), lineWidth: 8)
                     Circle()
                         .trim(from: 0, to: watchedPercentage / 100)
-                        .strokeBorder(Color.primary.opacity(0.75), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                        .stroke(Color.primary.opacity(0.75), style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(.easeOut(duration: 0.2), value: watchedPercentage)
                     Text("common.percent \(Int(watchedPercentage))")
@@ -1755,7 +1755,7 @@ struct LibrarySettingsView: View {
                             } label: {
                                 IconView("chevron.up")
                                     .font(.caption.weight(.bold))
-                                    .foregroundStyle(index == 0 ? AnyShapeStyle(Color.tertiary) : AnyShapeStyle(Color.primary))
+                                    .foregroundStyle(index == 0 ? AnyShapeStyle(Color.secondary.opacity(0.55)) : AnyShapeStyle(Color.primary))
                                     .frame(width: 34, height: 22)
                                     .contentShape(Rectangle())
                             }
@@ -1766,7 +1766,7 @@ struct LibrarySettingsView: View {
                             } label: {
                                 IconView("chevron.down")
                                     .font(.caption.weight(.bold))
-                                    .foregroundStyle(index == orderedLanguages.count - 1 ? AnyShapeStyle(Color.tertiary) : AnyShapeStyle(Color.primary))
+                                    .foregroundStyle(index == orderedLanguages.count - 1 ? AnyShapeStyle(Color.secondary.opacity(0.55)) : AnyShapeStyle(Color.primary))
                                     .frame(width: 34, height: 22)
                                     .contentShape(Rectangle())
                             }

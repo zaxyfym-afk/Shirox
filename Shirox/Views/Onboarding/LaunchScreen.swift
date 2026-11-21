@@ -46,6 +46,14 @@ extension View {
 }
 
 #if os(iOS)
+/// The splash is a once-per-process event. The root the modifier hangs on is rebuilt when
+/// the icon pack changes, and a rebuild re-runs `onAppear` — without this gate a
+/// mid-session icon change would replay the whole launch reveal. It lives outside the
+/// generic modifier: static stored properties aren't supported on generic types.
+private final class SplashGate {
+    static var hasPresentedThisProcess = false
+}
+
 struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
     var config: LaunchConfig
     var showOnBoarding: Bool
@@ -54,10 +62,7 @@ struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
 
     @State private var addSplash = false
 
-    /// The splash is a once-per-process event. The root this modifier hangs on is rebuilt
-    /// when the icon pack changes, and a rebuild re-runs `onAppear` — without this flag a
-    /// mid-session icon change would replay the whole launch reveal.
-    private static var hasPresentedThisProcess = false
+
 
     func body(content: Content) -> some View {
         content
@@ -79,8 +84,8 @@ struct LaunchScreenModifier<OnBoarding: View>: ViewModifier {
     /// The cover goes up without an animation: it should look like the launch screen was
     /// still up, not like something arrived on top of the app.
     private func presentSplash() {
-        guard !Self.hasPresentedThisProcess else { return }
-        Self.hasPresentedThisProcess = true
+        guard !SplashGate.hasPresentedThisProcess else { return }
+        SplashGate.hasPresentedThisProcess = true
         DispatchQueue.main.async {
             var transaction = Transaction()
             transaction.disablesAnimations = true

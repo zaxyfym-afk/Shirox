@@ -169,9 +169,9 @@ struct GeneralSettingsView: View {
 
     /// One pull-style preview tile: the glyph, the name, the picked one outlined and filled.
     private func refreshTile(_ style: PullToRefreshStyle, symbol: String) -> some View {
-        let isSelected = refreshStyle == style.rawValue
+        let isSelected = refreshStyle == style
         return Button {
-            refreshStyle = style.rawValue
+            refreshStyle = style
         } label: {
             VStack(spacing: 6) {
                 IconView(symbol)
