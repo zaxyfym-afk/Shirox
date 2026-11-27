@@ -29,9 +29,9 @@
         {
           "version": "1.5.0",
           "buildVersion": "131",
-          "date": "2026-11-26",
+          "date": "2026-11-27",
           "localizedDescription": "The real Kavsoft appearance picker — the animated day-and-night sky — leads both onboarding and Customization, onboarding gained a Kavsoft notification-permission step and an AniList/MAL connection screen with a recommendation when only one is connected, the duplicate onboarding back arrow is gone, Sources & Integrations folded into Sources, the Module Store Test button runs a real check (a manifest check before install, the full search-episodes-streams pipeline after), signed-out Notifications shows a purpose-built connection screen, notification anime taps resolve AniList and MAL ids correctly, the Search source selector is a tile picker with anime sources only, Downloads and Notifications settings were rebuilt around their jobs, Customize Tabs grew a live bar preview, and every raw localization key found was fixed.",
-          "size": 28007435,
+          "size": 28007425,
           "downloadURL": "https://github.com/xibrox/Shirox/releases/download/latest/Shirox.ipa",
           "updateDescription": "The Kavsoft appearance picker in onboarding and Settings, notification permission onboarding, a fixed Store Test button, a signed-out Notifications connection screen, and no raw localization keys anywhere."
         },
